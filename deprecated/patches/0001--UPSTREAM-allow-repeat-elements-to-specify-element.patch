@@ -1,0 +1,27 @@
+From 686c0286ae69896b3725dcdeefc232a56f6dc487 Mon Sep 17 00:00:00 2001
+From: Penny Leach <penny@mjollnir.org>
+Date: Wed, 15 Apr 2009 11:11:47 +0200
+Subject: [PATCH] [UPSTREAM]  allow repeat-elements to specify element templates in their options.
+
+---
+ lib/formslib.php |    4 ++++
+ 1 files changed, 4 insertions(+), 0 deletions(-)
+
+diff --git a/lib/formslib.php b/lib/formslib.php
+index 43c2619..df5b35b 100644
+--- a/lib/formslib.php
++++ b/lib/formslib.php
+@@ -612,6 +612,10 @@ class moodleform {
+                             $params = array_merge(array($realelementname), $params);
+                             call_user_func_array(array(&$mform, 'addRule'), $params);
+                             break;
++                        case 'template':
++                            $renderer =& $mform->defaultRenderer();
++                            $renderer->setElementTemplate($params, $realelementname);
++                            break;
+ 
+                     }
+                 }
+-- 
+1.6.2.1
+

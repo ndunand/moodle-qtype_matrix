@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="question/type/matrix/db" VERSION="20090313" COMMENT="XMLDB file for Moodle question/type/matrix"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../../../lib/xmldb/xmldb.xsd"
+>
+  <TABLES>
+    <TABLE NAME="question_matrix" COMMENT="Contains info about matrix questions" NEXT="question_matrix_cols">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" ENUM="false" NEXT="questionid"/>
+        <FIELD NAME="questionid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" ENUM="false" COMMENT="FK to question table" PREVIOUS="id" NEXT="grademethod"/>
+        <FIELD NAME="grademethod" TYPE="text" LENGTH="small" NOTNULL="true" SEQUENCE="false" ENUM="false" COMMENT="what the grading method is for this question.  Should match a constant in phpcode, QTYPE_MATRIX_GRADING_*" PREVIOUS="questionid" NEXT="multiple"/>
+        <FIELD NAME="multiple" TYPE="int" LENGTH="1" NOTNULL="true" UNSIGNED="true" DEFAULT="1" SEQUENCE="false" ENUM="false" COMMENT="whether this question is allowed multiple choice (eg checkboxes rather than radio buttons)" PREVIOUS="grademethod" NEXT="renderer"/>
+        <FIELD NAME="renderer" TYPE="text" LENGTH="small" NOTNULL="true" SEQUENCE="false" ENUM="false" COMMENT="the type of renderer to use to draw the student ui (eg, could be drag and drop later, but is 'matrix' for now).  should match a class: qtype_matrix_renderer_{$value}" PREVIOUS="multiple"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="questionidfk"/>
+        <KEY NAME="questionidfk" TYPE="foreign" FIELDS="questionid" REFTABLE="question" REFFIELDS="id" COMMENT="fk to question table" PREVIOUS="primary"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="question_matrix_cols" COMMENT="Column definitions for the question matrix" PREVIOUS="question_matrix" NEXT="question_matrix_rows">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" ENUM="false" NEXT="matrixid"/>
+        <FIELD NAME="matrixid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" ENUM="false" COMMENT="fk to question_matrix table" PREVIOUS="id" NEXT="shorttext"/>
+        <FIELD NAME="shorttext" TYPE="text" LENGTH="small" NOTNULL="true" SEQUENCE="false" ENUM="false" COMMENT="short word to fit in the matrix" PREVIOUS="matrixid" NEXT="description"/>
+        <FIELD NAME="description" TYPE="text" LENGTH="big" NOTNULL="false" SEQUENCE="false" ENUM="false" COMMENT="longer text to explain shorttext." PREVIOUS="shorttext"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="matrixidfk"/>
+        <KEY NAME="matrixidfk" TYPE="foreign" FIELDS="matrixid" REFTABLE="question_matrix" REFFIELDS="id" COMMENT="fk to question_matrix table." PREVIOUS="primary"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="question_matrix_rows" COMMENT="Row definitions for the question matrix" PREVIOUS="question_matrix_cols" NEXT="question_matrix_weights">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" ENUM="false" NEXT="matrixid"/>
+        <FIELD NAME="matrixid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" ENUM="false" COMMENT="fk to question_matrix table" PREVIOUS="id" NEXT="shorttext"/>
+        <FIELD NAME="shorttext" TYPE="text" LENGTH="small" NOTNULL="true" SEQUENCE="false" ENUM="false" COMMENT="short word to fit in the matrix" PREVIOUS="matrixid" NEXT="description"/>
+        <FIELD NAME="description" TYPE="text" LENGTH="big" NOTNULL="false" SEQUENCE="false" ENUM="false" COMMENT="longer text to explain shorttext." PREVIOUS="shorttext" NEXT="feedback"/>
+        <FIELD NAME="feedback" TYPE="text" LENGTH="big" NOTNULL="false" SEQUENCE="false" ENUM="false" COMMENT="feedback." PREVIOUS="description"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="matrixidfk"/>
+        <KEY NAME="matrixidfk" TYPE="foreign" FIELDS="matrixid" REFTABLE="question_matrix" REFFIELDS="id" COMMENT="fk to question_matrix table." PREVIOUS="primary"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="question_matrix_weights" COMMENT="weightings for the cells if necessary." PREVIOUS="question_matrix_rows">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" ENUM="false" NEXT="rowid"/>
+        <FIELD NAME="rowid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" ENUM="false" COMMENT="fk to question_matrix_rows" PREVIOUS="id" NEXT="colid"/>
+        <FIELD NAME="colid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" ENUM="false" COMMENT="fk to question_matrix_cols" PREVIOUS="rowid" NEXT="weight"/>
+        <FIELD NAME="weight" TYPE="float" LENGTH="4" NOTNULL="true" UNSIGNED="false" DEFAULT="0" SEQUENCE="false" ENUM="false" DECIMALS="3" COMMENT="percentage weighting for this cell." PREVIOUS="colid"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="rowidfk"/>
+        <KEY NAME="rowidfk" TYPE="foreign" FIELDS="rowid" REFTABLE="question_matrix_rows" REFFIELDS="id" COMMENT="fk to question_matrix_rows" PREVIOUS="primary" NEXT="colidfk"/>
+        <KEY NAME="colidfk" TYPE="foreign" FIELDS="colid" REFTABLE="question_matrix_cols" REFFIELDS="id" COMMENT="fk to question_matrix_cols" PREVIOUS="rowidfk"/>
+      </KEYS>
+    </TABLE>
+  </TABLES>
+</XMLDB>

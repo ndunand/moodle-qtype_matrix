@@ -1,0 +1,243 @@
+.que.matrix table{
+    display:inline-table;
+}
+
+.que.matrix,
+.que.matrix td,
+.que.matrix th{    
+    border-style:none;
+    border-bottom-style:solid;
+    border-width: 1px;
+    border-color: #848484;
+}
+
+.que.matrix th{    
+    border-width: 3px;
+}
+
+.que.matrix td,
+.que.matrix th
+{
+    text-align:left;
+    padding: 5px;
+    padding-left:5px;
+    padding-right:5px;
+    min-width: 50px;
+}
+
+.que.matrix .r0{    
+    background-color: transparent;
+}
+
+.que.matrix .lastcol p{
+    display: inline;
+    margin:0px;
+    margin-left: 5px;
+}
+
+/*tooltip*/
+
+.que.matrix th, 
+.que.matrix td{
+    position: relative;
+}
+
+.que.matrix th .description p, 
+.que.matrix td .description p{
+    margin:0px;
+}
+
+.que.matrix th .description,
+.que.matrix td .description {
+    display:none;
+    position: fixed !important;
+
+    background-color: #EEEEEE;
+    border: 1px solid #848484;
+
+    font-weight: normal;
+}
+
+.que.matrix th .description{
+    padding: 8px;
+    margin-top: 6px;
+}
+
+.que.matrix td .description {
+    padding: 8px;
+    margin-left: 8px;
+    margin-top: -8px;
+}
+
+.que.matrix th:hover .description
+{
+    display:block !important;
+    z-index: 10000 !important;
+}
+
+.que.matrix td:hover .description 
+{
+    display:inline-block !important;
+    z-index: 10000 !important;
+}
+
+/** edit matrix **/
+
+.mform fieldset {
+    overflow: visible !important;
+}
+
+#page-content .region-content{
+    overflow: visible !important;
+}
+
+#page-content #region-main {
+    overflow: visible !important;
+}
+#page-content {
+    overflow: visible !important;
+}
+
+#matrixheader .fitemtitle{
+    display: none;
+}
+
+#matrixheader .fitem .felement{
+    margin-left:0;
+}
+
+.quedit.matrix th{    
+    border-style:none;
+    border-bottom-style:solid;
+    border-width: 3px;
+    border-color: #848484;
+}
+
+.quedit.matrix > tbody > tr > td,
+.quedit.matrix > thead > tr > th{
+    padding:5px;
+    padding-left:15px;
+    min-width: 180px;
+    text-align: left;
+}
+
+.quedit.matrix input,
+.quedit.matrix select{
+    margin-left: 0px;
+    margin-right: 0px;
+}
+
+.quedit.matrix .pbutton {
+    padding:2px;
+    border: 1px solid #DEDEDE;
+    border-left-style:none;
+    background-color: #F5F5F5;
+    color: #000000;
+    font-weight: normal;
+    cursor:default;
+    min-width: 12px;
+    text-align: center;
+}
+
+.quedit.matrix .feedback .pbutton{ 
+    border-left-style:solid;
+}
+
+.quedit.matrix .pbutton:active {
+    background-color: #848484;
+    color: #00000;
+}
+
+.quedit.matrix .popup{
+    display:block;
+    display:none;
+    position: absolute !important;
+    background-color:#FFFFFF;   
+/*    border: 0px solid #848484;
+    border-radius: 0px;*/
+    padding:0px;
+    margin-left:0px;
+}
+
+.quedit.matrix .popup .title{ 
+    display: block;
+    text-align: left;
+    font-weight: bold;
+    margin-top:0px;
+    padding-right: 8px;
+    padding-left: 8px;
+    padding-bottom:8px;
+    padding-top:6px;
+    margin-bottom: 0px;
+    border-color: #BBBBBB;
+    border-width: 1px;
+    border-style: solid;
+    border-bottom-style:none;
+}
+
+
+.button {
+    border-style: solid;
+    border-width: 1px;
+    padding:2px;
+}
+
+.button:active {
+    background-color: #848484;
+    color: #00000;
+}
+
+.quedit.matrix .popup .pbutton.close{ 
+    float:right;
+    color: #000000;
+    border-left-style:solid;
+    min-width: 16px;
+    margin:3px;
+}
+
+#id_refresh_matrix{ 
+    background-image: url([[pix:a/refresh]]);
+    background-repeat: no-repeat;
+    background-position: 1px center;
+    padding-left:20px;
+}
+
+.path-question-type #id_submitbutton{ 
+    background-image: url([[pix:qtype_matrix|save]]);
+    background-repeat: no-repeat;
+    background-position: 1px center;
+    padding-left:20px;
+}
+
+.path-question-type #id_makecopy{ 
+    background-image: url([[pix:qtype_matrix|copy]]);
+    background-repeat: no-repeat;
+    background-position: 1px center;
+    padding-left:20px;
+}
+
+.path-question-type #id_cancel{ 
+    background-image: url([[pix:qtype_matrix|cancel]]);
+    background-repeat: no-repeat;
+    background-position: 1px center;
+    padding-left:20px;
+}
+
+.pbutton.close{ 
+    background-image: url([[pix:qtype_matrix|close]]);
+    background-repeat: no-repeat;
+    background-position: center center;
+    vertical-align: super;
+    width: 20px;
+    height: 20px;
+    color:transparent;
+}
+
+
+.button.add{
+    background-image: url([[pix:qtype_matrix|add]]);
+    background-repeat: no-repeat;
+    background-position: center center;
+    display:inline-block;
+    min-width:25px;
+}

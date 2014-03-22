@@ -1,0 +1,34 @@
+From 5a5bd930965b6761bb367861215ba693fb59a2ee Mon Sep 17 00:00:00 2001
+From: Penny Leach <penny@mjollnir.org>
+Date: Fri, 6 Mar 2009 10:29:06 +0100
+Subject: [PATCH] Horrible patch to formslib to allow matrix templating properly MDL-18400
+
+---
+ lib/pear/HTML/QuickForm/Renderer/Tableless.php |   10 +++++++++-
+ 1 files changed, 9 insertions(+), 1 deletions(-)
+
+diff --git a/lib/pear/HTML/QuickForm/Renderer/Tableless.php b/lib/pear/HTML/QuickForm/Renderer/Tableless.php
+index fb5196f..1d06e94 100644
+--- a/lib/pear/HTML/QuickForm/Renderer/Tableless.php
++++ b/lib/pear/HTML/QuickForm/Renderer/Tableless.php
+@@ -194,8 +194,16 @@ class HTML_QuickForm_Renderer_Tableless extends HTML_QuickForm_Renderer_Default
+                                              1);
+             }
+             $this->_html .= str_replace('{element}', $element_html, $html);
++
+         } elseif (!empty($this->_groupElementTemplate)) {
+-            $html = str_replace('{label}', $element->getLabel(), $this->_groupElementTemplate);
++            $template = $this->_groupElementTemplate;
++            // allow it to be overridden with an element template.
++            if (isset($this->_templates[$element->getName()])) {
++                $template = $this->_templates[$element->getName()];
++                $html = $this->_prepareTemplate($element->getName(), $element->getLabel(), $required, $error);
++            } else {
++                $html = str_replace('{label}', $element->getLabel(), $template);
++            }
+             if ($required) {
+                 $html = str_replace('<!-- BEGIN required -->', '', $html);
+                 $html = str_replace('<!-- END required -->', '', $html);
+-- 
+1.6.1.3
+
