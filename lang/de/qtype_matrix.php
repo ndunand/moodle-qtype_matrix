@@ -32,9 +32,9 @@ $string['true'] = 'True';
 $string['false'] = 'False';
 
 //form
-$string['multipleallowed'] = 'Multiple responses allowed';
+$string['multipleallowed'] = 'Mehrere Antworten erlauben?';
 
-$string['grademethod'] = 'Grading method';
+$string['grademethod'] = 'Bewertung';
 $string['grademethod_help'] = '<p>There are a few options for the grading method for matrix question types:</p>
 <p>Each of these, but Kprime, relate to how each <b>row</b> is graded, with the total grade for the question being the average of all the rows. Kprime requires that all rows must be correct to get the point. If it is not the case the studend receives 0.</p>
 <table>
@@ -52,7 +52,7 @@ $string['rowsheader_desc'] = '<p>Shorttext will be used when it\'s present, with
 <p>Students can select multiple or single columns per row, depending on how the question has been configured, and each row receives a grade, defined by one of the grading methods.</p>
 <p>The final grade for the question is an average of their grades for each of the rows with the exeption of the Kprime type where all answers have to be correct.</p>';
 
-$string['rowshort'] = 'Title';
+$string['rowshort'] = 'Teilaussage';
 $string['rowlong'] = 'Description';
 $string['rowfeedback'] = 'Feedback';
 
@@ -63,15 +63,15 @@ $string['colsheader_desc'] = '<p>Shorttext will be used when it\'s present, with
 <p>Students can select multiple or single columns per row, depending on how the question has been configured, and each row receives a grade, defined by one of the grading methods.</p>
 <p>The final grade for the question is an average of their grades for each of the rows with the exeption of the Kprime type where all answers have to be correct.</p>';
 
-$string['colshort'] = 'Title';
+$string['colshort'] = 'Antwort';
 $string['collong'] = 'Description';
 
 //$string['addmorecols'] = 'Add {$a} more columns';
 
-$string['refresh_matrix'] = 'Refresh matrix';
+$string['refresh_matrix'] = 'Antwortmatrix neu laden';
 
 //$string['updatematrix'] = 'Update matrix to reflect new options';
-$string['matrixheader'] = 'Grading matrix';
+$string['matrixheader'] = 'Antwortmatrix';
 
 $string['mustdefine1by1'] = 'You must define at least a 1 x 1 matrix; with either short or long answer defined for each row and column';
 $string['mustaddupto100'] = 'The sum of all non negative weights in each row must be 100%';
