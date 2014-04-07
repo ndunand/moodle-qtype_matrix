@@ -69,3 +69,7 @@ $string['mustdefine1by1'] = 'You must define at least a 1 x 1 matrix; with eithe
 $string['mustaddupto100'] = 'The sum of all non negative weights in each row must be 100%';
 $string['weightednomultiple'] = 'It doesn\'t make sense to choose weighted grading with multiple answers not allowed';
 $string['oneanswerperrow'] = 'You must provide an answer for each row';
+
+$string['shuffleanswers'] = 'Teilaussagen mischen?';
+$string['shuffleanswers_help'] = 'Wenn aktiviert ist die Reihenfolge der Teilaussagen bei jedem Versuch zufällig, sofern die Option „In Fragen zufällig mischen“ aktiviert ist.';
+

@@ -35,6 +35,13 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
 
         $this->add_multiple();
         $this->add_grading();
+
+        
+        $mform->addElement('advcheckbox', 'shuffleanswers',
+                get_string('shuffleanswers', 'qtype_matrix'), null, null, array(0, 1));
+        $mform->addHelpButton('shuffleanswers', 'shuffleanswers', 'qtype_matrix');
+        //$mform->setDefault('shuffleanswers', 1);
+        
     }
 
     /**

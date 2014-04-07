@@ -157,6 +157,7 @@ class qtype_matrix extends question_type
             $question->options->cols = $matrix->cols;
             $question->options->weights = $matrix->weights;
             $question->options->grademethod = $matrix->grademethod;
+            $question->options->shuffleanswers = isset($matrix->shuffleanswers)?$matrix->shuffleanswers:true; // allow for old versions which don't have this field
             $question->options->multiple = $matrix->multiple;
             $question->options->renderer = $matrix->renderer;
         }
@@ -166,6 +167,7 @@ class qtype_matrix extends question_type
             $question->options->cols = array();
             $question->options->weights = array(array());
             $question->options->grademethod = self::defaut_grading()->get_name();
+            $question->otions->shuffleanswers = true;
             $question->options->multiple = true;
         }
         return true;
@@ -248,6 +250,7 @@ class qtype_matrix extends question_type
         $question->cols = $questiondata->options->cols;
         $question->weights = $questiondata->options->weights;
         $question->grademethod = $questiondata->options->grademethod;
+        $question->shuffleanswers = $questiondata->options->shuffleanswers;
         $question->multiple = $questiondata->options->multiple;
     }
 
@@ -275,6 +278,7 @@ class qtype_matrix extends question_type
                     'questionid' => $question->id,
                     'multiple' => $question->multiple,
                     'grademethod' => $question->grademethod,
+        			'shuffleanswers' => $question->shuffleanswers,
                     'renderer' => 'matrix'
         );
 
