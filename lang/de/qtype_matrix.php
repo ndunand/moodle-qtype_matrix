@@ -15,12 +15,6 @@ $string['pluginnamesummary'] = 'In Matrix-Fragen müssen verschiedene Aussagen z
 $string['pluginnameadding'] = 'Matrix/Kprim-Frage hinzufügen';
 $string['pluginnameediting'] = 'Matrix/Kprim-Frage bearbeiten';
 
-// qtype strings
-$string['addingmatrix'] = 'Adding Matrix';
-$string['editingmatrix'] = 'Editing Matrix';
-$string['matrix'] = 'Matrix';
-$string['matrixsummary'] = 'Matrix question type';
-
 $string['pluginname_help'] = '<p>Matrix-Fragen bestehen aus einem Item-Stamm, z.B. eine Frage oder eine unvollständige Aussage, und mehreren zugehörigen Teilaussagen, z.B. korrespondierende Antworten und Vervollständigungen. Die Kandidaten müssen diese Teilaussagen als „richtig“ oder „falsch“ bewerten. Es können eigene oder zusätzliche Bewertungskategorien definiert werden. 
 Kprim-Fragen bestehen aus einem Item-Stamm und vier zugehörigen Teilaussagen. Jede Teilaussage muss als „richtig“ oder „falsch“ bewertet werden.
 </p>';

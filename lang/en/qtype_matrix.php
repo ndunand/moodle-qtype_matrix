@@ -16,11 +16,6 @@ $string['pluginnamesummary'] = 'In matrix questions various statements regarding
 $string['pluginnameadding'] = 'Adding a Matrix/Kprime question';
 $string['pluginnameediting'] = 'Editing a Matrix/Kprime question';
 
-$string['addingmatrix'] = 'Adding Matrix';
-$string['editingmatrix'] = 'Editing Matrix';
-$string['matrix'] = 'Matrix';
-$string['matrixsummary'] = 'Matrix question type';
-
 $string['pluginname_help'] = '<p>Matrix questions consist of an item stem such as a question or incomplete statement, and multiple answer statements, such as corresponding answers or completions. Students rate these statements as “true” or “false”. Alternatively, custom ratings for the answer statements may be defined.
 Kprime questions consist of an item stem and four corresponding answer statements. For each answer statement students have to decide whether it is right or wrong.</p>';
 $string['pluginname_link'] = 'question/type/matrix';
