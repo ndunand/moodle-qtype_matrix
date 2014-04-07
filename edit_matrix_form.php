@@ -355,10 +355,11 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
             $this[] = $matrix_group;
         }
 
-        if ($cols_count > 1)
+        if ($cols_count > 1 && (empty($this->question->id) || empty($this->question->options->rows)))
         {
             $this->set_default('colshort[0]', qtype_matrix::get_string('true'));
             $this->set_default('colshort[1]', qtype_matrix::get_string('false'));
+        	
         }
     }
 

@@ -26,8 +26,8 @@ $string['kany'] = 'Kprim';
 $string['kprime'] = "Kprim1/0";
 
 //strings
-$string['true'] = 'True';
-$string['false'] = 'False';
+$string['true'] = 'Richtig';
+$string['false'] = 'Falsch';
 
 //form
 $string['multipleallowed'] = 'Mehrere Antworten erlauben?';
