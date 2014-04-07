@@ -21,11 +21,9 @@ Kprim-Fragen bestehen aus einem Item-Stamm und vier zugehörigen Teilaussagen. J
 $string['pluginname_link'] = 'question/type/matrix';
 
 //gradings
-$string['all'] = 'All';
-$string['any'] = 'Any';
-$string['kprime'] = "K'";
-$string['none'] = 'None';
-$string['weighted'] = 'Weighted';
+$string['all'] = 'Teilpunkte';
+$string['kany'] = 'Kprim';
+$string['kprime'] = "Kprim1/0";
 
 //strings
 $string['true'] = 'True';
@@ -35,15 +33,9 @@ $string['false'] = 'False';
 $string['multipleallowed'] = 'Mehrere Antworten erlauben?';
 
 $string['grademethod'] = 'Bewertung';
-$string['grademethod_help'] = '<p>There are a few options for the grading method for matrix question types:</p>
-<p>Each of these, but Kprime, relate to how each <b>row</b> is graded, with the total grade for the question being the average of all the rows. Kprime requires that all rows must be correct to get the point. If it is not the case the studend receives 0.</p>
-<table>
-  <tr><td><b>Kprime</b></td><td>The student must choose all correct answers, and none of the wrong ones, to get 100%, else 0%. Including rows. If one row is wrong then the mark for the question is 0.</td></tr>
-  <tr><td><b>Any correct, and none wrong</b></td><td>The student must choose at least one of the correct answers, and none of the wrong ones, to get 100%, else 0%</td></tr>
-  <tr><td><b>All correct, and none wrong</b></td><td>The student must choose exactly all of the correct answers, and none of the wrong ones, to get 100%, else 0%</td></tr>
-  <tr><td><b>No grading</b></td><td>There is no grading used for this question (use this for Likert Scales for example)</td></tr>
-  <tr><td><b>Weighted grading</b></td><td>Each cell receives a weighting, and the positive values for each row must add up to 100%</td></tr>
-</table>';
+$string['grademethod_help'] = '<ul><li><b>Kprim</b>: Bei der Auswahl „Kprim“ erhalten Kandidaten einen Punkt, wenn alle Teilaussagen richtig bewertet wurden, einen halben Punkt, wenn drei von vier richtig bewertet wurden und null Punkte sonst.
+<li><b>Kprime1/0</b>: Bei der Auswahl „Kprim“ erhalten Kandidaten einen Punkt, wenn alle Teilaussagen richtig bewertet wurden und null Punkte sonst.
+<li><b>Teilpunkte</b>: Bei der Auswahl „Teilpunkte“ erhalten Kandidaten Teilpunkte für jede richtige Bewertung. </ul>';
 
 //$string['renderer'] = 'Renderer';
 

@@ -21,11 +21,9 @@ Kprime questions consist of an item stem and four corresponding answer statement
 $string['pluginname_link'] = 'question/type/matrix';
 
 //gradings
-$string['all'] = 'All';
-$string['any'] = 'Any';
-$string['kprime'] = "K'";
-$string['none'] = 'None';
-$string['weighted'] = 'Weighted';
+$string['all'] = 'Subpoints';
+$string['kany'] = 'Kprime';
+$string['kprime'] = "Kprime1/0";
 
 //strings
 $string['true'] = 'True';
@@ -35,15 +33,10 @@ $string['false'] = 'False';
 $string['multipleallowed'] = 'Allow multiple responses?';
 
 $string['grademethod'] = 'Scoring method';
-$string['grademethod_help'] = '<p>There are a few options for the grading method for matrix question types:</p>
-<p>Each of these, but Kprime, relate to how each <b>row</b> is graded, with the total grade for the question being the average of all the rows. Kprime requires that all rows must be correct to get the point. If it is not the case the studend receives 0.</p>
-<table>
-  <tr><td><b>Kprime</b></td><td>The student must choose all correct answers, and none of the wrong ones, to get 100%, else 0%. Including rows. If one row is wrong then the mark for the question is 0.</td></tr>
-  <tr><td><b>Any correct, and none wrong</b></td><td>The student must choose at least one of the correct answers, and none of the wrong ones, to get 100%, else 0%</td></tr>
-  <tr><td><b>All correct, and none wrong</b></td><td>The student must choose exactly all of the correct answers, and none of the wrong ones, to get 100%, else 0%</td></tr>
-  <tr><td><b>No grading</b></td><td>There is no grading used for this question (use this for Likert Scales for example)</td></tr>
-  <tr><td><b>Weighted grading</b></td><td>Each cell receives a weighting, and the positive values for each row must add up to 100%</td></tr>
-</table>';
+$string['grademethod_help'] = '<ul><li><b>Kprime</b>: The student receives one point, if all responses are correct, half a point if three responses are correct, and zero points otherwise.
+<li><b>Kprime1/0</b>: The student receives one point, if all responses are correct, and  zero points otherwise.
+
+<li><b>Subpoints</b>: The student is awarded subpoints for each correct response.</ul>';
 
 //$string['renderer'] = 'Renderer';
 

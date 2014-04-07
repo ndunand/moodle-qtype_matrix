@@ -10,10 +10,10 @@
  * @license GNU General Public License - http://www.gnu.org/copyleft/gpl.html
  * @author Laurent Opprecht
  */
-class qtype_matrix_grading_any extends qtype_matrix_grading
+class qtype_matrix_grading_kany extends qtype_matrix_grading
 {
 
-    const TYPE = 'any';
+    const TYPE = 'kany';
 
     public static function get_name()
     {
@@ -28,7 +28,7 @@ class qtype_matrix_grading_any extends qtype_matrix_grading
     /**
      * Factory 
      * 
-     * @return qtype_matrix_grading_any
+     * @return qtype_matrix_grading_kany
      */
     public static function create($type)
     {

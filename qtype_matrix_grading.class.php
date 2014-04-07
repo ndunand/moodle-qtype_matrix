@@ -38,7 +38,7 @@ abstract class qtype_matrix_grading
 
     public static function default_grading()
     {
-        return self::create('kprime');
+        return self::create('kany');
     }
 
     /**
