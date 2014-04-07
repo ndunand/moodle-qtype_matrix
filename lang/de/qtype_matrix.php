@@ -9,20 +9,21 @@
  * @subpackage  matrix
  */
 
+
+$string['pluginname'] = 'Matrix/Kprim';
+$string['pluginnamesummary'] = 'In Matrix-Fragen müssen verschiedene Aussagen zu einem gemeinsamen Thema bewertet werden. In Kprim-Fragen müssen dabei genau vier Aussagen als „richtig“ oder „falsch“ bewertet werden.';
+$string['pluginnameadding'] = 'Matrix/Kprim-Frage hinzufügen';
+$string['pluginnameediting'] = 'Matrix/Kprim-Frage bearbeiten';
+
 // qtype strings
-
-$string['pluginname'] = 'Matrix/Kprime';
-$string['pluginnamesummary'] = 'In matrix questions various statements regarding a common subject have to be rated correctly. In Kprime questions exactly four such statements have to be correctly rated as “true” or “false”.';
-$string['pluginnameadding'] = 'Adding a Matrix/Kprime question';
-$string['pluginnameediting'] = 'Editing a Matrix/Kprime question';
-
 $string['addingmatrix'] = 'Adding Matrix';
 $string['editingmatrix'] = 'Editing Matrix';
 $string['matrix'] = 'Matrix';
 $string['matrixsummary'] = 'Matrix question type';
 
-$string['pluginname_help'] = '<p>Matrix questions consist of an item stem such as a question or incomplete statement, and multiple answer statements, such as corresponding answers or completions. Students rate these statements as “true” or “false”. Alternatively, custom ratings for the answer statements may be defined.
-Kprime questions consist of an item stem and four corresponding answer statements. For each answer statement students have to decide whether it is right or wrong.</p>';
+$string['pluginname_help'] = '<p>Matrix-Fragen bestehen aus einem Item-Stamm, z.B. eine Frage oder eine unvollständige Aussage, und mehreren zugehörigen Teilaussagen, z.B. korrespondierende Antworten und Vervollständigungen. Die Kandidaten müssen diese Teilaussagen als „richtig“ oder „falsch“ bewerten. Es können eigene oder zusätzliche Bewertungskategorien definiert werden. 
+Kprim-Fragen bestehen aus einem Item-Stamm und vier zugehörigen Teilaussagen. Jede Teilaussage muss als „richtig“ oder „falsch“ bewertet werden.
+</p>';
 $string['pluginname_link'] = 'question/type/matrix';
 
 //gradings
