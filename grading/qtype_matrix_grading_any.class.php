@@ -30,7 +30,7 @@ class qtype_matrix_grading_any extends qtype_matrix_grading
      * 
      * @return qtype_matrix_grading_any
      */
-    public static function create()
+    public static function create($type)
     {
         static $result = false;
         if ($result)
