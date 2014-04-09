@@ -40,6 +40,28 @@ class qtype_matrix_grading_kany extends qtype_matrix_grading
         return $result = new self();
     }
 
+    
+    public function grade_question($question, $answers)
+    {
+    	$numberOfCorrectRows = 0;
+        foreach ($question->rows as $row)
+        {
+            $grade = $this->grade_row($question, $row, $answers);
+            if ($grade >= 1)
+            {
+                $numberOfCorrectRows++;
+            }
+        }
+        switch($numberOfCorrectRows)
+        {	
+        	case 4:
+        		return 1;
+        	case 3:
+        		return 0.5;
+        }
+        return 0;
+    }
+    
     /**
      * Grade a specific row
      * 
