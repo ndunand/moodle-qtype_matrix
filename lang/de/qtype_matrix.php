@@ -35,7 +35,7 @@ $string['multipleallowed'] = 'Mehrere Antworten erlauben?';
 $string['grademethod'] = 'Bewertung';
 $string['grademethod_help'] = '<ul><li><b>Kprim</b>: Bei der Auswahl „Kprim“ erhalten Kandidaten einen Punkt, wenn alle Teilaussagen richtig bewertet wurden, einen halben Punkt, wenn drei von vier richtig bewertet wurden und null Punkte sonst.
 <li><b>Kprime1/0</b>: Bei der Auswahl „Kprim“ erhalten Kandidaten einen Punkt, wenn alle Teilaussagen richtig bewertet wurden und null Punkte sonst.
-<li><b>Teilpunkte</b>: Bei der Auswahl „Teilpunkte“ erhalten Kandidaten Teilpunkte für jede richtige Bewertung. </ul>';
+<li><b>Teilpunkte</b>: Bei der Auswahl „Teilpunkte“ erhalten Kandidaten Teilpunkte für jede richtige Bewertung. </ul><p>Die Auswahl „Kprim“ bzw. „Kprim1/0“ steht nur zur Verfügung, wenn die Antwortmatrix aus genau vier Teilaussagen und zwei Antwortkategorien besteht und mehrere Antworten nicht erlaubt sind.';
 
 //$string['renderer'] = 'Renderer';
 
