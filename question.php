@@ -137,10 +137,13 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      */
     function start_attempt(question_attempt_step $step, $variant)
     {
-        $this->order = array_keys($this->cols);
-        if ($this->shuffleanswers) {
-            shuffle($this->order);
-        }  
+    	global $DB, $PAGE;
+    	$this->order = array_keys($this->cols);
+    	$cm = $PAGE->cm;
+    	$quiz = $DB->get_record('quiz', array('id' => $cm->instance));
+		if (!(($quiz != false && $quiz->shuffleanswers == false) || $this->shuffleanswers == false)) {
+			shuffle($this->order);
+		}  
         $step->set_qt_var('_order', implode(',', $this->order));
     }
 
