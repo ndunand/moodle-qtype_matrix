@@ -367,6 +367,7 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
             $this->set_default('colshort[1]', qtype_matrix::get_string('false'));
         	
         }
+        $this->_form->setExpanded('matrixheader');
     }
 
     public function get_javascript()
