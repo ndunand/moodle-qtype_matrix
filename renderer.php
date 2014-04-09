@@ -36,9 +36,12 @@ class qtype_matrix_renderer extends qtype_with_combined_feedback_renderer
 
         $table->head = array();
         $table->head[] = '';
-        foreach ($question->cols as $col)
-        {
-            $table->head[] = self::matrix_header($col);
+        
+        $order = $question->get_order($qa);
+        
+        foreach ($order as $columnid) {
+        	$col = $question->cols[$columnid];
+        	$table->head[] = self::matrix_header($col);
         }
 
         if ($options->correctness)
@@ -50,8 +53,8 @@ class qtype_matrix_renderer extends qtype_with_combined_feedback_renderer
         {
             $row_data = array();
             $row_data[] = self::matrix_header($row);
-            foreach ($question->cols as $col)
-            {
+            foreach ($order as $columnid) {
+        		$col = $question->cols[$columnid];
                 $key = $question->key($row, $col);
                 $cell_name = $qa->get_field_prefix() . $key;
 

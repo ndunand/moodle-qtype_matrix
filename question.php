@@ -22,6 +22,8 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
     public $weights;
     public $grademethod;
     public $multiple;
+    public $shuffleanswers;
+    protected $order = null;
 
     /**
      *
@@ -135,7 +137,11 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      */
     function start_attempt(question_attempt_step $step, $variant)
     {
-        ; //nothing todo
+        $this->order = array_keys($this->cols);
+        if ($this->shuffleanswers) {
+            shuffle($this->order);
+        }  
+        $step->set_qt_var('_order', implode(',', $this->order));
     }
 
     /**
@@ -153,9 +159,23 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      */
     function apply_attempt_state(question_attempt_step $step)
     {
-        ; //nothing todo
+		$this->order = explode(',', $step->get_qt_var('_order'));
     }
 
+    
+    public function get_order(question_attempt $qa) {
+        $this->init_order($qa);
+        return $this->order;
+    }
+  
+    protected function init_order(question_attempt $qa) {
+        if (is_null($this->order)) {
+            $this->order = explode(',', $qa->get_step(0)->get_qt_var('_order'));
+        }
+    }
+    
+    
+    
     /**
      * Work out a final grade for this attempt, taking into account all the
      * tries the student made.
@@ -228,8 +248,9 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
         foreach ($this->rows as $row)
         {
             $col_index = 0;
-            foreach ($this->cols as $col)
+            foreach ($this->order as $columnid)
             {
+            	$col = $this->cols[$columnid];
                 $key = $this->key($row, $col);
                 if (isset($response[$key]))
                 {
@@ -288,8 +309,10 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
         $result = array();
         foreach ($this->rows as $row)
         {
-            foreach ($this->cols as $col)
-            {
+        	foreach ($this->order as $columnid)
+        	{
+        		
+        		$col = $this->cols[$columnid];
                 $weight = $this->weight($row, $col);
                 $key = $this->key($row, $col);
                 if ($weight > 0)
@@ -350,8 +373,9 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
         $result = array();
         foreach ($this->rows as $row)
         {
-            foreach ($this->cols as $col)
-            {
+        	foreach ($this->order as $columnid)
+        	{
+        		$col = $this->cols[$columnid];
                 $result[self::key($row, $col)] = $this->weight($row, $col);
             }
         }

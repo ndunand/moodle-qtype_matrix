@@ -37,10 +37,9 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
         $this->add_grading();
 
         
-        $mform->addElement('advcheckbox', 'shuffleanswers',
-                get_string('shuffleanswers', 'qtype_matrix'), null, null, array(0, 1));
+        $mform->addElement('advcheckbox', 'shuffleanswers', get_string('shuffleanswers', 'qtype_matrix'), null, null, array(0, 1));
         $mform->addHelpButton('shuffleanswers', 'shuffleanswers', 'qtype_matrix');
-        //$mform->setDefault('shuffleanswers', 1);
+        $mform->setDefault('shuffleanswers', 1);
         
     }
 
@@ -66,7 +65,7 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
 
             $question->multiple = $options->multiple ? '1' : '0';
             $question->grademethod = $options->grademethod;
-
+			$question->shuffleanswers = $options->shuffleanswers ? '1' : '0';
             $question->rowshort = array();
             $question->rowlong = array();
             $question->rowfeedback = array();
@@ -174,7 +173,7 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
     {
         // multiple allowed
         $this->add_selectyesno('multiple', qtype_matrix::get_string('multipleallowed'));
-        $this->set_default('multiple', true);
+        $this->set_default('multiple', false);
     }
 
     public function add_grading()
@@ -581,7 +580,7 @@ EOT;
             $short_name = reset($short_name);
             $label = qtype_matrix::get_string($short_name);
         }
-        $result = $this->_form->addElement('selectyesno', $name, $label);
+        $result = $this->_form->addElement('advcheckbox', $name, $label);
         return $result;
     }
 
