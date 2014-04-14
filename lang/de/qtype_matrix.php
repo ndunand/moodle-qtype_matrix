@@ -30,7 +30,7 @@ $string['true'] = 'Richtig';
 $string['false'] = 'Falsch';
 
 //form
-$string['multipleallowed'] = 'Mehrere Antworten erlauben?';
+$string['multipleallowed'] = 'Mehrere Antworten pro Teilaussage erlauben?';
 
 $string['grademethod'] = 'Bewertung';
 $string['grademethod_help'] = '<ul><li><b>Kprim</b>: Bei der Auswahl „Kprim“ erhalten Kandidaten einen Punkt, wenn alle Teilaussagen richtig bewertet wurden, einen halben Punkt, wenn drei von vier richtig bewertet wurden und null Punkte sonst.

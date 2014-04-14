@@ -30,7 +30,7 @@ $string['true'] = 'True';
 $string['false'] = 'False';
 
 //form
-$string['multipleallowed'] = 'Allow multiple responses?';
+$string['multipleallowed'] = 'Allow multiple responses per answer statement?';
 
 $string['grademethod'] = 'Scoring method';
 $string['grademethod_help'] = '<ul><li><b>Kprime</b>: The student receives one point, if all responses are correct, half a point if three responses are correct, and zero points otherwise.
@@ -72,4 +72,4 @@ $string['weightednomultiple'] = 'It doesn\'t make sense to choose weighted gradi
 $string['oneanswerperrow'] = 'You must provide an answer for each row';
 
 $string['shuffleanswers'] = 'Shuffle answer statements?';
-$string['shuffleanswers_help'] = 'If enabled, the order of the answer statements is randomly shuffled for each attempt, provided that "Shuffle within questions" in the activity settings is also enabled.';
+$string['shuffleanswers_help'] = 'If enabled, the order of the answer statements is randomly shuffled for each attempt, provided that “Shuffle within questions” in the activity settings is also enabled.';
