@@ -39,9 +39,9 @@ class qtype_matrix_renderer extends qtype_with_combined_feedback_renderer
         
         $order = $question->get_order($qa);
         
-        foreach ($order as $columnid) {
-        	$col = $question->cols[$columnid];
-        	$table->head[] = self::matrix_header($col);
+        foreach ($question->cols as $col)
+        {
+            $table->head[] = self::matrix_header($col);
         }
 
         if ($options->correctness)
@@ -49,8 +49,9 @@ class qtype_matrix_renderer extends qtype_with_combined_feedback_renderer
             $table->head[] = '';
         }
 
-        foreach ($question->rows as $row)
+        foreach ($order as $rowid)
         {
+            $row = $question->rows[$rowid];
             $row_data = array();
             $row_data[] = self::matrix_header($row);
             foreach ($order as $columnid) {

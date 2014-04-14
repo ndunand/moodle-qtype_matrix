@@ -138,7 +138,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
     function start_attempt(question_attempt_step $step, $variant)
     {
     	global $DB, $PAGE;
-    	$this->order = array_keys($this->cols);
+    	$this->order = array_keys($this->rows);
     	$cm = $PAGE->cm;
     	$quiz = $DB->get_record('quiz', array('id' => $cm->instance));
 		if (!(($quiz != false && $quiz->shuffleanswers == false) || $this->shuffleanswers == false)) {
@@ -248,12 +248,12 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
         $result = array();
 
         $row_index = 0;
-        foreach ($this->rows as $row)
+        foreach ($this->order as $rowid) 
         {
+            $row = $this->rows[$rowid];
             $col_index = 0;
-            foreach ($this->order as $columnid)
+            foreach ($this->cols as $col)
             {
-            	$col = $this->cols[$columnid];
                 $key = $this->key($row, $col);
                 if (isset($response[$key]))
                 {
@@ -310,12 +310,11 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
     public function get_correct_response()
     {
         $result = array();
-        foreach ($this->rows as $row)
+        foreach ($this->order as $rowid)
         {
-        	foreach ($this->order as $columnid)
-        	{
-        		
-        		$col = $this->cols[$columnid];
+            $row = $this->rows[$rowid];
+            foreach ($this->cols as $col)
+            {
                 $weight = $this->weight($row, $col);
                 $key = $this->key($row, $col);
                 if ($weight > 0)
@@ -374,11 +373,11 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
     public function cells()
     {
         $result = array();
-        foreach ($this->rows as $row)
+        foreach ($this->order as $rowid)
         {
-        	foreach ($this->order as $columnid)
-        	{
-        		$col = $this->cols[$columnid];
+            $row = $this->rows[$rowid];
+            foreach ($this->cols as $col)
+            {
                 $result[self::key($row, $col)] = $this->weight($row, $col);
             }
         }
