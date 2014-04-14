@@ -54,8 +54,8 @@ class qtype_matrix_renderer extends qtype_with_combined_feedback_renderer
             $row = $question->rows[$rowid];
             $row_data = array();
             $row_data[] = self::matrix_header($row);
-            foreach ($order as $columnid) {
-        		$col = $question->cols[$columnid];
+            foreach ($question->cols as $col)
+            {
                 $key = $question->key($row, $col);
                 $cell_name = $qa->get_field_prefix() . $key;
 
