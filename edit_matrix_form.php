@@ -178,17 +178,21 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
 
     public function add_grading()
     {
-        // grading method.
-        $options = array();
-        $default_grading = qtype_matrix::defaut_grading();
-        $options[$default_grading->get_name()] = $default_grading->get_title();
-        $gradings = qtype_matrix::gradings();
-        foreach ($gradings as $grading)
-        {
-            $options[$grading->get_name()] = $grading->get_title();
-        }
-        $this->add_select('grademethod', '', $options);
-        $this->add_help_button('grademethod');
+    	// grading method.
+    	$default_grading = qtype_matrix::defaut_grading();
+    	$default_grading_name = $default_grading->get_name();
+    	$gradings = qtype_matrix::gradings();
+
+    	$radioarray = array();
+
+    	foreach ($gradings as $grading)
+    	{
+    		$radioarray[] =& $this->_form->createElement('radio', 'grademethod', '', $grading->get_title(), $grading->get_name(), '');
+    	}
+
+    	$this->_form->addGroup($radioarray, 'grademethod', qtype_matrix::get_string('grademethod'), array(' '), false);
+    	$this->_form->setDefault('grademethod', $default_grading_name);
+    	$this->add_help_button('grademethod');
     }
 
     function add_matrix()
