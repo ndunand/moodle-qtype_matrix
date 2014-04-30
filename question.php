@@ -162,7 +162,15 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      */
     function apply_attempt_state(question_attempt_step $step)
     {
-		$this->order = explode(',', $step->get_qt_var('_order'));
+    	$qt_var_order = $step->get_qt_var('_order');
+    	if ($qt_var_order !== null) {
+			$this->order = explode(',', $step->get_qt_var('_order'));
+    	} else {
+    		// somehow the order doesn't exist in the database. 
+    		// We assume this is because this is because this is an old question which didn't have the shuffling
+    		// possibility yet, and assume the attempt was in the default order (no shuffling).
+    		$this->order = array_keys($this->rows);
+    	}
     }
 
     
