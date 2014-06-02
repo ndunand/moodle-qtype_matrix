@@ -190,7 +190,7 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
     		$radioarray[] =& $this->_form->createElement('radio', 'grademethod', '', $grading->get_title(), $grading->get_name(), '');
     	}
 
-    	$this->_form->addGroup($radioarray, 'grademethod', qtype_matrix::get_string('grademethod'), array(' '), false);
+    	$this->_form->addGroup($radioarray, 'grademethod', qtype_matrix::get_string('grademethod'), array('<br>'), false);
     	$this->_form->setDefault('grademethod', $default_grading_name);
     	$this->add_help_button('grademethod');
     }
