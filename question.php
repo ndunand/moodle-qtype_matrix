@@ -140,11 +140,15 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
     	global $DB, $PAGE;
     	$this->order = array_keys($this->rows);
     	$cm = $PAGE->cm;
-    	$quiz = $DB->get_record('quiz', array('id' => $cm->instance));
-		if (!(($quiz != false && $quiz->shuffleanswers == false) || $this->shuffleanswers == false)) {
-			shuffle($this->order);
-		}  
-        $step->set_qt_var('_order', implode(',', $this->order));
+    	if (is_object($cm)) {
+    		$quiz = $DB->get_record('quiz', array('id' => $cm->instance));
+    	} else {
+    		$quiz = false;
+    	}
+    	if (!(($quiz != false && $quiz->shuffleanswers == false) || $this->shuffleanswers == false)) {
+    		shuffle($this->order);
+    	}
+    	$step->set_qt_var('_order', implode(',', $this->order));
     }
 
     /**
