@@ -33,7 +33,7 @@ $string['false'] = 'False';
 $string['multipleallowed'] = 'Allow multiple responses per answer statement?';
 
 $string['grademethod'] = 'Scoring method';
-$string['grademethod_help'] = '<ul><li><b>Kprime</b>: The student receives one point, if all responses are correct, half a point if three responses are correct, and zero points otherwise.
+$string['grademethod_help'] = '<ul><li><b>Kprime</b>: The student receives one point, if all responses are correct, half a point if 60% ore more responses are correct, and zero points otherwise.
 <li><b>Kprime1/0</b>: The student receives one point, if all responses are correct, and  zero points otherwise.
 
 <li><b>Subpoints</b>: The student is awarded subpoints for each correct response.</ul>';//Kprime or Kprime1/0 may only be chosen if the response matrix consists of exactly four answer  statements, two response categories, and multiple answers are not allowed.';
