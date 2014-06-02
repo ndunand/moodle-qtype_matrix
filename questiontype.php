@@ -107,6 +107,10 @@ class qtype_matrix extends question_type
         //matrix
         $sql = "DELETE FROM {$prefix}question_matrix WHERE questionid = $questionid";
         $DB->execute($sql);
+        
+        $sql = "DELETE FROM {$prefix}question_attempt_step_data USING {$prefix}question_attempt_steps, {$prefix}question_attempts WHERE {$prefix}question_attempt_steps.id = {$prefix}question_attempt_step_data.attemptstepid AND {$prefix}question_attempts.id = {$prefix}question_attempt_steps.questionattemptid AND {$prefix}question_attempt_step_data.name='_order' AND {$prefix}question_attempts.questionid=$questionid";
+        $DB->execute($sql);
+        
 
         return true;
     }
