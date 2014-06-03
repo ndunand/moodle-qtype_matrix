@@ -52,10 +52,9 @@ class qtype_matrix_grading_kany extends qtype_matrix_grading
                 $numberOfCorrectRows++;
             }
         }
-        $percentCorrect = $numberOfCorrectRows / count($question->rows);
         if ($numberOfCorrectRows == count($question->rows)) {
         	return 1;
-        } else if ($percentCorrect >= 0.6) {
+        } else if ((count($question->rows)-$numberOfCorrectRows) == 1) {
         	return 0.5;
         }
         return 0;
