@@ -267,16 +267,14 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
             foreach ($this->cols as $col)
             {
                 $key = $this->key($row, $col);
-                if (isset($response[$key]))
-                {
-                    $result[] = "{$row->shorttext} : {$col->shorttext}";
-                    
+                if ($response[$key] == $col->id) {
+                    $result[] = "{$row->shorttext}: {$col->shorttext}";
                 }
                 $col_index++;
             }
             $row_index++;
         }
-        return implode(" / ", $result);
+        return implode("; ", $result);
     }
 
     /**

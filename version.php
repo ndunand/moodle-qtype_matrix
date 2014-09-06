@@ -12,6 +12,6 @@
  */
 
 $plugin->component = 'qtype_matrix';
-$plugin->version   = 2014041600;
 $plugin->requires  = 2013040500;
 $plugin->maturity  = MATURITY_BETA;
+$plugin->version = 2014090611;
