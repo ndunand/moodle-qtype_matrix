@@ -11,6 +11,7 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
     /**
      * Returns the paths to be handled by the plugin at question level
      */
+
     protected function define_question_plugin_structure() {
         $result = array();
 
@@ -68,36 +69,42 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
      * Process the qtype/cols/col
      */
     public function process_col($data) {
+        global $DB;
+
+        $data = (object) $data;
+        $GLOBALS['matrixTempCols'][$data->id] = $data->id;
         if (!$this->is_question_created()) {
             return;
         }
 
-        global $DB;
 
-        $data = (object) $data;
         $oldid = $data->id;
 
         $data->matrixid = $this->get_new_parentid('matrix');
         $newitemid = $DB->insert_record('question_matrix_cols', $data);
         $this->set_mapping('col', $oldid, $newitemid);
+        $GLOBALS['matrixTempCols'][$oldid] = $newitemid;
     }
 
     /**
      * Process the qtype/rows/row element
      */
     public function process_row($data) {
+        global $DB;
+
+        $data = (object) $data;
+        $GLOBALS['matrixTempRows'][$data->id] = $data->id;
         if (!$this->is_question_created()) {
             return;
         }
 
-        global $DB;
 
-        $data = (object) $data;
         $oldid = $data->id;
 
         $data->matrixid = $this->get_new_parentid('matrix');
         $newitemid = $DB->insert_record('question_matrix_rows', $data);
         $this->set_mapping('row', $oldid, $newitemid);
+        $GLOBALS['matrixTempRows'][$oldid] = $newitemid;
     }
 
     /**
@@ -136,6 +143,45 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
         }
 
         return serialize($result);
+    }
+    
+    public function recode_response($questionid, $sequencenumber, array $response) {
+        $recodedResponse = array();
+        foreach ($response as $responseKey => $responseVal) {
+            if ($responseKey == '_order') {
+                $recodedResponse['_order'] = $this->recode_choice_order($responseVal);
+            } else if (substr($responseKey, 0, 4) == 'cell') {
+                $responseKeyNoCell = substr($responseKey, 4);
+                $responseKeyIDs = explode('_', $responseKeyNoCell);
+                $newRowID = $GLOBALS['matrixTempRows'][$responseKeyIDs[0]];//$this->get_mappingid('row', $responseKeyIDs[0]);
+                $newColID = $GLOBALS['matrixTempCols'][$responseVal];//$this->get_mappingid('col', $responseVal);
+                if (count($responseKeyIDs) == 1) {
+                    $recodedResponse['cell' . $newRowID] = $newColID;
+                } else if (count($responseKeyIDs) == 2) {
+                    $recodedResponse['cell' . $newRowID . '_' . $newColID] = $newColID;
+                } else {
+                    $recodedResponse[$responseKey] = $responseVal;
+                }
+            } else {
+                $recodedResponse[$responseKey] = $responseVal;
+            }
+        }
+        return $recodedResponse;
+    }
+    
+    /**
+     * Recode the choice order as stored in the response.
+     * @param string $order the original order.
+     * @return string the recoded order.
+     */
+    protected function recode_choice_order($order) {
+        $neworder = array();
+        foreach (explode(',', $order) as $id) {
+            if ($newid = $GLOBALS['matrixTempRows'][$id]){//$this->get_mappingid('row', $id)) {
+                $neworder[] = $newid;
+            }
+        }
+        return implode(',', $neworder);
     }
 
     /**
