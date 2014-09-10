@@ -124,18 +124,25 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
 
     function validation($data, $files)
     {
+        global $CFG;
         $errors = parent::validation($data, $files);
+        if (!property_exists($CFG, 'qtype_matrix_show_non_kprime_gui') || $CFG->qtype_matrix_show_non_kprime_gui !== '0') {
+            if ($this->col_count($data) == 0) {
+                $errors['colshort[0]'] = qtype_matrix::get_string('mustdefine1by1');
+            }
 
-        if ($this->col_count($data) == 0)
-        {
-            $errors['colshort[0]'] = qtype_matrix::get_string('mustdefine1by1');
+            if ($this->row_count($data) == 0) {
+                $errors['rowshort[0]'] = qtype_matrix::get_string('mustdefine1by1');
+            }
+        } else {
+            if ($this->col_count($data) != 2) {
+                $errors['colshort[0]'] = qtype_matrix::get_string('mustdefine1by1');
+            }
+
+            if ($this->row_count($data) != 4) {
+                $errors['rowshort[0]'] = qtype_matrix::get_string('mustdefine1by1');
+            }
         }
-
-        if ($this->row_count($data) == 0)
-        {
-            $errors['rowshort[0]'] = qtype_matrix::get_string('mustdefine1by1');
-        }
-
         $grading = qtype_matrix::grading($data['grademethod']);
         $grading_errors = $grading->validation($data);
 
@@ -172,8 +179,14 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
     public function add_multiple()
     {
         // multiple allowed
-        $this->add_selectyesno('multiple', qtype_matrix::get_string('multipleallowed'));
-        $this->set_default('multiple', false);
+        global $CFG;
+        if (!property_exists($CFG, 'qtype_matrix_show_non_kprime_gui') || $CFG->qtype_matrix_show_non_kprime_gui !== '0') {
+            $this->add_selectyesno('multiple', qtype_matrix::get_string('multipleallowed'));
+            $this->set_default('multiple', false);
+        } else {
+            $this->_form->addElement('hidden', 'multiple', false);
+            $this->_form->setType('multiple', PARAM_RAW);
+        }
     }
 
     public function add_grading()
@@ -197,6 +210,7 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
 
     function add_matrix()
     {
+        global $CFG;
         $mform = $this->_form;
         $data = $mform->exportValues();
 
@@ -270,8 +284,10 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
         $matrix[] = $this->create_static('</th>');
 
         $matrix[] = $this->create_static('<th>');
-        $matrix[] = $this->create_submit('add_cols', '  ', array('class' => 'button add'));
-        $this->register_no_submit_button('add_cols');
+        if (!property_exists($CFG, 'qtype_matrix_show_non_kprime_gui') || $CFG->qtype_matrix_show_non_kprime_gui !== '0') {
+            $matrix[] = $this->create_submit('add_cols', '  ', array('class' => 'button add'));
+            $this->register_no_submit_button('add_cols');
+        }
         $matrix[] = $this->create_static('</th>');
 
         $matrix[] = $this->create_static('</tr></thead><tbody>');
@@ -330,8 +346,10 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
 
         $matrix[] = $this->create_static('<tr>');
         $matrix[] = $this->create_static('<td>');
-        $matrix[] = $this->create_submit('add_rows', '  ', array('class' => 'button add'));
-        $this->register_no_submit_button('add_rows');
+        if (!property_exists($CFG, 'qtype_matrix_show_non_kprime_gui') || $CFG->qtype_matrix_show_non_kprime_gui !== '0') {
+            $matrix[] = $this->create_submit('add_rows', '  ', array('class' => 'button add'));
+            $this->register_no_submit_button('add_rows');
+        }
         $matrix[] = $this->create_static('</td>');
         for ($col = 0; $col < $cols_count; $col++)
         {
