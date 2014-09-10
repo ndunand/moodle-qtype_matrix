@@ -22,7 +22,7 @@ class backup_qtype_matrix_plugin extends backup_qtype_plugin
         $plugin->add_child($pluginwrapper);
 
         // Now create the qtype own structures
-        $matrix = new backup_nested_element('matrix', array('id'), array('grademethod', 'multiple', 'renderer'));
+        $matrix = new backup_nested_element('matrix', array('id'), array('grademethod', 'multiple', 'shuffleanswers', 'renderer'));
         
         $matrix_cols = new backup_nested_element('cols');
         $matrix_col = new backup_nested_element('col', array('id'), array('shorttext', 'description'));
