@@ -302,7 +302,8 @@ class qtype_matrix extends question_type
         $rowids = array(); //mapping for indexes to db ids.
         foreach ($question->rowshort as $i => $short)
         {
-            if ($question->rowid[$i] == '') {
+            if ($question->rowid[$i] == '' || (property_exists($question, 'makecopy') && $question->makecopy == '1')) {
+                // either the row comes without a pre-existing ID (so it's a newly created question) or the row HAS an ID, but we want to duplicate (so we should also create a new row)
                 if (empty($short)) {
                     break;
                 }
@@ -333,7 +334,8 @@ class qtype_matrix extends question_type
         $colids = array();
         foreach ($question->colshort as $i => $short)
         {
-            if ($question->colid[$i] == '') {
+            if ($question->colid[$i] == '' || (property_exists($question, 'makecopy') && $question->makecopy == '1')) {
+                // same spiel as with the rows.
                 if (empty($short)) {
                     break;
                 }
@@ -361,6 +363,7 @@ class qtype_matrix extends question_type
         //wheights
 
         // First delete them (if they exist)
+        // (there is no danger of deleting the original weights when making a copy, because we are anyway deleting only weights associated with our newly created question ID)
             $sql = "DELETE FROM {$prefix}question_matrix_weights
                 WHERE {$prefix}question_matrix_weights.rowid IN
                 (
