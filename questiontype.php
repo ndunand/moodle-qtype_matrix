@@ -162,6 +162,7 @@ class qtype_matrix extends question_type
             $question->options->weights = $matrix->weights;
             $question->options->grademethod = $matrix->grademethod;
             $question->options->shuffleanswers = isset($matrix->shuffleanswers)?$matrix->shuffleanswers:true; // allow for old versions which don't have this field
+            $question->options->use_dnd_ui = $matrix->use_dnd_ui;
             $question->options->multiple = $matrix->multiple;
             $question->options->renderer = $matrix->renderer;
         }
@@ -172,6 +173,7 @@ class qtype_matrix extends question_type
             $question->options->weights = array(array());
             $question->options->grademethod = self::defaut_grading()->get_name();
             $question->options->shuffleanswers = true;
+            $question->options->use_dnd_ui = false;
             $question->options->multiple = true;
         }
         return true;
@@ -282,6 +284,7 @@ class qtype_matrix extends question_type
                     'questionid' => $question->id,
                     'multiple' => $question->multiple,
                     'grademethod' => $question->grademethod,
+                    'use_dnd_ui' => $question->use_dnd_ui,
                     'shuffleanswers' => $question->shuffleanswers,
                     'renderer' => 'matrix'
                     );
@@ -291,6 +294,7 @@ class qtype_matrix extends question_type
             $matrix->multiple = $question->multiple;
             $matrix->grademethod = $question->grademethod;
             $matrix->shuffleanswers = $question->shuffleanswers;
+            $matrix->use_dnd_ui = $question->use_dnd_ui;
             $matrix->renderer = 'matrix';
             $DB->update_record('question_matrix', $matrix);
             $matrix_id = $matrix->id;
@@ -459,4 +463,12 @@ class qtype_matrix extends question_type
 //        }
         $mform->display();
     }
+
+
+    // mod_ND : BEGIN
+    public function extra_question_fields() {
+        return array('question_matrix', 'use_dnd_ui');
+    }
+    // mod_ND : END
+
 }

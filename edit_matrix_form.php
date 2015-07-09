@@ -36,8 +36,13 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
         $this->add_multiple();
         $this->add_grading();
 
-        
-        $mform->addElement('advcheckbox', 'shuffleanswers', get_string('shuffleanswers', 'qtype_matrix'), null, null, array(0, 1));
+        // mod_ND : BEGIN
+        if (get_config('qtype_matrix', 'allow_dnd_ui')) {
+            $this->add_selectyesno('use_dnd_ui', get_string('use_dnd_ui', 'qtype_matrix'));
+        }
+        // mod_ND : END
+
+        $mform->addElement('advcheckbox', 'shuffleanswers', get_string('shuffleanswers', 'qtype_matrix'), null, null, [0, 1]);
         $mform->addHelpButton('shuffleanswers', 'shuffleanswers', 'qtype_matrix');
         $mform->setDefault('shuffleanswers', 1);
         
@@ -66,10 +71,11 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
             $question->multiple = $options->multiple ? '1' : '0';
             $question->grademethod = $options->grademethod;
 			$question->shuffleanswers = $options->shuffleanswers ? '1' : '0';
-            $question->rowshort = array();
-            $question->rowlong = array();
-            $question->rowfeedback = array();
-            $question->rowid = array();
+			$question->use_dnd_ui = $options->use_dnd_ui ? '1' : '0';
+            $question->rowshort = [];
+            $question->rowlong = [];
+            $question->rowfeedback = [];
+            $question->rowid = [];
             foreach ($options->rows as $row)
             {
                 $question->rowshort[] = $row->shorttext;

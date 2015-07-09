@@ -34,6 +34,12 @@ class qtype_matrix_renderer extends qtype_with_combined_feedback_renderer
         $table = new html_table();
         $table->attributes['class'] = 'matrix';
 
+        // mod_ND : BEGIN
+        if (get_config('qtype_matrix', 'allow_dnd_ui') && $question->use_dnd_ui) {
+            $table->attributes['class'] .= ' uses_dndui';
+        }
+        // mod_ND : END
+
         $table->head = array();
         $table->head[] = '';
         

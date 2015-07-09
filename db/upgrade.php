@@ -36,6 +36,21 @@ function xmldb_qtype_matrix_upgrade($oldversion) {
 
 
         upgrade_plugin_savepoint(true, 2014040800, 'qtype', 'matrix');
-    }   
+    }
+
+    // mod_ND : BEGIN
+    if ($oldversion < 2015070100) {
+
+        // Define table matrix to be created
+        $table = new xmldb_table('question_matrix');
+
+        // Adding fields to table matrix
+        $newField = $table->add_field('use_dnd_ui', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '0');
+        $dbman->add_field($table, $newField);
+
+        upgrade_plugin_savepoint(true, 2015070100, 'qtype', 'matrix');
+    }
+    // mod_ND : END
+
     return true;
 }

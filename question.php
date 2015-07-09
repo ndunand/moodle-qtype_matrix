@@ -23,6 +23,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
     public $grademethod;
     public $multiple;
     public $shuffleanswers;
+    public $use_dnd_ui;
     protected $order = null;
 
     /**
@@ -138,6 +139,14 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
     function start_attempt(question_attempt_step $step, $variant)
     {
     	global $DB, $PAGE;
+        // mod_ND : BEGIN
+        if ($this->use_dnd_ui) {
+            $PAGE->requires->jquery();
+            $PAGE->requires->jquery_plugin('ui');
+            $PAGE->requires->jquery_plugin('ui-css');
+            $PAGE->requires->js('/question/type/matrix/js/dnd.js');
+        }
+        // mod_ND : END
     	$this->order = array_keys($this->rows);
     	$cm = $PAGE->cm;
     	if (is_object($cm)) {
@@ -166,6 +175,15 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      */
     function apply_attempt_state(question_attempt_step $step)
     {
+        // mod_ND : BEGIN
+        if ($this->use_dnd_ui) {
+            global $PAGE;
+            $PAGE->requires->jquery();
+            $PAGE->requires->jquery_plugin('ui');
+            $PAGE->requires->jquery_plugin('ui-css');
+            $PAGE->requires->js('/question/type/matrix/js/dnd.js');
+        }
+        // mod_ND : END
     	$qt_var_order = $step->get_qt_var('_order');
     	if ($qt_var_order !== null) {
 			$this->order = explode(',', $step->get_qt_var('_order'));
