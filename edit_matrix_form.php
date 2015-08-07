@@ -31,7 +31,8 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
 
     function definition_inner($mform)
     {
-        $this->question->options = isset($this->question->options) ? $this->question->options : (object) array();
+
+        $this->question->options = isset($this->question->options) ? $this->question->options : (object)array();
 
         $this->add_multiple();
         $this->add_grading();
@@ -45,11 +46,11 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
         $mform->addElement('advcheckbox', 'shuffleanswers', get_string('shuffleanswers', 'qtype_matrix'), null, null, [0, 1]);
         $mform->addHelpButton('shuffleanswers', 'shuffleanswers', 'qtype_matrix');
         $mform->setDefault('shuffleanswers', 1);
-        
+
     }
 
     /**
-     * Override if you need to setup the form depending on current values. 
+     * Override if you need to setup the form depending on current values.
      * This method is called after definition(), data submission and set_data().
      * All form setup that is dependent on form values should go in here.
      */
@@ -63,21 +64,19 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
     {
         $is_new = empty($question->id) || empty($question->options->rows);
 
-        if (!$is_new)
-        {
+        if (!$is_new) {
 
             $options = $question->options;
 
             $question->multiple = $options->multiple ? '1' : '0';
             $question->grademethod = $options->grademethod;
-			$question->shuffleanswers = $options->shuffleanswers ? '1' : '0';
-			$question->use_dnd_ui = $options->use_dnd_ui ? '1' : '0';
+            $question->shuffleanswers = $options->shuffleanswers ? '1' : '0';
+            $question->use_dnd_ui = $options->use_dnd_ui ? '1' : '0';
             $question->rowshort = [];
             $question->rowlong = [];
             $question->rowfeedback = [];
             $question->rowid = [];
-            foreach ($options->rows as $row)
-            {
+            foreach ($options->rows as $row) {
                 $question->rowshort[] = $row->shorttext;
                 $question->rowlong[] = $row->description;
                 $question->rowfeedback[] = $row->feedback;
@@ -87,8 +86,7 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
             $question->colshort = array();
             $question->collong = array();
             $question->colid = array();
-            foreach ($options->cols as $col)
-            {
+            foreach ($options->cols as $col) {
                 $question->colshort[] = $col->shorttext;
                 $question->collong[] = $col->description;
                 $question->colid[] = $col->id;
@@ -96,23 +94,17 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
 
             //$question->matrix = array();
             $row_index = 0;
-            foreach ($options->rows as $row)
-            {
+            foreach ($options->rows as $row) {
                 $col_index = 0;
-                foreach ($options->cols as $col)
-                {
+                foreach ($options->cols as $col) {
                     $cell_name = qtype_matrix_grading::cell_name($row_index, $col_index, $options->multiple);
                     $weight = $options->weights[$row->id][$col->id];
 
-                    if ($options->multiple)
-                    {
+                    if ($options->multiple) {
                         $value = ($weight > 0) ? 'on' : '';
                         $question->{$cell_name} = $value;
-                    }
-                    else
-                    {
-                        if ($weight > 0)
-                        {
+                    } else {
+                        if ($weight > 0) {
                             $question->{$cell_name} = $col_index;
                             break;
                         }
@@ -158,10 +150,8 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
 
     protected function col_count($data)
     {
-        foreach ($data['colshort'] as $index => $value)
-        {
-            if (empty($value))
-            {
+        foreach ($data['colshort'] as $index => $value) {
+            if (empty($value)) {
                 return $index++;
             }
         }
@@ -170,10 +160,8 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
 
     protected function row_count($data)
     {
-        foreach ($data['rowshort'] as $index => $value)
-        {
-            if (empty($value))
-            {
+        foreach ($data['rowshort'] as $index => $value) {
+            if (empty($value)) {
                 return $index++;
             }
         }
@@ -197,21 +185,20 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
 
     public function add_grading()
     {
-    	// grading method.
-    	$default_grading = qtype_matrix::defaut_grading();
-    	$default_grading_name = $default_grading->get_name();
-    	$gradings = qtype_matrix::gradings();
+        // grading method.
+        $default_grading = qtype_matrix::defaut_grading();
+        $default_grading_name = $default_grading->get_name();
+        $gradings = qtype_matrix::gradings();
 
-    	$radioarray = array();
+        $radioarray = array();
 
-    	foreach ($gradings as $grading)
-    	{
-    		$radioarray[] =& $this->_form->createElement('radio', 'grademethod', '', $grading->get_title(), $grading->get_name(), '');
-    	}
+        foreach ($gradings as $grading) {
+            $radioarray[] =& $this->_form->createElement('radio', 'grademethod', '', $grading->get_title(), $grading->get_name(), '');
+        }
 
-    	$this->_form->addGroup($radioarray, 'grademethod', qtype_matrix::get_string('grademethod'), array('<br>'), false);
-    	$this->_form->setDefault('grademethod', $default_grading_name);
-    	$this->add_help_button('grademethod');
+        $this->_form->addGroup($radioarray, 'grademethod', qtype_matrix::get_string('grademethod'), array('<br>'), false);
+        $this->_form->setDefault('grademethod', $default_grading_name);
+        $this->add_help_button('grademethod');
     }
 
     function add_matrix()
@@ -220,37 +207,25 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
         $mform = $this->_form;
         $data = $mform->exportValues();
 
-        if (isset($_POST['colshort']))
-        {
+        if (isset($_POST['colshort'])) {
             $cols_count = count($_POST['colshort']);
-        }
-        else if (isset($this->question->options->cols) && count($this->question->options->cols) > 0)
-        {
+        } else if (isset($this->question->options->cols) && count($this->question->options->cols) > 0) {
             $cols_count = count($this->question->options->cols);
-        }
-        else
-        {
+        } else {
             $cols_count = self::DEFAULT_COLS;
         }
-        if ($add_cols = optional_param('add_cols', '', PARAM_TEXT))
-        {
+        if ($add_cols = optional_param('add_cols', '', PARAM_TEXT)) {
             $cols_count++;
         }
 
-        if (isset($_POST['rowshort']))
-        {
+        if (isset($_POST['rowshort'])) {
             $rows_count = count($_POST['rowshort']);
-        }
-        else if (isset($this->question->options->rows) && count($this->question->options->rows) > 0)
-        {
+        } else if (isset($this->question->options->rows) && count($this->question->options->rows) > 0) {
             $rows_count = count($this->question->options->rows);
-        }
-        else
-        {
+        } else {
             $rows_count = self::DEFAULT_ROWS;
         }
-        if ($add_rows = optional_param('add_rows', '', PARAM_TEXT))
-        {
+        if ($add_rows = optional_param('add_rows', '', PARAM_TEXT)) {
             $rows_count++;
         }
 
@@ -262,26 +237,16 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
         $html = '<table class="quedit matrix"><thead><tr>';
         $html .= '<th></th>';
         $matrix[] = $this->create_static($html);
-        for ($col = 0; $col < $cols_count; $col++)
-        {
+        for ($col = 0; $col < $cols_count; $col++) {
             $matrix[] = $this->create_static('<th>');
-            $matrix[] = $this->create_text("colshort[$col]");
-            
+            $matrix[] = $this->create_static('<div class="input-group">');
+            $matrix[] = $this->create_text("colshort[$col]", false);
+
             $popup = $this->create_htmlpopup("collong[$col]", qtype_matrix::get_string('collong'));
             $matrix = array_merge($matrix, $popup);
-            
-//            $id = "popcol$col";
-//            $matrix[] = $this->create_static('<a class="pbutton" href="#" onclick="mtrx_popup(\'' . $id . '\');return false;" >...</a>');
-//            $matrix[] = $this->create_static('<span id="' . $id . '" class="popup">');
-//            $matrix[] = $this->create_static('<a class="pbutton close" href="#" onclick="mtrx_popup(\'' . $id . '\');return false;" >&nbsp;&nbsp;&nbsp;</a>');
-//            $matrix[] = $this->create_static('<span class="title">');
-//            $matrix[] = $this->create_static(qtype_matrix::get_string('collong'));
-//            $matrix[] = $this->create_static('</span>');
-//            $matrix[] = $this->create_htmleditor("collong[$col]");
-//            $matrix[] = $this->create_hidden("colid[$col]");
-//            $matrix[] = $this->create_static('</span>');
-            
+
             $matrix[] = $this->create_hidden("colid[$col]");
+            $matrix[] = $this->create_static('</div>');
             $matrix[] = $this->create_static('</th>');
         }
 
@@ -298,30 +263,21 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
 
         $matrix[] = $this->create_static('</tr></thead><tbody>');
 
-        for ($row = 0; $row < $rows_count; $row++)
-        {
+        for ($row = 0; $row < $rows_count; $row++) {
             $matrix[] = $this->create_static('<tr>');
             $matrix[] = $this->create_static('<td>');
-            $matrix[] = $this->create_text("rowshort[$row]");
-            
+
+            $matrix[] = $this->create_static('<div class="input-group">');
+            $matrix[] = $this->create_text("rowshort[$row]", false);
+
             $popup = $this->create_htmlpopup("rowlong[$row]", qtype_matrix::get_string('rowlong'));
-            $matrix = array_merge($matrix, $popup);    
-            $matrix[] = $this->create_hidden("rowid[$row]");        
-            
-//            $id = "poprow$row";
-//            $matrix[] = $this->create_static('<a class="pbutton" href="#" onclick="mtrx_popup(\'' . $id . '\');return false;" >...</a>');
-//            $matrix[] = $this->create_static('<span id="' . $id . '" class="popup">');
-//            $matrix[] = $this->create_static('<a class="pbutton close" href="#" onclick="mtrx_popup(\'' . $id . '\');return false;" >&nbsp;&nbsp;&nbsp;</a>');
-//            $matrix[] = $this->create_static('<span class="title">');
-//            $matrix[] = $this->create_static(qtype_matrix::get_string('rowlong'));
-//            $matrix[] = $this->create_static('</span>');
-//            $matrix[] = $this->create_htmleditor("rowlong[$row]");
-//            $matrix[] = $this->create_static('</span>');
-//            $matrix[] = $this->create_hidden("rowid[$row]");
+            $matrix = array_merge($matrix, $popup);
+            $matrix[] = $this->create_hidden("rowid[$row]");
+
+            $matrix[] = $this->create_static('</div>');
             $matrix[] = $this->create_static('</td>');
 
-            for ($col = 0; $col < $cols_count; $col++)
-            {
+            for ($col = 0; $col < $cols_count; $col++) {
                 $matrix[] = $this->create_static('<td>');
                 $cell_content = $grading->create_cell_element($mform, $row, $col, $multiple);
                 $cell_content = $cell_content ? $cell_content : $this->create_static('');
@@ -329,20 +285,11 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
                 $matrix[] = $this->create_static('</td>');
             }
 
-//            $id = "popfeedback$row";
             $matrix[] = $this->create_static('<td class="feedback">');
-            
+
             $popup = $this->create_htmlpopup("rowfeedback[$row]", qtype_matrix::get_string('rowfeedback'));
-            $matrix = array_merge($matrix, $popup);    
-            
-//            $matrix[] = $this->create_static('<a class="pbutton" href="#" onclick="mtrx_popup(\'' . $id . '\');return false;" >...</a>');
-//            $matrix[] = $this->create_static('<span id="' . $id . '" class="popup">');
-//            $matrix[] = $this->create_static('<a class="pbutton close" href="#" onclick="mtrx_popup(\'' . $id . '\');return false;" >&nbsp;&nbsp;&nbsp;</a>');
-//            $matrix[] = $this->create_static('<span class="title">');
-//            $matrix[] = $this->create_static(qtype_matrix::get_string('rowfeedback'));
-//            $matrix[] = $this->create_static('</span>');
-//            $matrix[] = $this->create_htmleditor("rowfeedback[$row]");
-//            $matrix[] = $this->create_static('</span>');
+            $matrix = array_merge($matrix, $popup);
+
             $matrix[] = $this->create_static('</td>');
 
             $matrix[] = $this->create_static('<td></td>');
@@ -357,8 +304,7 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
             $this->register_no_submit_button('add_rows');
         }
         $matrix[] = $this->create_static('</td>');
-        for ($col = 0; $col < $cols_count; $col++)
-        {
+        for ($col = 0; $col < $cols_count; $col++) {
             $matrix[] = $this->create_static('<td>');
             $matrix[] = $this->create_static('</td>');
         }
@@ -368,8 +314,7 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
         $matrixheader = $this->create_header('matrixheader');
         $matrix_group = $this->create_group('matrix', null, $matrix, '', false);
 
-        if (isset($this['tagsheader']))
-        {
+        if (isset($this['tagsheader'])) {
             $this->insert_element_before($matrixheader, 'tagsheader');
             $refresh_button = $this->create_submit('refresh_matrix');
             $this->register_no_submit_button('refresh_matrix');
@@ -377,9 +322,7 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
             $this->disabled_if('defaultgrade', 'grademethod', 'eq', 'none');
             $this->insert_element_before($refresh_button, 'tagsheader');
             $this->insert_element_before($matrix_group, 'tagsheader');
-        }
-        else
-        {
+        } else {
             $this[] = $matrixheader;
             $refresh_button = $this->create_submit('refresh_matrix');
             $this->register_no_submit_button('refresh_matrix');
@@ -389,11 +332,10 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
             $this[] = $matrix_group;
         }
 
-        if ($cols_count > 1 && (empty($this->question->id) || empty($this->question->options->rows)))
-        {
+        if ($cols_count > 1 && (empty($this->question->id) || empty($this->question->options->rows))) {
             $this->set_default('colshort[0]', qtype_matrix::get_string('true'));
             $this->set_default('colshort[1]', qtype_matrix::get_string('false'));
-        	
+
         }
         $this->_form->setExpanded('matrixheader');
     }
@@ -465,8 +407,7 @@ EOT;
 
     protected function create_text($name, $label = '')
     {
-        if ($label === '')
-        {
+        if ($label === '') {
             $short_name = explode('[', $name);
             $short_name = reset($short_name);
             $label = qtype_matrix::get_string($short_name);
@@ -476,8 +417,7 @@ EOT;
 
     protected function create_htmleditor($name, $label = '')
     {
-        if ($label === '')
-        {
+        if ($label === '') {
             $short_name = explode('[', $name);
             $short_name = reset($short_name);
             $label = qtype_matrix::get_string($short_name);
@@ -487,19 +427,21 @@ EOT;
 
     protected function create_htmlpopup($name, $label = '')
     {
-        static $popcount = 0;
-        $popcount++;
-        $id = "htmlpopup$popcount";
-        
+        static $pop_count = 0;
+        $pop_count++;
+        $id = "htmlpopup$pop_count";
+
         $result = array();
-        $result[] = $this->create_static('<a class="pbutton" href="#" onclick="mtrx_popup(\'' . $id . '\');return false;" >...</a>');
-        $result[] = $this->create_static('<span id="' . $id . '" class="popup">');
+        $result[] = $this->create_static('<a class="pbutton input-group-addon" href="#" onclick="mtrx_popup(\'' . $id . '\');return false;" >...</a>');
+        $result[] = $this->create_static('<div id="' . $id . '" class="popup">');
+        $result[] = $this->create_static('<div>');
         $result[] = $this->create_static('<a class="pbutton close" href="#" onclick="mtrx_popup(\'' . $id . '\');return false;" >&nbsp;&nbsp;&nbsp;</a>');
         $result[] = $this->create_static('<span class="title">');
         $result[] = $this->create_static($label);
         $result[] = $this->create_static('</span>');
         $result[] = $this->create_htmleditor($name);
-        $result[] = $this->create_static('</span>');
+        $result[] = $this->create_static('</div>');
+        $result[] = $this->create_static('</div>');
         return $result;
     }
 
@@ -510,8 +452,7 @@ EOT;
 
     protected function create_group($name = null, $label = null, $elements = null, $separator = '', $appendName = true)
     {
-        if ($label === '')
-        {
+        if ($label === '') {
             $short_name = explode('[', $name);
             $short_name = reset($short_name);
             $label = qtype_matrix::get_string($short_name);
@@ -521,8 +462,7 @@ EOT;
 
     protected function create_header($name, $label = '')
     {
-        if ($label === '')
-        {
+        if ($label === '') {
             $short_name = explode('[', $name);
             $short_name = reset($short_name);
             $label = qtype_matrix::get_string($short_name);
@@ -532,8 +472,7 @@ EOT;
 
     protected function create_submit($name, $label = '', $attributes = null)
     {
-        if ($label === '')
-        {
+        if ($label === '') {
             $short_name = explode('[', $name);
             $short_name = reset($short_name);
             $label = qtype_matrix::get_string($short_name);
@@ -554,8 +493,7 @@ EOT;
 
     protected function add_text($name, $label = '')
     {
-        if ($label === '')
-        {
+        if ($label === '') {
             $short_name = explode('[', $name);
             $short_name = reset($short_name);
             $label = qtype_matrix::get_string($short_name);
@@ -565,8 +503,7 @@ EOT;
 
     protected function add_htmleditor($name, $label = '')
     {
-        if ($label === '')
-        {
+        if ($label === '') {
             $short_name = explode('[', $name);
             $short_name = reset($short_name);
             $label = qtype_matrix::get_string($short_name);
@@ -581,8 +518,7 @@ EOT;
 
     protected function add_group($name = null, $label = null, $elements = null, $separator = '', $appendName = true)
     {
-        if ($label === '')
-        {
+        if ($label === '') {
             $short_name = explode('[', $name);
             $short_name = reset($short_name);
             $label = qtype_matrix::get_string($short_name);
@@ -592,8 +528,7 @@ EOT;
 
     protected function add_header($name, $label = '')
     {
-        if ($label === '')
-        {
+        if ($label === '') {
             $short_name = explode('[', $name);
             $short_name = reset($short_name);
             $label = qtype_matrix::get_string($short_name);
@@ -603,8 +538,7 @@ EOT;
 
     protected function add_selectyesno($name, $label = '')
     {
-        if ($label === '')
-        {
+        if ($label === '') {
             $short_name = explode('[', $name);
             $short_name = reset($short_name);
             $label = qtype_matrix::get_string($short_name);
@@ -615,8 +549,7 @@ EOT;
 
     protected function add_select($name, $label = '', $options = null)
     {
-        if ($label === '')
-        {
+        if ($label === '') {
             $short_name = explode('[', $name);
             $short_name = reset($short_name);
             $label = qtype_matrix::get_string($short_name);
@@ -626,8 +559,7 @@ EOT;
 
     protected function add_submit($name, $label = '')
     {
-        if ($label === '')
-        {
+        if ($label === '') {
             $short_name = explode('[', $name);
             $short_name = reset($short_name);
             $label = qtype_matrix::get_string($short_name);
@@ -637,8 +569,7 @@ EOT;
 
     protected function add_help_button($elementname, $identifier = null, $component = 'qtype_matrix', $linktext = '', $suppresscheck = false)
     {
-        if (is_null($identifier))
-        {
+        if (is_null($identifier)) {
             $identifier = $elementname;
         }
         return $this->_form->addHelpButton($elementname, $identifier, $component, $linktext, $suppresscheck);

@@ -28,6 +28,7 @@ class qtype_matrix_renderer extends qtype_with_combined_feedback_renderer
      */
     public function formulation_and_controls(question_attempt $qa, question_display_options $options)
     {
+
         $question = $qa->get_question();
         $response = $qa->get_last_qt_data();
 
