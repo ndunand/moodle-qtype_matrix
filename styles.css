@@ -19,8 +19,6 @@
 .que.matrix th {
     text-align: left;
     padding: 5px;
-    padding-left: 5px;
-    padding-right: 5px;
     min-width: 50px;
 }
 
@@ -30,7 +28,7 @@
 
 .que.matrix .lastcol p {
     display: inline;
-    margin: 0px;
+    margin: 0;
     margin-left: 5px;
 }
 
@@ -43,7 +41,7 @@
 
 .que.matrix th .description p,
 .que.matrix td .description p {
-    margin: 0px;
+    margin: 0;
 }
 
 .que.matrix th .description,
@@ -136,8 +134,8 @@
 
 .quedit.matrix input,
 .quedit.matrix select {
-    margin-left: 0px;
-    margin-right: 0px;
+    margin-left: 0;
+    margin-right: 0;
 }
 
 .quedit.matrix .pbutton {
@@ -169,27 +167,24 @@
 }
 
 .quedit.matrix .popup {
-    display: block;
     display: none;
     position: absolute !important;
     background-color: #FFFFFF;
     min-width: 383px;
-    /*    border: 0px solid #848484;
-        border-radius: 0px;*/
-    padding: 0px;
-    margin-left: 0px;
+    padding: 0;
+    margin-left: 0;
 }
 
 .quedit.matrix .popup .title {
     display: block;
     text-align: left;
     font-weight: bold;
-    margin-top: 0px;
+    margin-top: 0;
     padding-right: 8px;
     padding-left: 8px;
     padding-bottom: 8px;
     padding-top: 6px;
-    margin-bottom: 0px;
+    margin-bottom: 0;
     border-color: #BBBBBB;
     border-width: 1px;
     border-style: solid;

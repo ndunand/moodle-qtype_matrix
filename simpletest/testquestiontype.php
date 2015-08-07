@@ -2,12 +2,6 @@
 
 /**
  * Unit tests for the matrix question definition class.
- *
- * @copyright   2012 University of Geneva
- * @author      laurent.opprecht@unige.ch
- * @license     http://www.gnu.org/copyleft/gpl.html GNU Public License
- * @package     qtype
- * @subpackage  matrix
  */
 defined('MOODLE_INTERNAL') || die();
 

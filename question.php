@@ -3,11 +3,6 @@
 /**
  * The question type class for the matrix question type.
  *
- * @copyright   2012 University of Geneva
- * @author      laurent.opprecht@unige.ch
- * @license     http://www.gnu.org/copyleft/gpl.html GNU Public License
- * @package     qtype
- * @subpackage  matrix
  */
 defined('MOODLE_INTERNAL') || die();
 
@@ -42,7 +37,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      * 
      * or
      * 
-     * @param type $key
+     * @param object $key
      * 
      * @return float
      */
@@ -50,7 +45,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
     {
         if (is_string($row) && is_null($col))
         {
-            $key = $row;
+            //$key = $row;
             $key = str_replace('cell', $col, $row);
             list($row_id, $col_id) = explode('x', $key);
         }
@@ -66,7 +61,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      *
      * @param mixed $row
      * @param mixed $col
-     * @return type 
+     * @return string
      */
     public function key($row, $col)
     {
@@ -79,9 +74,9 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
 
     /**
      *
-     * @param type $response
-     * @param type $row
-     * @param type $col
+     * @param object $response
+     * @param object $row
+     * @param object $col
      * 
      * @return boolean 
      */
@@ -106,12 +101,12 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
 
     /**
      * 
-     * @param type $row
-     * @param type $col
+     * @param any $row
+     * @param any $col
      * 
      * or
      * 
-     * @param type $key
+     * @param any $key
      * 
      * @return bool 
      */
@@ -131,9 +126,9 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      * Any information about how the question has been set up for this attempt
      * should be stored in the $step, by calling $step->set_qt_var(...).
      *
-     * @param question_attempt_step The first step of the {@link question_attempt}
+     * @param question_attempt_step $step The first step of the {@link question_attempt}
      *      being started. Can be used to store state.
-     * @param int $varant which variant of this question to start. Will be between
+     * @param int $variant which variant of this question to start. Will be between
      *      1 and {@link get_num_variants()} inclusive.
      */
     function start_attempt(question_attempt_step $step, $variant)
@@ -170,7 +165,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      * originally. All the information required to do this should be in the
      * $step object, which is the first step of the question_attempt being loaded.
      *
-     * @param question_attempt_step The first step of the {@link question_attempt}
+     * @param question_attempt_step $step The first step of the {@link question_attempt}
      *      being loaded.
      */
     function apply_attempt_state(question_attempt_step $step)
@@ -221,7 +216,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      */
     public function compute_final_grade($responses, $totaltries)
     {
-        $x = 1 / 0;
+        //$x = 1 / 0;
         echo 'hello';
     }
 
@@ -255,6 +250,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
     /**
      * In situations where is_gradable_response() returns false, this method
      * should generate a description of what the problem is.
+     * @param array $response
      * @return string the message.
      */
     public function get_validation_error(array $response)
@@ -270,7 +266,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
     /**
      * Produce a plain text summary of a response.
      * 
-     * @param $response a response, as might be passed to {@link grade_response()}.
+     * @param array response A response, as might be passed to {@link grade_response()}.
      * @return string a plain text summary of that response, that could be used in reports.
      */
     public function summarise_response(array $response)

@@ -1,14 +1,5 @@
 <?php 
 
-/**
- *
- * @copyright   2012 University of Geneva
- * @author      laurent.opprecht@unige.ch
- * @license     http://www.gnu.org/copyleft/gpl.html GNU Public License
- * @package     qtype
- * @subpackage  matrix
- */
-
 // qtype strings
 $string['addingmatrix'] = 'Ajout Matrice';
 $string['editingmatrix'] = 'Modification Matrice';

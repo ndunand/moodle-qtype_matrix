@@ -1,11 +1,5 @@
 <?php
 
-/**
- *
- * @copyright (c) 2011 University of Geneva
- * @license GNU General Public License - http://www.gnu.org/copyleft/gpl.html
- * @author Laurent Opprecht
- */
 defined('MOODLE_INTERNAL') || die();
 
 /**

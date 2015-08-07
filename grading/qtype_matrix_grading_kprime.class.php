@@ -7,10 +7,6 @@
  * The student must choose all correct answers, and none of the wrong ones 
  * to get 100% otherwise he gets 0%. Including rows. 
  * If one row is wrong then the mark for the question is 0.
- *
- * @copyright (c) 2011 University of Geneva
- * @license GNU General Public License - http://www.gnu.org/copyleft/gpl.html
- * @author Laurent Opprecht
  */
 class qtype_matrix_grading_kprime extends qtype_matrix_grading
 {
@@ -29,7 +25,8 @@ class qtype_matrix_grading_kprime extends qtype_matrix_grading
 
     /**
      * Factory 
-     * 
+     *
+     * @param string $type
      * @return qtype_matrix_grading_kprime
      */
     public static function create($type)

@@ -1,14 +1,5 @@
 <?php
 
-/**
- * 
- * @copyright   2012 University of Geneva
- * @author      laurent.opprecht@unige.ch
- * @license     http://www.gnu.org/copyleft/gpl.html GNU Public License
- * @package     qtype
- * @subpackage  matrix
- */
-
 if (!property_exists($CFG, 'qtype_matrix_show_non_kprime_gui') || $CFG->qtype_matrix_show_non_kprime_gui !== '0') {
     $string['pluginname'] = 'Matrix/Kprim';
     $string['pluginnamesummary'] = 'In Matrix-Fragen müssen verschiedene Aussagen zu einem gemeinsamen Thema bewertet werden. In Kprim-Fragen müssen dabei genau vier Aussagen als „richtig“ oder „falsch“ bewertet werden.';

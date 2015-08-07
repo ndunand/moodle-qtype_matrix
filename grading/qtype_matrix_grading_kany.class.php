@@ -5,10 +5,6 @@
  * for reach one of the rows.
  * 
  * Any correct and no wrong answer to get 100% otherwise 0
- *
- * @copyright (c) 2011 University of Geneva
- * @license GNU General Public License - http://www.gnu.org/copyleft/gpl.html
- * @author Laurent Opprecht
  */
 class qtype_matrix_grading_kany extends qtype_matrix_grading
 {
@@ -27,7 +23,8 @@ class qtype_matrix_grading_kany extends qtype_matrix_grading
 
     /**
      * Factory 
-     * 
+     *
+     * @param string $type
      * @return qtype_matrix_grading_kany
      */
     public static function create($type)
@@ -64,7 +61,7 @@ class qtype_matrix_grading_kany extends qtype_matrix_grading
      * Grade a specific row
      * 
      * @param qtype_matrix_question     $question
-     * @param object                    $row
+     * @param any                       $row
      * @param array                     $answers
      * @return float 
      */

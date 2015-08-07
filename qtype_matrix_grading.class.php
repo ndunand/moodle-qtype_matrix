@@ -2,10 +2,7 @@
 
 /**
  * Base class for grading types
- *
- * @copyright (c) 2011 University of Geneva
- * @license GNU General Public License - http://www.gnu.org/copyleft/gpl.html
- * @author Laurent Opprecht
+ * 
  * @abstract
  */
 abstract class qtype_matrix_grading
@@ -26,7 +23,7 @@ abstract class qtype_matrix_grading
         foreach ($files as $file)
         {
             include_once("$dir/$file");
-            $class = $file;
+            //$class = $file;
             $class = str_replace('.class.php', '', $file);
             if (class_exists($class))
             {
@@ -78,6 +75,7 @@ abstract class qtype_matrix_grading
      * @param MoodleQuickForm   $form
      * @param int $row          row number
      * @param int $col          column number
+     * @param bool $multiple    whether the question allows multiple answers
      * @return object
      */
     public function create_cell_element($form, $row, $col, $multiple)
@@ -101,7 +99,7 @@ abstract class qtype_matrix_grading
      * @param int   $col col number
      * @param bool  $multiple one answer per row or several
      * 
-     * @return string cellname
+     * @return string
      */
     public static function cell_name($row, $col, $multiple)
     {
@@ -172,25 +170,25 @@ abstract class qtype_matrix_grading
 
     protected function col_count($data)
     {
-        foreach ($data['colshort'] as $index => $value)
-        {
-            if (empty($value))
-            {
-                return $index++;
-            }
-        }
+//        foreach ($data['colshort'] as $index => $value)
+//        {
+//            if (empty($value))
+//            {
+//                return $index++;
+//            }
+//        }
         return count($data['colshort']);
     }
 
     protected function row_count($data)
     {
-        foreach ($data['rowshort'] as $index => $value)
-        {
-            if (empty($value))
-            {
-                return $index++;
-            }
-        }
+//        foreach ($data['rowshort'] as $index => $value)
+//        {
+//            if (empty($value))
+//            {
+//                return $index++;
+//            }
+//        }
         return count($data['rowshort']);
     }
 }

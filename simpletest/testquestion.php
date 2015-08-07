@@ -2,12 +2,6 @@
 
 /**
  * Unit tests for the matrix question definition class.
- *
- * @copyright   2012 University of Geneva
- * @author      laurent.opprecht@unige.ch
- * @license     http://www.gnu.org/copyleft/gpl.html GNU Public License
- * @package     qtype
- * @subpackage  matrix
  */
 defined('MOODLE_INTERNAL') || die();
 
@@ -176,16 +170,11 @@ class qtype_matrix_question_test extends UnitTestCase
 
         $answer = self::make_answer_partial($question);
         $grade = $question->grade_response($answer);
-        if ($partial_grading == 0)
-        {
+        if ($partial_grading == 0) {
             $state = question_state::$gradedwrong;
-        }
-        else if ($partial_grading == 1)
-        {
+        } else if ($partial_grading == 1) {
             $state = question_state::$gradedright;
-        }
-        else
-        {
+        } else {
             $state = question_state::$gradedpartial;
         }
         $this->assertEqual(array($partial_grading, $state), $grade);
@@ -193,7 +182,8 @@ class qtype_matrix_question_test extends UnitTestCase
 
     /**
      *
-     * @param qtype_matrix_question
+     * @param string $type
+     * @return question_definition the requested question object.
      */
     protected static function make_question($type = 'kprime')
     {
@@ -203,13 +193,12 @@ class qtype_matrix_question_test extends UnitTestCase
     /**
      *
      * @param qtype_matrix_question $question
-     * @return array 
+     * @return array
      */
     protected static function make_answer_correct($question)
     {
         $result = array();
-        foreach ($question->rows as $row)
-        {
+        foreach ($question->rows as $row) {
             $col = 0;
             $key = $question->key($row, $col);
             $result[$key] = $question->multiple ? 'on' : $col;
@@ -221,13 +210,12 @@ class qtype_matrix_question_test extends UnitTestCase
     /**
      *
      * @param qtype_matrix_question $question
-     * @return array 
+     * @return array
      */
     protected static function make_answer_incorrect($question)
     {
         $result = array();
-        foreach ($question->rows as $row)
-        {
+        foreach ($question->rows as $row) {
             $col = 3;
             $key = $question->key($row, $col);
             $result[$key] = $question->multiple ? 'on' : $col;
@@ -239,13 +227,12 @@ class qtype_matrix_question_test extends UnitTestCase
     /**
      *
      * @param qtype_matrix_question $question
-     * @return array 
+     * @return array
      */
     protected static function make_answer_partial($question)
     {
         $result = array();
-        foreach ($question->rows as $row)
-        {
+        foreach ($question->rows as $row) {
             $col = $row->id < 2 ? 0 : 3;
             $key = $question->key($row, $col);
             $result[$key] = $question->multiple ? 'on' : $col;
@@ -257,31 +244,25 @@ class qtype_matrix_question_test extends UnitTestCase
     /**
      *
      * @param qtype_matrix_question $question
-     * @return array 
+     * @return array
      */
     protected static function make_answer_multiple_partial($question)
     {
         $result = array();
-        foreach ($question->rows as $row)
-        {
-            if ($row->id < 2)
-            {
+        foreach ($question->rows as $row) {
+            if ($row->id < 2) {
                 //all correct
                 $key = $question->key($row, $col = 0);
                 $result[$key] = 'on';
                 $key = $question->key($row, $col = 1);
                 $result[$key] = 'on';
-            }
-            else if ($row->id == 2)
-            {
+            } else if ($row->id == 2) {
                 //one correct one wrong
                 $key = $question->key($row, $col = 1);
                 $result[$key] = 'on';
                 $key = $question->key($row, $col = 2);
                 $result[$key] = 'on';
-            }
-            else
-            {
+            } else {
                 //all wrong
                 $key = $question->key($row, $col = 2);
                 $result[$key] = 'on';
@@ -296,13 +277,12 @@ class qtype_matrix_question_test extends UnitTestCase
     /**
      *
      * @param qtype_matrix_question $question
-     * @return array 
+     * @return array
      */
     protected static function make_answer_multiple_correct($question)
     {
         $result = array();
-        foreach ($question->rows as $row)
-        {
+        foreach ($question->rows as $row) {
             $key = $question->key($row, $col = 0);
             $result[$key] = 'on';
             $key = $question->key($row, $col = 1);
@@ -315,13 +295,12 @@ class qtype_matrix_question_test extends UnitTestCase
     /**
      *
      * @param qtype_matrix_question $question
-     * @return array 
+     * @return array
      */
     protected static function make_answer_multiple_incorrect($question)
     {
         $result = array();
-        foreach ($question->rows as $row)
-        {
+        foreach ($question->rows as $row) {
             $key = $question->key($row, $col = 2);
             $result[$key] = 'on';
             $key = $question->key($row, $col = 3);

@@ -6,10 +6,6 @@
  * 
  * For a row all of the correct and none of the wrong answers must be selected
  * to get 100% otherwise 0.
- *
- * @copyright (c) 2011 University of Geneva
- * @license GNU General Public License - http://www.gnu.org/copyleft/gpl.html
- * @author Laurent Opprecht
  */
 class qtype_matrix_grading_all extends qtype_matrix_grading
 {
@@ -28,7 +24,8 @@ class qtype_matrix_grading_all extends qtype_matrix_grading
 
     /**
      * Factory 
-     * 
+     *
+     * @param string $type
      * @return qtype_matrix_grading_all
      */
     public static function create($type)

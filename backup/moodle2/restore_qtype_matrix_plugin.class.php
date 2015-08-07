@@ -47,6 +47,8 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
 
     /**
      * Process the qtype/matrix
+     *
+     * @param $data
      */
     public function process_matrix($data) {
         if (!$this->is_question_created()) {
@@ -67,6 +69,8 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
 
     /**
      * Process the qtype/cols/col
+     *
+     * @param $data
      */
     public function process_col($data) {
         global $DB;
@@ -88,6 +92,8 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
 
     /**
      * Process the qtype/rows/row element
+     *
+     * @param $data
      */
     public function process_row($data) {
         global $DB;
@@ -109,6 +115,8 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
 
     /**
      * Process the qtype/weights/weight element
+     *
+     * @param $data
      */
     public function process_weight($data) {
         if (!$this->is_question_created()) {
@@ -128,6 +136,9 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
 
     /**
      * Map back
+     *
+     * @param $state
+     * @return string
      */
     public function recode_state_answer($state) {
         $result = array();

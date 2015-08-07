@@ -1,0 +1,36 @@
+
+CHANGE LOG:
+
+Moodle 2.2
+
+1 Make question compatible with the new question engine - keeping the db structure
+2 Change form layout to be more user friendly
+3 Added tests
+4 Added import backup from Moodle 1.x
+5 Removed dependencies to patches
+6 Removed permission info in question edit
+7 Added css rule to add icons to buttons
+
+Backport from Moodle 2.0 to Moodle 1.9
+
+1 make the 1.9 version compatible with the 2.0 version - i.e. uses the same name for db columns
+2 remove the need to patch moodle 1.9
+3 incorporate changes made for 2.0
+
+Move to Moodle 2.0
+
+1   Changed the name "longtext" to description in the "column" and "row" tables. Name clashes with MySQL longtext reserved name.
+2   Upgraded DB to Moodle 2.0
+3   Added support for fill in correct responses
+5   Bug correction: submit question in preview mode does not take the last entered values
+6   Added style.css to page
+7   Changed header description html to work in other navigators than ie -
+8   Added feedback for rows
+9   Updgraded backup/restore system to Moodle 2.0
+10  Added French translations
+11  Looks like the patches are not needed anymore for Moodle 2.0.2, removing them
+12  Todo: 'save format in the database'. Still not seeing the point to change the text format. Cancelling this until someone comes with a good reason to support it.
+13  Defaulted values to type KPrime: four rows, two cols (true, false), eval method kprime.
+14  Added k' grading type
+15  Bug: general feedback was displayed twice
+16  Bug: display correct answer when reviewing
