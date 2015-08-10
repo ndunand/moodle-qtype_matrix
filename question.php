@@ -6,6 +6,8 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
+require_once($CFG->dirroot . '/question/type/matrix/libs/lang.php');
+
 /**
  * Represents a matrix question.
  */
@@ -260,7 +262,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
         {
             return '';
         }
-        return qtype_matrix::get_string('oneanswerperrow');
+        return lang::one_answer_per_row();
     }
 
     /**

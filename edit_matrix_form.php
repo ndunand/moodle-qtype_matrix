@@ -6,6 +6,7 @@
  */
 require_once($CFG->dirroot . '/question/type/edit_question_form.php');
 require_once($CFG->dirroot . '/question/type/matrix/libs/matrix_form_builder.php');
+require_once($CFG->dirroot . '/question/type/matrix/libs/lang.php');
 
 /**
  * matrix editing form definition. For information about the Moodle forms library,
@@ -53,13 +54,15 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
 
         // mod_ND : BEGIN
         if (get_config('qtype_matrix', 'allow_dnd_ui')) {
-            $builder->add_selectyesno('use_dnd_ui', get_string('use_dnd_ui', 'qtype_matrix'));
+            //todo: parameter
+            $builder->add_selectyesno('use_dnd_ui', lang::use_dnd_ui());
         }
         // mod_ND : END
-
-        $mform->addElement('advcheckbox', 'shuffleanswers', get_string('shuffleanswers', 'qtype_matrix'), null, null, [0,
+        //todo: paramater, default
+        $mform->addElement('advcheckbox', 'shuffleanswers', lang::shuffle_answers(), null, null, [0,
             1]);
         $mform->addHelpButton('shuffleanswers', 'shuffleanswers', 'qtype_matrix');
+
         $mform->setDefault('shuffleanswers', 1);
     }
 
@@ -141,19 +144,19 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
         $errors = parent::validation($data, $files);
         if (!property_exists($CFG, 'qtype_matrix_show_non_kprime_gui') || $CFG->qtype_matrix_show_non_kprime_gui !== '0') {
             if ($this->col_count($data) == 0) {
-                $errors['colshort[0]'] = qtype_matrix::get_string('mustdefine1by1');
+                $errors['colshort[0]'] = lang::must_define_1_by_1();
             }
 
             if ($this->row_count($data) == 0) {
-                $errors['rowshort[0]'] = qtype_matrix::get_string('mustdefine1by1');
+                $errors['rowshort[0]'] = lang::must_define_1_by_1();
             }
         } else {
             if ($this->col_count($data) != 2) {
-                $errors['colshort[0]'] = qtype_matrix::get_string('mustdefine1by1');
+                $errors['colshort[0]'] = lang::must_define_1_by_1();
             }
 
             if ($this->row_count($data) != 4) {
-                $errors['rowshort[0]'] = qtype_matrix::get_string('mustdefine1by1');
+                $errors['rowshort[0]'] = lang::must_define_1_by_1();
             }
         }
         $grading = qtype_matrix::grading($data[self::PARAM_GRADE_METHOD]);
@@ -181,7 +184,7 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
         $builder = $this->builder;
 
         if (!property_exists($CFG, 'qtype_matrix_show_non_kprime_gui') || $CFG->qtype_matrix_show_non_kprime_gui !== '0') {
-            $builder->add_selectyesno(self::PARAM_MULTIPLE, qtype_matrix::get_string('multipleallowed'));
+            $builder->add_selectyesno(self::PARAM_MULTIPLE, lang::multiple_allowed());
             $builder->set_default(self::PARAM_MULTIPLE, self::DEFAULT_MULTIPLE);
         } else {
             $this->_form->addElement('hidden', self::PARAM_MULTIPLE, self::DEFAULT_MULTIPLE);
@@ -204,7 +207,7 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
             $radioarray[] = & $this->_form->createElement('radio', self::PARAM_GRADE_METHOD, '', $grading->get_title(), $grading->get_name(), '');
         }
 
-        $this->_form->addGroup($radioarray, self::PARAM_GRADE_METHOD, qtype_matrix::get_string(self::PARAM_GRADE_METHOD), array(
+        $this->_form->addGroup($radioarray, self::PARAM_GRADE_METHOD, lang::grade_method(), array(
             '<br>'), false);
         $this->_form->setDefault(self::PARAM_GRADE_METHOD, $default_grading_name);
         $builder->add_help_button(self::PARAM_GRADE_METHOD);
@@ -234,7 +237,7 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
             $matrix[] = $builder->create_static('<div class="input-group">');
             $matrix[] = $builder->create_text("colshort[$col]", false);
 
-            $popup = $builder->create_htmlpopup("collong[$col]", qtype_matrix::get_string('collong'));
+            $popup = $builder->create_htmlpopup("collong[$col]", lang::col_long());
             $matrix = array_merge($matrix, $popup);
 
             $matrix[] = $builder->create_hidden("colid[$col]");
@@ -243,7 +246,7 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
         }
 
         $matrix[] = $builder->create_static('<th>');
-        $matrix[] = $builder->create_static(qtype_matrix::get_string('rowfeedback'));
+        $matrix[] = $builder->create_static(lang::row_feedback());
         $matrix[] = $builder->create_static('</th>');
 
         $matrix[] = $builder->create_static('<th>');
@@ -263,7 +266,7 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
             $matrix[] = $builder->create_static('<div class="input-group">');
             $matrix[] = $builder->create_text("rowshort[$row]", false);
 
-            $question_popup = $builder->create_htmlpopup("rowlong[$row]", qtype_matrix::get_string('rowlong'));
+            $question_popup = $builder->create_htmlpopup("rowlong[$row]", lang::row_long());
             $matrix = array_merge($matrix, $question_popup);
             $matrix[] = $builder->create_hidden("rowid[$row]");
 
@@ -280,7 +283,7 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
 
             $matrix[] = $builder->create_static('<td class="feedback">');
 
-            $feedback_popup = $builder->create_htmlpopup("rowfeedback[$row]", qtype_matrix::get_string('rowfeedback'));
+            $feedback_popup = $builder->create_htmlpopup("rowfeedback[$row]", lang::row_feedback());
             $matrix = array_merge($matrix, $feedback_popup);
 
             $matrix[] = $builder->create_static('</td>');
@@ -326,8 +329,8 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
         }
 
         if ($cols_count > 1 && (empty($this->question->id) || empty($this->question->options->rows))) {
-            $builder->set_default('colshort[0]', qtype_matrix::get_string('true'));
-            $builder->set_default('colshort[1]', qtype_matrix::get_string('false'));
+            $builder->set_default('colshort[0]', lang::true_());
+            $builder->set_default('colshort[1]', lang::false_());
         }
         $this->_form->setExpanded('matrixheader');
     }
