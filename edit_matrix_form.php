@@ -19,17 +19,27 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
 
     //How many elements are added each time somebody click the add row/add column button.
     const DEFAULT_REPEAT_ELEMENTS = 1;
-    //How many rows 
-    const DEFAULT_ROWS = 4;
-    //How many cols 
-    const DEFAULT_COLS = 2;
-    const DEFAULT_MULTIPLE = false;
+    
     const PARAM_COLS = 'colshort';
+    const DEFAULT_COLS = 2;
+    
     const PARAM_ADD_COLLUMNS = 'add_cols';
+   
     const PARAM_ROWS = 'rowshort';
+    const DEFAULT_ROWS = 4;
+   
     const PARAM_ADD_ROWS = 'add_rows';
+    
     const PARAM_GRADE_METHOD = 'grademethod';
+    
     const PARAM_MULTIPLE = 'multiple';
+    const DEFAULT_MULTIPLE = false;
+    
+    const PARAM_USE_DND_UI = 'use_dnd_ui';
+    const DEFAULT_USE_DND_UI = false;
+    
+    const PARAM_SHUFFLE_ANSERS = 'shuffleanswers';
+    const DEFAULT_SHUFFLE_ANSWERS = true;
 
     /**
      *
@@ -55,15 +65,14 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
         // mod_ND : BEGIN
         if (get_config('qtype_matrix', 'allow_dnd_ui')) {
             //todo: parameter
-            $builder->add_selectyesno('use_dnd_ui', lang::use_dnd_ui());
+            $builder->add_selectyesno(self::PARAM_USE_DND_UI, lang::use_dnd_ui());
+            $builder->set_default(self::PARAM_USE_DND_UI, self::DEFAULT_USE_DND_UI);
         }
         // mod_ND : END
-        //todo: paramater, default
-        $mform->addElement('advcheckbox', 'shuffleanswers', lang::shuffle_answers(), null, null, [0,
+        $mform->addElement('advcheckbox', self::PARAM_SHUFFLE_ANSERS, lang::shuffle_answers(), null, null, [0,
             1]);
-        $mform->addHelpButton('shuffleanswers', 'shuffleanswers', 'qtype_matrix');
-
-        $mform->setDefault('shuffleanswers', 1);
+        $builder->add_help_button(self::PARAM_SHUFFLE_ANSERS);
+        $builder->set_default(self::PARAM_SHUFFLE_ANSERS, self::DEFAULT_SHUFFLE_ANSWERS);
     }
 
     /**
