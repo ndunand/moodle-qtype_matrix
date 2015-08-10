@@ -7,6 +7,7 @@
 require_once($CFG->dirroot . '/question/type/edit_question_form.php');
 require_once($CFG->dirroot . '/question/type/matrix/libs/matrix_form_builder.php');
 require_once($CFG->dirroot . '/question/type/matrix/libs/lang.php');
+require_once($CFG->dirroot . '/question/type/matrix/libs/config.php');
 
 /**
  * matrix editing form definition. For information about the Moodle forms library,
@@ -19,25 +20,17 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
 
     //How many elements are added each time somebody click the add row/add column button.
     const DEFAULT_REPEAT_ELEMENTS = 1;
-    
     const PARAM_COLS = 'colshort';
     const DEFAULT_COLS = 2;
-    
     const PARAM_ADD_COLLUMNS = 'add_cols';
-   
     const PARAM_ROWS = 'rowshort';
     const DEFAULT_ROWS = 4;
-   
     const PARAM_ADD_ROWS = 'add_rows';
-    
     const PARAM_GRADE_METHOD = 'grademethod';
-    
     const PARAM_MULTIPLE = 'multiple';
     const DEFAULT_MULTIPLE = false;
-    
     const PARAM_USE_DND_UI = 'use_dnd_ui';
     const DEFAULT_USE_DND_UI = false;
-    
     const PARAM_SHUFFLE_ANSERS = 'shuffleanswers';
     const DEFAULT_SHUFFLE_ANSWERS = true;
 
@@ -63,7 +56,7 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
         $this->add_grading();
 
         // mod_ND : BEGIN
-        if (get_config('qtype_matrix', 'allow_dnd_ui')) {
+        if (config::allow_dnd_ui()) {
             //todo: parameter
             $builder->add_selectyesno(self::PARAM_USE_DND_UI, lang::use_dnd_ui());
             $builder->set_default(self::PARAM_USE_DND_UI, self::DEFAULT_USE_DND_UI);
@@ -151,7 +144,7 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
     {
         global $CFG;
         $errors = parent::validation($data, $files);
-        if (!property_exists($CFG, 'qtype_matrix_show_non_kprime_gui') || $CFG->qtype_matrix_show_non_kprime_gui !== '0') {
+        if (config::show_kprime_gui()) {
             if ($this->col_count($data) == 0) {
                 $errors['colshort[0]'] = lang::must_define_1_by_1();
             }
@@ -192,7 +185,7 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
         global $CFG;
         $builder = $this->builder;
 
-        if (!property_exists($CFG, 'qtype_matrix_show_non_kprime_gui') || $CFG->qtype_matrix_show_non_kprime_gui !== '0') {
+        if (config::show_kprime_gui()) {
             $builder->add_selectyesno(self::PARAM_MULTIPLE, lang::multiple_allowed());
             $builder->set_default(self::PARAM_MULTIPLE, self::DEFAULT_MULTIPLE);
         } else {
@@ -259,7 +252,7 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
         $matrix[] = $builder->create_static('</th>');
 
         $matrix[] = $builder->create_static('<th>');
-        if (!property_exists($CFG, 'qtype_matrix_show_non_kprime_gui') || $CFG->qtype_matrix_show_non_kprime_gui !== '0') {
+        if (config::show_kprime_gui()) {
             $matrix[] = $builder->create_submit(self::PARAM_ADD_COLLUMNS, '  ', array(
                 'class' => 'button add'));
             $builder->register_no_submit_button(self::PARAM_ADD_COLLUMNS);
@@ -304,7 +297,7 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
 
         $matrix[] = $builder->create_static('<tr>');
         $matrix[] = $builder->create_static('<td>');
-        if (!property_exists($CFG, 'qtype_matrix_show_non_kprime_gui') || $CFG->qtype_matrix_show_non_kprime_gui !== '0') {
+        if (config::show_kprime_gui()) {
             $matrix[] = $builder->create_submit('add_rows', '  ', array('class' => 'button add'));
             $builder->register_no_submit_button('add_rows');
         }
