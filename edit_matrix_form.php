@@ -57,7 +57,6 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
 
         // mod_ND : BEGIN
         if (config::allow_dnd_ui()) {
-            //todo: parameter
             $builder->add_selectyesno(self::PARAM_USE_DND_UI, lang::use_dnd_ui());
             $builder->set_default(self::PARAM_USE_DND_UI, self::DEFAULT_USE_DND_UI);
         }
@@ -117,18 +116,18 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
             foreach ($options->rows as $row) {
                 $col_index = 0;
                 foreach ($options->cols as $col) {
-                    $cell_name = qtype_matrix_grading::cell_name($row_index, $col_index, $options->multiple);
-                    $weight = $options->weights[$row->id][$col->id];
+                    $cell_name_multiple_answers = qtype_matrix_grading::cell_name($row_index, $col_index, true);
+                    $cell_name_single_answer = qtype_matrix_grading::cell_name($row_index, $col_index, false);
 
-                    if ($options->multiple) {
-                        $value = ($weight > 0) ? 'on' : '';
-                        $question->{$cell_name} = $value;
-                    } else {
-                        if ($weight > 0) {
-                            $question->{$cell_name} = $col_index;
-                            break;
-                        }
+                    $weight = $options->weights[$row->id][$col->id];
+                    
+
+                    $question->{$cell_name_multiple_answers} = ($weight > 0) ? 'on' : '';
+                    $question->{$cell_name_single_answer} = $col_index;
+                    if ($options->multiple && $weight > 0) {
+                        break;
                     }
+
                     $col_index++;
                 }
                 $row_index++;

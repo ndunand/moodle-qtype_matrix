@@ -338,52 +338,142 @@ class qtype_matrix extends question_type
             }
         }
 
-        //wheights
-        // First delete them (if they exist)
-        // (there is no danger of deleting the original weights when making a copy, because we are anyway deleting only weights associated with our newly created question ID)
+        /**
+         * Wheights
+         * 
+         * First we delete all weights. (There is no danger of deleting the original weights when making a copy, because we are anyway deleting only weights associated with our newly created question ID).
+         * Then we recreate them. (Because updating is too much of a pain)
+         * 
+         */
         $sql = "DELETE FROM {$prefix}question_matrix_weights
                 WHERE {$prefix}question_matrix_weights.rowid IN
                 (
                  SELECT rows.id FROM {$prefix}question_matrix_rows  AS rows
-                 INNER JOIN {$prefix}question_matrix      AS matrix ON rows.matrixid = matrix.id
+                 INNER JOIN {$prefix}question_matrix AS matrix ON rows.matrixid = matrix.id
                  WHERE matrix.questionid = $question_id
                 )";
         $DB->execute($sql);
 
-        // And now re-create them (just because updating is too much of a pain)
+
+        $weights = array();
+
+        /**
+         * When we switch from multiple answers to single answers (or the other
+         * way around) we loose answers. 
+         * 
+         * To avoid loosing information when we switch, we test if the weight matrix is empty. 
+         * If the weight matrix is empty we try to read from the other 
+         * representation directly from POST data.
+         * 
+         * We read from the POST because post data are not read into the question
+         * object because there is no corresponding field.
+         * 
+         * This is bit hacky but it is safe. The to_weight_matrix returns only 
+         * 0 or 1.
+         */
         if ($question->multiple) {
-            foreach ($rowids as $row_index => $row_id) {
-                foreach ($colids as $col_index => $col_id) {
-                    $key = qtype_matrix_grading::cell_name($row_index, $col_index, $question->multiple);
-                    $value = isset($question->{$key}) ? $question->{$key} : 0;
-                    if (!is_numeric($value)) {
-                        $value = empty($value) ? 0 : 1;
-                    }
+            $weights = $this->to_weigth_matrix($question, true);
+            if ($this->is_matrix_empty($weights)) {
+                $weights = $this->to_weigth_matrix($_POST, false);
+            }
+        } else {
+            $weights = $this->to_weigth_matrix($question, false);
+            if ($this->is_matrix_empty($weights)) {
+                $weights = $this->to_weigth_matrix($_POST, true);
+            }
+        }
+
+        foreach ($rowids as $row_index => $row_id) {
+            foreach ($colids as $col_index => $col_id) {
+                $value = $weights[$row_index][$col_index];
+                if ($value) {
                     $weight = (object) array(
                             'rowid' => $row_id,
                             'colid' => $col_id,
-                            'weight' => $value
+                            'weight' => 1
                     );
                     $DB->insert_record('question_matrix_weights', $weight);
                 }
             }
-        } else {
-            foreach ($rowids as $row_index => $row_id) {
-                $key = qtype_matrix_grading::cell_name($row_index, 0, $question->multiple);
-                $col_index = $question->{$key};
-                $col_id = $colids[$col_index];
-                $value = 1;
-
-                $weight = (object) array(
-                        'rowid' => $row_id,
-                        'colid' => $col_id,
-                        'weight' => $value
-                );
-                $DB->insert_record('question_matrix_weights', $weight);
-            }
         }
 
         $transaction->allow_commit();
+    }
+
+    /**
+     * Transform the weight from the edit-form's representation to a standard matrix 
+     * representation
+     * 
+     * Input data is either
+     * 
+     *      $question->{cell0_1] = 1
+     * 
+     * or
+     * 
+     *      $question->{cell0] = 3
+     * 
+     * Output
+     * 
+     *      [ 1 0 1 0 ]
+     *      [ 0 0 0 1 ]
+     *      { 1 1 1 0 ]
+     *      [ 0 1 0 1 ]
+     * 
+     * 
+     * @param object $data              Question's data, either from the question object or from the post
+     * @param boolean $from_multiple    Whether we extract from multiple representation or not
+     * @result array                    The weights
+     */
+    public function to_weigth_matrix($data, $from_multiple)
+    {
+        $data = (object) $data;
+        $result = array();
+        $row_count = 20;
+        $col_count = 20;
+
+        //init
+        for ($row = 0; $row < $row_count; $row++) {
+            for ($col = 0; $col < $col_count; $col++) {
+                $result[$row][$col] = 0;
+            }
+        }
+
+        if ($from_multiple) {
+            for ($row = 0; $row < $row_count; $row++) {
+                for ($col = 0; $col < $col_count; $col++) {
+                    $key = qtype_matrix_grading::cell_name($row, $col, $from_multiple);
+                    $value = isset($data->{$key}) ? $data->{$key} : 0;
+                    $result[$row][$col] = $value ? 1 : 0;
+                }
+            }
+        } else {
+            for ($row = 0; $row < $row_count; $row++) {
+                $key = qtype_matrix_grading::cell_name($row, 0, $from_multiple);
+                if (isset($data->{$key})) {
+                    $col = $data->{$key};
+                    $result[$row][$col] = 1;
+                }
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * True if the matrix is empty (contains only zeroes). False otherwise.
+     * 
+     * @param array $matrix Array of arrays
+     * @return boolean True if the matrix contains only zeros. False otherwise
+     */
+    public function is_matrix_empty($matrix)
+    {
+        foreach ($matrix as $row) {
+            foreach ($row as $value) {
+                if ($value && $value > 0) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     /**

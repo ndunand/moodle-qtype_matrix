@@ -23,7 +23,6 @@ abstract class qtype_matrix_grading
         foreach ($files as $file)
         {
             include_once("$dir/$file");
-            //$class = $file;
             $class = str_replace('.class.php', '', $file);
             if (class_exists($class))
             {
@@ -170,25 +169,11 @@ abstract class qtype_matrix_grading
 
     protected function col_count($data)
     {
-//        foreach ($data['colshort'] as $index => $value)
-//        {
-//            if (empty($value))
-//            {
-//                return $index++;
-//            }
-//        }
         return count($data['colshort']);
     }
 
     protected function row_count($data)
     {
-//        foreach ($data['rowshort'] as $index => $value)
-//        {
-//            if (empty($value))
-//            {
-//                return $index++;
-//            }
-//        }
         return count($data['rowshort']);
     }
 }
