@@ -22,7 +22,7 @@ class config
 
     static function allow_dnd_ui()
     {
-        return get('allow_dnd_ui');
+        return self::get('allow_dnd_ui');
     }
 
 }
