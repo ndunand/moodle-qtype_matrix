@@ -20,7 +20,7 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
 
     //How many elements are added each time somebody click the add row/add column button.
     const DEFAULT_REPEAT_ELEMENTS = 1;
-    const PARAM_COLS = 'colshort';
+    const PARAM_COLS = 'cols_shorttext';
     const DEFAULT_COLS = 2;
     const PARAM_ADD_COLLUMNS = 'add_cols';
     const PARAM_ROWS = 'rows_shorttext';
@@ -103,12 +103,12 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
                 $question->rowid[] = $row->id;
             }
 
-            $question->colshort = array();
-            $question->collong = array();
+            $question->cols_shorttext = array();
+            $question->cols_description = array();
             $question->colid = array();
             foreach ($options->cols as $col) {
-                $question->colshort[] = $col->shorttext;
-                $question->collong[] = $col->description;
+                $question->cols_shorttext[] = $col->shorttext;
+                $question->cols_description[] = $col->description;
                 $question->colid[] = $col->id;
             }
 
@@ -145,7 +145,7 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
         $errors = parent::validation($data, $files);
         if (config::show_kprime_gui()) {
             if ($this->col_count($data) == 0) {
-                $errors['colshort[0]'] = lang::must_define_1_by_1();
+                $errors['cols_shorttext[0]'] = lang::must_define_1_by_1();
             }
 
             if ($this->row_count($data) == 0) {
@@ -153,7 +153,7 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
             }
         } else {
             if ($this->col_count($data) != 2) {
-                $errors['colshort[0]'] = lang::must_define_1_by_1();
+                $errors['cols_shorttext[0]'] = lang::must_define_1_by_1();
             }
 
             if ($this->row_count($data) != 4) {
@@ -169,7 +169,7 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
 
     protected function col_count($data)
     {
-        return count($data['colshort']);
+        return count($data['cols_shorttext']);
     }
 
     protected function row_count($data)
@@ -236,9 +236,9 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
         for ($col = 0; $col < $cols_count; $col++) {
             $matrix[] = $builder->create_static('<th>');
             $matrix[] = $builder->create_static('<div class="input-group">');
-            $matrix[] = $builder->create_text("colshort[$col]", false);
+            $matrix[] = $builder->create_text("cols_shorttext[$col]", false);
 
-            $popup = $builder->create_htmlpopup("collong[$col]", lang::col_long());
+            $popup = $builder->create_htmlpopup("cols_description[$col]", lang::col_description());
             $matrix = array_merge($matrix, $popup);
 
             $matrix[] = $builder->create_hidden("colid[$col]");
@@ -330,8 +330,8 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
         }
 
         if ($cols_count > 1 && (empty($this->question->id) || empty($this->question->options->rows))) {
-            $builder->set_default('colshort[0]', lang::true_());
-            $builder->set_default('colshort[1]', lang::false_());
+            $builder->set_default('cols_shorttext[0]', lang::true_());
+            $builder->set_default('cols_shorttext[1]', lang::false_());
         }
         $this->_form->setExpanded('matrixheader');
     }

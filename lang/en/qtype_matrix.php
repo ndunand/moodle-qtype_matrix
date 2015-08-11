@@ -64,8 +64,8 @@ $string['colsheader_desc'] = '<p>Shorttext will be used when it\'s present, with
 <p>Students can select multiple or single columns per row, depending on how the question has been configured, and each row receives a grade, defined by one of the grading methods.</p>
 <p>The final grade for the question is an average of their grades for each of the rows with the exeption of the Kprime type where all answers have to be correct.</p>';
 
-$string['colshort'] = 'Response';
-$string['collong'] = 'Description';
+$string['cols_shorttext'] = 'Response';
+$string['cols_description'] = 'Description';
 
 //$string['addmorecols'] = 'Add {$a} more columns';
 

@@ -38,9 +38,9 @@ class lang
         return self::get('grademethod');
     }
 
-    public static function col_long()
+    public static function col_description()
     {
-        return self::get('collong');
+        return self::get('cols_description');
     }
 
     public static function row_feedback()

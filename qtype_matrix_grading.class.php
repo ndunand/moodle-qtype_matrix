@@ -169,7 +169,7 @@ abstract class qtype_matrix_grading
 
     protected function col_count($data)
     {
-        return count($data['colshort']);
+        return count($data['cols_shorttext']);
     }
 
     protected function row_count($data)

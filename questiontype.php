@@ -222,7 +222,7 @@ class qtype_matrix extends question_type
         // cols
         // mapping for indexes to db ids.
         $colids = array();
-        foreach ($question->colshort as $i => $short) {
+        foreach ($question->cols_shorttext as $i => $short) {
 
             $make_copy = (property_exists($question, 'makecopy') && $question->makecopy == '1');
             $col_id = $question->colid[$i];
@@ -230,8 +230,8 @@ class qtype_matrix extends question_type
             $col = (object) array(
                     'id' => $col_id,
                     'matrixid' => $question_id,
-                    'shorttext' => $question->colshort[$i],
-                    'description' => $question->collong[$i]
+                    'shorttext' => $question->cols_shorttext[$i],
+                    'description' => $question->cols_description[$i]
             );
             $delete = empty($col->shorttext);
             if ($delete && $is_new) {

@@ -52,8 +52,8 @@ $string['colsheaderdesc'] =  '<p>Le titre est affiché en-tête des colonnes. La
 <p>Les étudiants peuvent sélectionner soit une soit plusieurs réponses par ligne en fonction de la configuration. Chaque ligne reçoit une note en fonction de la méthode d\'évaluation choisie.</p>
 <p>La note finale est la moyenne des notes de chacune des lignes sauf pour le type Kprime ou il faut avoir toutes les réponses correctes pour obtenir les points.</p>';
 
-$string['colshort'] = 'Titre';
-$string['collong'] = 'Description';
+$string['cols_shorttext'] = 'Titre';
+$string['cols_description'] = 'Description';
 
 //$string['addmorecols'] = 'Ajouter {$a} colonne(s) de plus';
 
