@@ -8,10 +8,7 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->libdir . '/questionlib.php');
 require_once (dirname(__FILE__)) . '/qtype_matrix_grading.class.php';
-
-// renderer for the whole question - needs a matching class
-// see matrix_qtype::matrix_renderer_options
-//define('QTYPE_MATRIX_RENDERER_MATRIX', 'matrix');
+require_once($CFG->dirroot . '/question/type/matrix/libs/question_matrix_store.php');
 
 /**
  * The matrix question class
@@ -49,56 +46,18 @@ class qtype_matrix extends question_type
     /**
      * Deletes question from the question-type specific tables
      *
-     * @param integer $questionid The question being deleted
-     * @param integer $contextid The context id
+     * @param integer $question_id The question being deleted
+     * @param integer $context_id The context id
      * @return boolean to indicate success of failure.
      */
-    function delete_question_options($questionid, $contextid = null)
+    function delete_question_options($question_id, $context_id = null)
     {
-        if (empty($questionid)) {
+        if (empty($question_id)) {
             return false;
         }
 
-        global $DB;
-        global $CFG;
-
-        $prefix = $CFG->prefix;
-
-        //wheights
-        $sql = "DELETE FROM {$prefix}question_matrix_weights
-                WHERE {$prefix}question_matrix_weights.rowid IN 
-                      (
-                      SELECT rows.id FROM {$prefix}question_matrix_rows  AS rows
-                      INNER JOIN {$prefix}question_matrix      AS matrix ON rows.matrixid = matrix.id
-                      WHERE matrix.questionid = $questionid
-                      )";
-        $DB->execute($sql);
-
-        //rows
-        $sql = "DELETE FROM {$prefix}question_matrix_rows
-                WHERE {$prefix}question_matrix_rows.matrixid IN 
-                      (
-                      SELECT matrix.id FROM {$prefix}question_matrix AS matrix
-                      WHERE matrix.questionid = $questionid
-                      )";
-        $DB->execute($sql);
-
-        //cols
-        $sql = "DELETE FROM {$prefix}question_matrix_cols
-                WHERE {$prefix}question_matrix_cols.matrixid IN 
-                      (
-                      SELECT matrix.id FROM {$prefix}question_matrix AS matrix
-                      WHERE matrix.questionid = $questionid
-                      )";
-        $DB->execute($sql);
-
-        //matrix
-        $sql = "DELETE FROM {$prefix}question_matrix WHERE questionid = $questionid";
-        $DB->execute($sql);
-        // attempts   
-        $sql = "DELETE FROM {$prefix}question_attempt_step_data USING {$prefix}question_attempt_steps, {$prefix}question_attempts WHERE {$prefix}question_attempt_steps.id = {$prefix}question_attempt_step_data.attemptstepid AND {$prefix}question_attempts.id = {$prefix}question_attempt_steps.questionattemptid AND {$prefix}question_attempts.questionid=$questionid";
-        $DB->execute($sql);
-
+        global $store;
+        $store->delete_question($question_id);
 
         return true;
     }
@@ -106,21 +65,22 @@ class qtype_matrix extends question_type
     /**
      * Deletes question from the question-type specific tables
      *
-     * @param integer $questionid The question being deleted
-     * @param integer $contextid
+     * @param integer $question_id The question being deleted
+     * @param integer $context_id
      * @return boolean to indicate success of failure.
      */
-    function delete_question($questionid, $contextid = null)
+    function delete_question($question_id, $context_id = null)
     {
-        if (empty($questionid)) {
+        if (empty($question_id)) {
             return false;
         }
 
         global $DB;
 
         $transaction = $DB->start_delegated_transaction();
-        $this->delete_question_options($questionid);
-        parent::delete_question($questionid, $contextid);
+
+        $this->delete_question_options($question_id);
+        parent::delete_question($question_id, $context_id);
 
         $transaction->allow_commit();
 
@@ -167,57 +127,32 @@ class qtype_matrix extends question_type
 
     static function retrieve_matrix($question_id)
     {
+        $store = new question_matrix_store();
+
         if (empty($question_id)) {
             return null;
         }
 
-        static $results = array();
-        if (isset($results[$question_id])) {
-            return $results[$question_id];
-        }
-
-        global $DB;
-        $matrix = $DB->get_record('question_matrix', array('questionid' => $question_id));
-
+        $matrix = $store->get_question($question_id);
         if (empty($matrix)) {
-            return false;
-        } else {
-            $matrix->multiple = (bool) $matrix->multiple;
+            return null;
         }
-        $matrix->rows = $DB->get_records('question_matrix_rows', array('matrixid' => $matrix->id), 'id ASC');
-        $matrix->rows = $matrix->rows ? $matrix->rows : array();
 
-        $matrix->cols = $DB->get_records('question_matrix_cols', array('matrixid' => $matrix->id), 'id ASC');
-        $matrix->cols = $matrix->cols ? $matrix->cols : array();
+        $matrix->rows = $store->get_question_rows($question_id);
+        $matrix->cols = $store->get_question_cols($question_id);
 
-        global $CFG;
-        $prefix = $CFG->prefix;
-        $sql = "SELECT weights.* 
-                FROM {$prefix}question_matrix_weights AS weights
-                WHERE 
-                    rowid IN (SELECT rows.id FROM {$prefix}question_matrix_rows     AS rows 
-                              INNER JOIN {$prefix}question_matrix                   AS matrix ON rows.matrixid = matrix.id
-                              WHERE matrix.questionid = $question_id)
-                    OR
-                              
-                    colid IN (SELECT cols.id FROM {$prefix}question_matrix_cols     AS cols
-                              INNER JOIN {$prefix}question_matrix                   AS matrix ON cols.matrixid = matrix.id
-                              WHERE matrix.questionid = $question_id)
-               ";
-        $matrix->rawweights = $DB->get_records_sql($sql);
-
+        $raw_weights = $store->get_question_weights($question_id);
+        //initialize weights       
         $matrix->weights = array();
-
-        foreach ($matrix->rows as $r) {
-            $matrix->fullmatrix[$r->id] = array();
-            foreach ($matrix->cols as $c) {
-                $matrix->weights[$r->id][$c->id] = 0;
+        foreach ($matrix->rows as $row) {
+            foreach ($matrix->cols as $col) {
+                $matrix->weights[$row->id][$col->id] = 0;
             }
         }
-        foreach ($matrix->rawweights as $w) {
-            $matrix->weights[$w->rowid][$w->colid] = (float) $w->weight;
+        //set non zero weights
+        foreach ($raw_weights as $weight) {
+            $matrix->weights[$weight->rowid][$weight->colid] = (float) $weight->weight;
         }
-        $results[$question_id] = $matrix;
         return $matrix;
     }
 
@@ -247,93 +182,67 @@ class qtype_matrix extends question_type
      */
     function save_question_options($question)
     {
-        global $DB, $CFG;
-        $prefix = $CFG->prefix;
-        //parent::save_question_options($question);
-
-        $question_id = isset($question->id) ? $question->id : false;
+        global $DB;
+        $store = new question_matrix_store();
 
         $transaction = $DB->start_delegated_transaction();
 
-        $matrix = $DB->get_record('question_matrix', array('questionid' => $question_id));
-
-        if (empty($matrix)) {
-            $matrix = (object) array(
-                    'questionid' => $question->id,
-                    'multiple' => $question->multiple,
-                    'grademethod' => $question->grademethod,
-                    'use_dnd_ui' => $question->use_dnd_ui,
-                    'shuffleanswers' => $question->shuffleanswers,
-                    'renderer' => 'matrix'
-            );
-            $matrix_id = $DB->insert_record('question_matrix', $matrix);
-        } else {
-            $matrix->questionid = $question->id;
-            $matrix->multiple = $question->multiple;
-            $matrix->grademethod = $question->grademethod;
-            $matrix->shuffleanswers = $question->shuffleanswers;
-            $matrix->use_dnd_ui = $question->use_dnd_ui;
-            $matrix->renderer = 'matrix';
-            $DB->update_record('question_matrix', $matrix);
-            $matrix_id = $matrix->id;
-        }
-
+        $store->save_question($question);
+        $question_id = $question->id;
 
         // rows
-        $rowids = array(); //mapping for indexes to db ids.
+        // mapping for indexes to db ids.
+        $rowids = array();
         foreach ($question->rowshort as $i => $short) {
-            if ($question->rowid[$i] == '' || (property_exists($question, 'makecopy') && $question->makecopy == '1')) {
-                // either the row comes without a pre-existing ID (so it's a newly created question) or the row HAS an ID, but we want to duplicate (so we should also create a new row)
-                if (empty($short)) {
-                    break;
-                }
-                $row = (object) array(
-                        'matrixid' => $matrix_id,
-                        'shorttext' => $question->rowshort[$i],
-                        'description' => $question->rowlong[$i],
-                        'feedback' => $question->rowfeedback[$i]
-                );
-                $newid = $DB->insert_record('question_matrix_rows', $row);
-                $rowids[] = $newid;
+            $make_copy = (property_exists($question, 'makecopy') && $question->makecopy == '1');
+            $row_id = $question->rowid[$i];
+            $is_new = !$row_id;
+            $row = (object) array(
+                    'id' => $row_id,
+                    'matrixid' => $question_id,
+                    'shorttext' => $question->rowshort[$i],
+                    'description' => $question->rowlong[$i],
+                    'feedback' => $question->rowfeedback[$i]
+            );
+            $delete = empty($row->shorttext);
+
+            if ($delete && $is_new) {
+                //noop
+            } else if ($delete) {
+                $store->delete_row($row);
+            } else if ($is_new || $make_copy) {
+                $store->insert_row($row);
+                $rowids[] = $row->id;
             } else {
-                // TODO: Add a possibility to delete if (empty($short)) 
-                $row = (object) array(
-                        'id' => $question->rowid[$i],
-                        'matrixid' => $matrix_id,
-                        'shorttext' => $question->rowshort[$i],
-                        'description' => $question->rowlong[$i],
-                        'feedback' => $question->rowfeedback[$i]
-                );
-                $DB->update_record('question_matrix_rows', $row);
-                $rowids[] = $question->rowid[$i];
+                $store->update_row($row);
+                $rowids[] = $row->id;
             }
         }
 
         // cols
+        // mapping for indexes to db ids.
         $colids = array();
         foreach ($question->colshort as $i => $short) {
-            if ($question->colid[$i] == '' || (property_exists($question, 'makecopy') && $question->makecopy == '1')) {
-                // same spiel as with the rows.
-                if (empty($short)) {
-                    break;
-                }
-                $col = (object) array(
-                        'matrixid' => $matrix_id,
-                        'shorttext' => $question->colshort[$i],
-                        'description' => $question->collong[$i]
-                );
 
-                $newid = $DB->insert_record('question_matrix_cols', $col);
-                $colids[] = $newid;
+            $make_copy = (property_exists($question, 'makecopy') && $question->makecopy == '1');
+            $col_id = $question->colid[$i];
+            $is_new = !$col_id;
+            $col = (object) array(
+                    'id' => $col_id,
+                    'matrixid' => $question_id,
+                    'shorttext' => $question->colshort[$i],
+                    'description' => $question->collong[$i]
+            );
+            $delete = empty($col->shorttext);
+            if ($delete && $is_new) {
+                //noop
+            } else if ($delete) {
+                $store->delete_col($col);
+            } else if (!$col_id || $make_copy) {
+                $store->insert_col($col);
+                $colids[] = $col->id;
             } else {
-                // TODO: Add a possibility to delete if (empty($short)) {
-                $col = (object) array(
-                        'id' => $question->colid[$i],
-                        'matrixid' => $matrix_id,
-                        'shorttext' => $question->colshort[$i],
-                        'description' => $question->collong[$i]
-                );
-                $DB->update_record('question_matrix_cols', $col);
+                $store->update_col($col);
                 $colids[] = $question->colid[$i];
             }
         }
@@ -345,17 +254,7 @@ class qtype_matrix extends question_type
          * Then we recreate them. (Because updating is too much of a pain)
          * 
          */
-        $sql = "DELETE FROM {$prefix}question_matrix_weights
-                WHERE {$prefix}question_matrix_weights.rowid IN
-                (
-                 SELECT rows.id FROM {$prefix}question_matrix_rows  AS rows
-                 INNER JOIN {$prefix}question_matrix AS matrix ON rows.matrixid = matrix.id
-                 WHERE matrix.questionid = $question_id
-                )";
-        $DB->execute($sql);
-
-
-        $weights = array();
+        $store->delete_question_weights($question_id);
 
         /**
          * When we switch from multiple answers to single answers (or the other
@@ -371,6 +270,7 @@ class qtype_matrix extends question_type
          * This is bit hacky but it is safe. The to_weight_matrix returns only 
          * 0 or 1.
          */
+        $weights = array();
         if ($question->multiple) {
             $weights = $this->to_weigth_matrix($question, true);
             if ($this->is_matrix_empty($weights)) {
@@ -392,7 +292,7 @@ class qtype_matrix extends question_type
                             'colid' => $col_id,
                             'weight' => 1
                     );
-                    $DB->insert_record('question_matrix_weights', $weight);
+                    $store->insert_weight($weight);
                 }
             }
         }
@@ -416,7 +316,7 @@ class qtype_matrix extends question_type
      * 
      *      [ 1 0 1 0 ]
      *      [ 0 0 0 1 ]
-     *      { 1 1 1 0 ]
+     *      [ 1 1 1 0 ]
      *      [ 0 1 0 1 ]
      * 
      * 
