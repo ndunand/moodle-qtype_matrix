@@ -22,7 +22,7 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
     const DEFAULT_REPEAT_ELEMENTS = 1;
     const PARAM_COLS = 'cols_shorttext';
     const DEFAULT_COLS = 2;
-    const PARAM_ADD_COLLUMNS = 'add_cols';
+    const PARAM_ADD_COLUMNS = 'add_cols';
     const PARAM_ROWS = 'rows_shorttext';
     const DEFAULT_ROWS = 4;
     const PARAM_ADD_ROWS = 'add_rows';
@@ -252,9 +252,9 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
 
         $matrix[] = $builder->create_static('<th>');
         if (config::show_kprime_gui()) {
-            $matrix[] = $builder->create_submit(self::PARAM_ADD_COLLUMNS, '  ', array(
+            $matrix[] = $builder->create_submit(self::PARAM_ADD_COLUMNS, '  ', array(
                 'class' => 'button add'));
-            $builder->register_no_submit_button(self::PARAM_ADD_COLLUMNS);
+            $builder->register_no_submit_button(self::PARAM_ADD_COLUMNS);
         }
         $matrix[] = $builder->create_static('</th>');
 
@@ -392,7 +392,7 @@ EOT;
             $result = count($this->question->options->cols);
         }
 
-        $add_cols = $this->param_add_collumns();
+        $add_cols = $this->param_add_columns();
         if ($add_cols) {
             $result++;
         }
@@ -405,9 +405,9 @@ EOT;
      * 
      * @return columns to add
      */
-    protected function param_add_collumns()
+    protected function param_add_columns()
     {
-        return optional_param(self::PARAM_ADD_COLLUMNS, '', PARAM_TEXT);
+        return optional_param(self::PARAM_ADD_COLUMNS, '', PARAM_TEXT);
     }
 
     protected function param_rows()
