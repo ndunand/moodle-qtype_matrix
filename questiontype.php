@@ -56,7 +56,7 @@ class qtype_matrix extends question_type
             return false;
         }
 
-        global $store;
+        $store = new question_matrix_store();
         $store->delete_question($question_id);
 
         return true;
@@ -187,14 +187,21 @@ class qtype_matrix extends question_type
 
         $transaction = $DB->start_delegated_transaction();
 
-        $store->save_question($question);
         $question_id = $question->id;
+        $is_new = !$question_id;
+        $make_copy = (property_exists($question, 'makecopy') && $question->makecopy == '1');
+
+        if ($is_new || $make_copy) {
+            $store->insert_question($question);
+            $question_id = $question->id;
+        } else {
+            $store->update_question($question);
+        }
 
         // rows
         // mapping for indexes to db ids.
         $rowids = array();
         foreach ($question->rows_shorttext as $i => $short) {
-            $make_copy = (property_exists($question, 'makecopy') && $question->makecopy == '1');
             $row_id = $question->rowid[$i];
             $is_new = !$row_id;
             $row = (object) array(
@@ -223,8 +230,6 @@ class qtype_matrix extends question_type
         // mapping for indexes to db ids.
         $colids = array();
         foreach ($question->cols_shorttext as $i => $short) {
-
-            $make_copy = (property_exists($question, 'makecopy') && $question->makecopy == '1');
             $col_id = $question->colid[$i];
             $is_new = !$col_id;
             $col = (object) array(
