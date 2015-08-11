@@ -45,12 +45,12 @@ class lang
 
     public static function row_feedback()
     {
-        return self::get('rowfeedback');
+        return self::get('rows_feedback');
     }
 
     public static function row_long()
     {
-        return self::get('rowlong');
+        return self::get('rows_description');
     }
 
     public static function true_()

@@ -193,16 +193,16 @@ class qtype_matrix extends question_type
         // rows
         // mapping for indexes to db ids.
         $rowids = array();
-        foreach ($question->rowshort as $i => $short) {
+        foreach ($question->rows_shorttext as $i => $short) {
             $make_copy = (property_exists($question, 'makecopy') && $question->makecopy == '1');
             $row_id = $question->rowid[$i];
             $is_new = !$row_id;
             $row = (object) array(
                     'id' => $row_id,
                     'matrixid' => $question_id,
-                    'shorttext' => $question->rowshort[$i],
-                    'description' => $question->rowlong[$i],
-                    'feedback' => $question->rowfeedback[$i]
+                    'shorttext' => $question->rows_shorttext[$i],
+                    'description' => $question->rows_description[$i],
+                    'feedback' => $question->rows_feedback[$i]
             );
             $delete = empty($row->shorttext);
 

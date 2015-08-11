@@ -174,6 +174,6 @@ abstract class qtype_matrix_grading
 
     protected function row_count($data)
     {
-        return count($data['rowshort']);
+        return count($data['rows_shorttext']);
     }
 }

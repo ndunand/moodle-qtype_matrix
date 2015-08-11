@@ -23,7 +23,7 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
     const PARAM_COLS = 'colshort';
     const DEFAULT_COLS = 2;
     const PARAM_ADD_COLLUMNS = 'add_cols';
-    const PARAM_ROWS = 'rowshort';
+    const PARAM_ROWS = 'rows_shorttext';
     const DEFAULT_ROWS = 4;
     const PARAM_ADD_ROWS = 'add_rows';
     const PARAM_GRADE_METHOD = 'grademethod';
@@ -92,14 +92,14 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
             $question->grademethod = $options->grademethod;
             $question->shuffleanswers = $options->shuffleanswers ? '1' : '0';
             $question->use_dnd_ui = $options->use_dnd_ui ? '1' : '0';
-            $question->rowshort = [];
-            $question->rowlong = [];
-            $question->rowfeedback = [];
+            $question->rows_shorttext = [];
+            $question->rows_description = [];
+            $question->rows_feedback = [];
             $question->rowid = [];
             foreach ($options->rows as $row) {
-                $question->rowshort[] = $row->shorttext;
-                $question->rowlong[] = $row->description;
-                $question->rowfeedback[] = $row->feedback;
+                $question->rows_shorttext[] = $row->shorttext;
+                $question->rows_description[] = $row->description;
+                $question->rows_feedback[] = $row->feedback;
                 $question->rowid[] = $row->id;
             }
 
@@ -149,7 +149,7 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
             }
 
             if ($this->row_count($data) == 0) {
-                $errors['rowshort[0]'] = lang::must_define_1_by_1();
+                $errors['rows_shorttext[0]'] = lang::must_define_1_by_1();
             }
         } else {
             if ($this->col_count($data) != 2) {
@@ -157,7 +157,7 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
             }
 
             if ($this->row_count($data) != 4) {
-                $errors['rowshort[0]'] = lang::must_define_1_by_1();
+                $errors['rows_shorttext[0]'] = lang::must_define_1_by_1();
             }
         }
         $grading = qtype_matrix::grading($data[self::PARAM_GRADE_METHOD]);
@@ -174,7 +174,7 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
 
     protected function row_count($data)
     {
-        return count($data['rowshort']);
+        return count($data['rows_shorttext']);
     }
 
     //elements
@@ -265,9 +265,9 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
             $matrix[] = $builder->create_static('<td>');
 
             $matrix[] = $builder->create_static('<div class="input-group">');
-            $matrix[] = $builder->create_text("rowshort[$row]", false);
+            $matrix[] = $builder->create_text("rows_shorttext[$row]", false);
 
-            $question_popup = $builder->create_htmlpopup("rowlong[$row]", lang::row_long());
+            $question_popup = $builder->create_htmlpopup("rows_description[$row]", lang::row_long());
             $matrix = array_merge($matrix, $question_popup);
             $matrix[] = $builder->create_hidden("rowid[$row]");
 
@@ -284,7 +284,7 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
 
             $matrix[] = $builder->create_static('<td class="feedback">');
 
-            $feedback_popup = $builder->create_htmlpopup("rowfeedback[$row]", lang::row_feedback());
+            $feedback_popup = $builder->create_htmlpopup("rows_feedback[$row]", lang::row_feedback());
             $matrix = array_merge($matrix, $feedback_popup);
 
             $matrix[] = $builder->create_static('</td>');

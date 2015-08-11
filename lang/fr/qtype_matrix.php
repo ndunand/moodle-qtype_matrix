@@ -41,9 +41,9 @@ $string['rowsheaderdesc'] = '<p>Le titre est affiché en tête de ligne. La desc
 <p>Les étudiants peuvent sélectionner soit une soit plusieurs réponses par ligne en fonction de la configuration. Chaque ligne reçoit une note en fonction de la méthode d\'évaluation choisie.</p>
 <p>La note finale est la moyenne des notes de chacune des lignes sauf pour le type kprime ou il faut avoir toutes les réponses correctes pour obtenir les points.</p>';
 
-$string['rowshort'] = 'Titre';
-$string['rowlong'] = 'Description';
-$string['rowfeedback'] = 'Commentaires';
+$string['rows_shorttext'] = 'Titre';
+$string['rows_description'] = 'Description';
+$string['rows_feedback'] = 'Commentaires';
 
 //$string['addmorerows'] = 'Ajouter {$a} ligne(s) de plus';
 
