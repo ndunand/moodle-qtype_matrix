@@ -124,7 +124,7 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
 
                     $question->{$cell_name_multiple_answers} = ($weight > 0) ? 'on' : '';
                     $question->{$cell_name_single_answer} = $col_index;
-                    if ($options->multiple && $weight > 0) {
+                    if (!$options->multiple && $weight > 0) {
                         break;
                     }
 
