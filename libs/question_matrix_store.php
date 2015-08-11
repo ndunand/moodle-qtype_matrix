@@ -84,40 +84,55 @@ class question_matrix_store
         global $DB, $CFG;
         $prefix = $CFG->prefix;
 
-        $sql = <<<EOT
-        DELETE FROM {$prefix}question_matrix_weights
+        /**
+         * Note
+         * $DB->execute does not accept multiple SQL statements
+         */
+        //wheights
+        $sql = "DELETE FROM {$prefix}question_matrix_weights
                 WHERE {$prefix}question_matrix_weights.rowid IN 
                       (
-                        SELECT rows.id FROM {$prefix}question_matrix_rows  AS rows
-                        INNER JOIN {$prefix}question_matrix AS matrix ON rows.matrixid = matrix.id
-                        WHERE matrix.questionid = $question_id
-                      );
-                          
-        DELETE FROM {$prefix}question_matrix_rows
+                      SELECT rows.id FROM {$prefix}question_matrix_rows  AS rows
+                      INNER JOIN {$prefix}question_matrix      AS matrix ON rows.matrixid = matrix.id
+                      WHERE matrix.questionid = $question_id
+                      )";
+        $DB->execute($sql);
+
+        //rows
+        $sql = "DELETE FROM {$prefix}question_matrix_rows
                 WHERE {$prefix}question_matrix_rows.matrixid IN 
                       (
-                        SELECT matrix.id FROM {$prefix}question_matrix AS matrix
-                        WHERE matrix.questionid = $question_id
-                      );
-                          
-        DELETE FROM {$prefix}question_matrix_cols
+                      SELECT matrix.id FROM {$prefix}question_matrix AS matrix
+                      WHERE matrix.questionid = $question_id
+                      )";
+        $DB->execute($sql);
+
+        //cols
+        $sql = "DELETE FROM {$prefix}question_matrix_cols
                 WHERE {$prefix}question_matrix_cols.matrixid IN 
                       (
-                        SELECT matrix.id FROM {$prefix}question_matrix AS matrix
-                        WHERE matrix.questionid = $question_id
-                      );
-                          
-        DELETE FROM {$prefix}question_matrix WHERE questionid = $question_id;
-            
-        DELETE FROM {$prefix}question_attempt_step_data 
-               USING {$prefix}question_attempt_steps, {$prefix}question_attempts 
-               WHERE {$prefix}question_attempt_steps.id = {$prefix}question_attempt_step_data.attemptstepid 
-                   AND {$prefix}question_attempts.id = {$prefix}question_attempt_steps.questionattemptid 
-                   AND {$prefix}question_attempts.questionid = $question_id;
-                          
-EOT;
-
+                      SELECT matrix.id FROM {$prefix}question_matrix AS matrix
+                      WHERE matrix.questionid = $question_id
+                      )";
         $DB->execute($sql);
+
+        //matrix
+        $sql = "DELETE FROM {$prefix}question_matrix WHERE questionid = $question_id";
+        $DB->execute($sql);
+
+        // attempts   
+        $sql = "DELETE 
+                    data, steps, attempts 
+                FROM 
+                    {$prefix}question_attempt_step_data data
+                JOIN 
+                    {$prefix}question_attempt_steps steps ON steps.id = data.attemptstepid
+                JOIN
+                    {$prefix}question_attempts attempts ON attempts.id = steps.questionattemptid 
+                WHERE 
+                    attempts.questionid = $question_id";
+        $DB->execute($sql);
+
         return true;
     }
 
