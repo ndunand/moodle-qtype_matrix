@@ -15,7 +15,7 @@ class lang
 
     public static function use_dnd_ui()
     {
-        self::get('use_dnd_ui');
+        return self::get('use_dnd_ui');
     }
 
     public static function shuffle_answers()
