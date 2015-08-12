@@ -1,6 +1,9 @@
 .que.matrix {
   /*tooltip*/
 }
+.que.matrix .question_text {
+  background-color: white;
+}
 .que.matrix table {
   display: inline-table;
 }

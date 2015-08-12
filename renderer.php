@@ -37,50 +37,41 @@ class qtype_matrix_renderer extends qtype_with_combined_feedback_renderer
 
         $table->head = array();
         $table->head[] = '';
-        
+
         $order = $question->get_order($qa);
-        
-        foreach ($question->cols as $col)
-        {
+
+        foreach ($question->cols as $col) {
             $table->head[] = self::matrix_header($col);
         }
 
-        if ($options->correctness)
-        {
+        if ($options->correctness) {
             $table->head[] = '';
         }
 
-        foreach ($order as $rowid)
-        {
+        foreach ($order as $rowid) {
             $row = $question->rows[$rowid];
             $row_data = array();
             $row_data[] = self::matrix_header($row);
-            foreach ($question->cols as $col)
-            {
+            foreach ($question->cols as $col) {
                 $key = $question->key($row, $col);
                 $cell_name = $qa->get_field_prefix() . $key;
 
                 $is_readonly = $options->readonly;
                 $is_checked = $question->is_answered($response, $row, $col);
 
-                if ($question->multiple)
-                {
+                if ($question->multiple) {
                     $cell = self::checkbox($cell_name, $is_checked, $is_readonly);
-                }
-                else
-                {
+                } else {
                     $cell = self::radio($cell_name, $col->id, $is_checked, $is_readonly);
                 }
-                if ($options->correctness)
-                {
+                if ($options->correctness) {
                     $weight = $question->weight($row, $col);
                     $cell .= $this->feedback_image($weight);
                 }
                 $row_data[] = $cell;
             }
 
-            if ($options->correctness)
-            {
+            if ($options->correctness) {
                 $row_grade = $question->grading()->grade_row($question, $row, $response);
                 $feedback = $row->feedback;
                 $feedback = strip_tags($feedback) ? $feedback : '';
@@ -90,8 +81,8 @@ class qtype_matrix_renderer extends qtype_with_combined_feedback_renderer
 
             //$row_index++;
         }
-
-        $result = $question->questiontext;
+        $question_text = $question->format_questiontext($qa);
+        $result = html_writer::tag('div', $question_text, array('class' => 'question_text'));
         $result .= html_writer::table($table, true);
         return $result;
     }
@@ -101,14 +92,11 @@ class qtype_matrix_renderer extends qtype_with_combined_feedback_renderer
         $text = $header->shorttext;
 
         $description = $header->description;
-        if (strip_tags($description))
-        {
+        if (strip_tags($description)) {
             $description = preg_replace('-^<p>-', '', $description);
             $description = preg_replace('-</p>$-', '', $description);
             $description = '<span class="description" >' . $description . '</span>';
-        }
-        else
-        {
+        } else {
             $description = '';
         }
 
