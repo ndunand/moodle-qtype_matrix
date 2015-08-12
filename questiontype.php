@@ -133,18 +133,21 @@ class qtype_matrix extends question_type
             return null;
         }
 
-        $matrix = $store->get_question($question_id);
+        $matrix = $store->get_matrix_by_question_id($question_id);
         if (empty($matrix)) {
             return null;
         }
+        $matrix_id = $matrix->id;
 
-        $matrix->rows = $store->get_question_rows($question_id);
-        $matrix->cols = $store->get_question_cols($question_id);
+        $matrix->rows = $store->get_matrix_rows_by_matrix_id($matrix_id);
+        $matrix->cols = $store->get_matrix_cols_by_matrix_id($matrix_id);
 
-        $raw_weights = $store->get_question_weights($question_id);
-        //initialize weights       
+        $raw_weights = $store->get_matrix_weights_by_question_id($question_id);
+
+        //initialize weights      
         $matrix->weights = array();
         foreach ($matrix->rows as $row) {
+            $matrix->weights[$row->id] = array();
             foreach ($matrix->cols as $col) {
                 $matrix->weights[$row->id][$col->id] = 0;
             }
@@ -188,15 +191,28 @@ class qtype_matrix extends question_type
         $transaction = $DB->start_delegated_transaction();
 
         $question_id = $question->id;
-        $is_new = !$question_id;
         $make_copy = (property_exists($question, 'makecopy') && $question->makecopy == '1');
 
+        /**
+         * $question_id != matrix->id
+         */
+        $matrix = (object) $store->get_matrix_by_question_id($question_id);
+
+        $is_new = !isset($matrix->id) || empty($matrix->id);
+
+        $matrix->questionid = $question_id;
+        $matrix->multiple = $question->multiple;
+        $matrix->grademethod = $question->grademethod;
+        $matrix->shuffleanswers = $question->shuffleanswers;
+        $matrix->use_dnd_ui = $question->use_dnd_ui;
+
         if ($is_new || $make_copy) {
-            $store->insert_question($question);
-            $question_id = $question->id;
+            $store->insert_matrix($matrix);
         } else {
-            $store->update_question($question);
+            $store->update_matrix($matrix);
         }
+
+        $matrix_id = $matrix->id;
 
         // rows
         // mapping for indexes to db ids.
@@ -206,7 +222,7 @@ class qtype_matrix extends question_type
             $is_new = !$row_id;
             $row = (object) array(
                     'id' => $row_id,
-                    'matrixid' => $question_id,
+                    'matrixid' => $matrix_id,
                     'shorttext' => $question->rows_shorttext[$i],
                     'description' => $question->rows_description[$i],
                     'feedback' => $question->rows_feedback[$i]
@@ -216,12 +232,12 @@ class qtype_matrix extends question_type
             if ($delete && $is_new) {
                 //noop
             } else if ($delete) {
-                $store->delete_row($row);
+                $store->delete_matrix_row($row);
             } else if ($is_new || $make_copy) {
-                $store->insert_row($row);
+                $store->insert_matrix_row($row);
                 $rowids[] = $row->id;
             } else {
-                $store->update_row($row);
+                $store->update_matrix_row($row);
                 $rowids[] = $row->id;
             }
         }
@@ -234,7 +250,7 @@ class qtype_matrix extends question_type
             $is_new = !$col_id;
             $col = (object) array(
                     'id' => $col_id,
-                    'matrixid' => $question_id,
+                    'matrixid' => $matrix_id,
                     'shorttext' => $question->cols_shorttext[$i],
                     'description' => $question->cols_description[$i]
             );
@@ -242,12 +258,12 @@ class qtype_matrix extends question_type
             if ($delete && $is_new) {
                 //noop
             } else if ($delete) {
-                $store->delete_col($col);
+                $store->delete_matrix_col($col);
             } else if (!$col_id || $make_copy) {
-                $store->insert_col($col);
+                $store->insert_matrix_col($col);
                 $colids[] = $col->id;
             } else {
-                $store->update_col($col);
+                $store->update_matrix_col($col);
                 $colids[] = $question->colid[$i];
             }
         }
@@ -259,7 +275,7 @@ class qtype_matrix extends question_type
          * Then we recreate them. (Because updating is too much of a pain)
          * 
          */
-        $store->delete_question_weights($question_id);
+        $store->delete_matrix_weights($question_id);
 
         /**
          * When we switch from multiple answers to single answers (or the other
@@ -297,7 +313,7 @@ class qtype_matrix extends question_type
                             'colid' => $col_id,
                             'weight' => 1
                     );
-                    $store->insert_weight($weight);
+                    $store->insert_matrix_weight($weight);
                 }
             }
         }

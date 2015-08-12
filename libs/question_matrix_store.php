@@ -14,64 +14,66 @@ class question_matrix_store
 
     //question
 
-    public function get_question($id)
+    public function get_matrix_by_question_id($question_id)
     {
         global $DB;
 
-        $result = $DB->get_record(self::TABLE_QUESTION_MATRIX, array('questionid' => $id));
+        $result = $DB->get_record(self::TABLE_QUESTION_MATRIX, array('questionid' => $question_id));
         if ($result) {
             $result->multiple = (bool) $result->multiple;
         }
         return $result;
     }
-
-    public function save_question($question)
+    
+    public function save_matrix($question)
     {
         $is_new = !isset($question->id) || empty($question->id);
         if ($is_new) {
-            return $this->insert_question($question);
+            return $this->insert_matrix($question);
         } else {
-            return $this->update_question($question);
+            return $this->update_matrix($question);
         }
     }
 
     /**
      * We may want to insert an existing question to make a copy
      * 
-     * @param object $question
+     * @param object $matrix
      * @return object
      */
-    public function insert_question($question)
+    public function insert_matrix($matrix)
     {
         global $DB;
 
-        $matrix = (object) array(
-                'questionid' => $question->id, //todo: check if we should not set
-                'multiple' => $question->multiple,
-                'grademethod' => $question->grademethod,
-                'use_dnd_ui' => $question->use_dnd_ui,
-                'shuffleanswers' => $question->shuffleanswers,
+        $data = (object) array(
+                'questionid' => $matrix->questionid, 
+                'multiple' => $matrix->multiple,
+                'grademethod' => $matrix->grademethod,
+                'use_dnd_ui' => $matrix->use_dnd_ui,
+                'shuffleanswers' => $matrix->shuffleanswers,
                 'renderer' => 'matrix'
         );
 
-        $new_id = $DB->insert_record(self::TABLE_QUESTION_MATRIX, $matrix);
+        $new_id = $DB->insert_record(self::TABLE_QUESTION_MATRIX, $data);
+        $data->id = $new_id;
         $matrix->id = $new_id;
-        $question->id = $new_id;
         return $matrix;
     }
 
-    public function update_question($question)
+    public function update_matrix($matrix)
     {
         global $DB;
 
-        $matrix = $this->get_question($question->id);
-        //$matrix->questionid = $question->id;
-        $matrix->multiple = $question->multiple;
-        $matrix->grademethod = $question->grademethod;
-        $matrix->shuffleanswers = $question->shuffleanswers;
-        $matrix->use_dnd_ui = $question->use_dnd_ui;
-        $matrix->renderer = 'matrix';
-        $DB->update_record(self::TABLE_QUESTION_MATRIX, $matrix);
+        $data = (object) array(
+                'id' => $matrix->id, 
+                'questionid' => $matrix->questionid, 
+                'multiple' => $matrix->multiple,
+                'grademethod' => $matrix->grademethod,
+                'use_dnd_ui' => $matrix->use_dnd_ui,
+                'shuffleanswers' => $matrix->shuffleanswers,
+                'renderer' => 'matrix'
+        );
+        $DB->update_record(self::TABLE_QUESTION_MATRIX, $data);
         return $matrix;
     }
 
@@ -138,7 +140,7 @@ class question_matrix_store
 
     //row
 
-    public function get_question_rows($matrix_id)
+    public function get_matrix_rows_by_matrix_id($matrix_id)
     {
         global $DB;
 
@@ -146,17 +148,17 @@ class question_matrix_store
         return $result ? $result : array();
     }
 
-    public function save_row($row)
+    public function save_matrix_row($row)
     {
         $is_new = !isset($row->id) || empty($row->id);
         if ($is_new) {
-            return $this->insert_row($row);
+            return $this->insert_matrix_row($row);
         } else {
-            return $this->update_row($row);
+            return $this->update_matrix_row($row);
         }
     }
 
-    public function insert_row($row)
+    public function insert_matrix_row($row)
     {
         global $DB;
 
@@ -177,7 +179,7 @@ class question_matrix_store
         return $data;
     }
 
-    public function update_row($row)
+    public function update_matrix_row($row)
     {
         global $DB;
 
@@ -193,7 +195,7 @@ class question_matrix_store
         return $data;
     }
 
-    public function delete_row($row)
+    public function delete_matrix_row($row)
     {
         global $DB;
 
@@ -206,7 +208,7 @@ class question_matrix_store
 
     //cols
 
-    public function get_question_cols($matrix_id)
+    public function get_matrix_cols_by_matrix_id($matrix_id)
     {
         global $DB;
 
@@ -214,17 +216,17 @@ class question_matrix_store
         return $result ? $result : array();
     }
 
-    public function save_col($col)
+    public function save_matrix_col($col)
     {
         $is_new = !isset($col->id) || empty($col->id);
         if ($is_new) {
-            return $this->insert_col($col);
+            return $this->insert_matrix_col($col);
         } else {
-            return $this->update_col($col);
+            return $this->update_matrix_col($col);
         }
     }
 
-    public function insert_col($col)
+    public function insert_matrix_col($col)
     {
         global $DB;
 
@@ -246,7 +248,7 @@ class question_matrix_store
         return $data;
     }
 
-    public function update_col($col)
+    public function update_matrix_col($col)
     {
         global $DB;
 
@@ -262,7 +264,7 @@ class question_matrix_store
         return $data;
     }
 
-    public function delete_col($col)
+    public function delete_matrix_col($col)
     {
         global $DB;
 
@@ -275,11 +277,12 @@ class question_matrix_store
 
     //weights
 
-    public function get_question_weights($question_id)
+    public function get_matrix_weights_by_question_id($question_id)
     {
         global $DB, $CFG;
         $prefix = $CFG->prefix;
 
+        //todo: check AND?
         $sql = "SELECT weights.* 
                 FROM {$prefix}question_matrix_weights AS weights
                 WHERE 
@@ -295,7 +298,7 @@ class question_matrix_store
         return $DB->get_records_sql($sql);
     }
 
-    public function delete_question_weights($question_id)
+    public function delete_matrix_weights($question_id)
     {
         global $DB, $CFG;
         $prefix = $CFG->prefix;
@@ -310,7 +313,7 @@ class question_matrix_store
         return $DB->execute($sql);
     }
 
-    public function insert_weight($weight)
+    public function insert_matrix_weight($weight)
     {
         global $DB;
 
