@@ -12,7 +12,7 @@ $string['matrix_help'] = '<p>Ce type de question permet aux enseignants de défi
 
 //gradings
 $string['all'] = 'Toutes les réponses correctes et aucune réponse fausse';
-$string['any'] = 'Au moins une réponse correcte et aucune réponse fausse';
+$string['kany'] = "K' (au moins une réponse correcte et aucune réponse fausse)  ";
 $string['kprime'] = "K'";
 $string['none'] = 'Pas d\'évaluation';
 $string['weighted'] = 'Pondérée';
