@@ -45,14 +45,11 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      */
     public function weight($row = null, $col = null)
     {
-        if (is_string($row) && is_null($col))
-        {
+        if (is_string($row) && is_null($col)) {
             //$key = $row;
             $key = str_replace('cell', $col, $row);
             list($row_id, $col_id) = explode('x', $key);
-        }
-        else
-        {
+        } else {
             $row_id = is_object($row) ? $row->id : $row;
             $col_id = is_object($col) ? $col->id : $col;
         }
@@ -61,8 +58,8 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
 
     /**
      *
-     * @param mixed $row
-     * @param mixed $col
+     * @param object $row
+     * @param object $col
      * @return string
      */
     public function key($row, $col)
@@ -86,17 +83,13 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
     {
         $key = $this->key($row, $col);
         $value = isset($response[$key]) ? $response[$key] : false;
-        if ($value === false)
-        {
+        if ($value === false) {
             return false;
         }
 
-        if ($this->multiple)
-        {
+        if ($this->multiple) {
             return !empty($value);
-        }
-        else
-        {
+        } else {
             return $value == $col->id;
         }
     }
@@ -135,7 +128,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      */
     function start_attempt(question_attempt_step $step, $variant)
     {
-    	global $DB, $PAGE;
+        global $DB, $PAGE;
         // mod_ND : BEGIN
         if ($this->use_dnd_ui) {
             $PAGE->requires->jquery();
@@ -144,17 +137,17 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
             $PAGE->requires->js('/question/type/matrix/js/dnd.js');
         }
         // mod_ND : END
-    	$this->order = array_keys($this->rows);
-    	$cm = $PAGE->cm;
-    	if (is_object($cm)) {
-    		$quiz = $DB->get_record('quiz', array('id' => $cm->instance));
-    	} else {
-    		$quiz = false;
-    	}
-    	if (!(($quiz != false && $quiz->shuffleanswers == false) || $this->shuffleanswers == false)) {
-    		shuffle($this->order);
-    	}
-    	$step->set_qt_var('_order', implode(',', $this->order));
+        $this->order = array_keys($this->rows);
+        $cm = $PAGE->cm;
+        if (is_object($cm)) {
+            $quiz = $DB->get_record('quiz', array('id' => $cm->instance));
+        } else {
+            $quiz = false;
+        }
+        if (!(($quiz != false && $quiz->shuffleanswers == false) || $this->shuffleanswers == false)) {
+            shuffle($this->order);
+        }
+        $step->set_qt_var('_order', implode(',', $this->order));
     }
 
     /**
@@ -181,31 +174,30 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
             $PAGE->requires->js('/question/type/matrix/js/dnd.js');
         }
         // mod_ND : END
-    	$qt_var_order = $step->get_qt_var('_order');
-    	if ($qt_var_order !== null) {
-			$this->order = explode(',', $step->get_qt_var('_order'));
-    	} else {
-    		// somehow the order doesn't exist in the database. 
-    		// We assume this is because this is because this is an old question which didn't have the shuffling
-    		// possibility yet, and assume the attempt was in the default order (no shuffling).
-    		$this->order = array_keys($this->rows);
-    	}
+        $qt_var_order = $step->get_qt_var('_order');
+        if ($qt_var_order !== null) {
+            $this->order = explode(',', $step->get_qt_var('_order'));
+        } else {
+            // somehow the order doesn't exist in the database. 
+            // We assume this is because this is because this is an old question which didn't have the shuffling
+            // possibility yet, and assume the attempt was in the default order (no shuffling).
+            $this->order = array_keys($this->rows);
+        }
     }
 
-    
-    public function get_order(question_attempt $qa) {
+    public function get_order(question_attempt $qa)
+    {
         $this->init_order($qa);
         return $this->order;
     }
-  
-    protected function init_order(question_attempt $qa) {
+
+    protected function init_order(question_attempt $qa)
+    {
         if (is_null($this->order)) {
             $this->order = explode(',', $qa->get_step(0)->get_qt_var('_order'));
         }
     }
-    
-    
-    
+
     /**
      * Work out a final grade for this attempt, taking into account all the
      * tries the student made.
@@ -218,8 +210,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      */
     public function compute_final_grade($responses, $totaltries)
     {
-        //$x = 1 / 0;
-        echo 'hello';
+        $x = 1 / 0;
     }
 
     /**
@@ -233,16 +224,13 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      */
     public function is_complete_response(array $response)
     {
-        if ($this->multiple)
-        {
+        if ($this->multiple) {
             return true;
         }
 
-        foreach ($this->rows as $row)
-        {
+        foreach ($this->rows as $row) {
             $key = $this->key($row, 0);
-            if (!isset($response[$key]))
-            {
+            if (!isset($response[$key])) {
                 return false;
             }
         }
@@ -258,8 +246,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
     public function get_validation_error(array $response)
     {
         $is_gradable = $this->is_gradable_response($response);
-        if ($is_gradable)
-        {
+        if ($is_gradable) {
             return '';
         }
         return lang::one_answer_per_row();
@@ -276,14 +263,13 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
         $result = array();
 
         $row_index = 0;
-        foreach ($this->order as $rowid) 
-        {
+        foreach ($this->order as $rowid) {
             $row = $this->rows[$rowid];
             $col_index = 0;
-            foreach ($this->cols as $col)
-            {
+            foreach ($this->cols as $col) {
                 $key = $this->key($row, $col);
-                if ($response[$key] == $col->id) {
+                $value = isset($response[$key]) ? $response[$key] : false;
+                if ($value == $col->id) {
                     $result[] = "{$row->shorttext}: {$col->shorttext}";
                 }
                 $col_index++;
@@ -306,19 +292,15 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      */
     public function is_same_response(array $prevresponse, array $newresponse)
     {
-        if (count($prevresponse) != count($newresponse))
-        {
+        if (count($prevresponse) != count($newresponse)) {
             return false;
         }
-        foreach ($prevresponse as $key => $previous_value)
-        {
-            if (!isset($newresponse[$key]))
-            {
+        foreach ($prevresponse as $key => $previous_value) {
+            if (!isset($newresponse[$key])) {
                 return false;
             }
             $new_value = $newresponse[$key];
-            if ($new_value != $previous_value)
-            {
+            if ($new_value != $previous_value) {
                 return false;
             }
         }
@@ -336,15 +318,12 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
     public function get_correct_response()
     {
         $result = array();
-        foreach ($this->order as $rowid)
-        {
+        foreach ($this->order as $rowid) {
             $row = $this->rows[$rowid];
-            foreach ($this->cols as $col)
-            {
+            foreach ($this->cols as $col) {
                 $weight = $this->weight($row, $col);
                 $key = $this->key($row, $col);
-                if ($weight > 0)
-                {
+                if ($weight > 0) {
                     $result[$key] = $this->multiple ? 'on' : $col->id;
                 }
             }
@@ -383,8 +362,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
     {
         $result = array();
         $cells = $this->cells();
-        foreach ($cells as $key => $weight)
-        {
+        foreach ($cells as $key => $weight) {
             $result[$key] = $this->multiple ? PARAM_BOOL : PARAM_INT;
         }
         return $result;
@@ -399,11 +377,9 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
     public function cells()
     {
         $result = array();
-        foreach ($this->order as $rowid)
-        {
+        foreach ($this->order as $rowid) {
             $row = $this->rows[$rowid];
-            foreach ($this->cols as $col)
-            {
+            foreach ($this->cols as $col) {
                 $result[self::key($row, $col)] = $this->weight($row, $col);
             }
         }
