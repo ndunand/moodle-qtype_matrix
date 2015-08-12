@@ -39,27 +39,23 @@ class qtype_matrix_grading_all extends qtype_matrix_grading
     }
 
     /**
-     * Grade a specific row
+     * Grade a row
      * 
-     * @param qtype_matrix_question     $question
-     * @param object                    $row
-     * @param array                     $answers
-     * @return float 
+     * @param qtype_matrix_question $question   The question to grade
+     * @param integer|object $row               Row to grade
+     * @param array $responses                  User's responses
+     * @return float                            The row grade, either 0 or 1
      */
-    public function grade_row($question, $row, $answers)
+    public function grade_row($question, $row, $responses)
     {
-        $is_row_correct = true;
-        foreach ($question->cols as $col)
-        {
-            $is_correct = $question->is_correct($row, $col);
-            $is_answered = $question->is_answered($answers, $row, $col);
-            if ($is_answered != $is_correct)
-            {
-                $is_row_correct = false;
-                break;
+        foreach ($question->cols as $col) {
+            $answer = $question->answer($row, $col);
+            $response = $question->response($responses, $row, $col);
+            if ($answer != $response) {
+                return 0;
             }
         }
-        return $is_row_correct ? 1 : 0;
+        return 1;
     }
 
 }

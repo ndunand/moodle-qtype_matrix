@@ -57,7 +57,7 @@ class qtype_matrix_renderer extends qtype_with_combined_feedback_renderer
                 $cell_name = $qa->get_field_prefix() . $key;
 
                 $is_readonly = $options->readonly;
-                $is_checked = $question->is_answered($response, $row, $col);
+                $is_checked = $question->response($response, $row, $col);
 
                 if ($question->multiple) {
                     $cell = self::checkbox($cell_name, $is_checked, $is_readonly);

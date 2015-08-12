@@ -72,14 +72,16 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
     }
 
     /**
-     *
-     * @param object $response
-     * @param object $row
-     * @param object $col
+     * The user's response of cell at $row, $col. That is if the cell is checked or not.
+     * If the user didn't make an answer at all (no response) the method returns false.
      * 
-     * @return boolean 
+     * @param array $response  object containing the raw answer data
+     * @param any $row          matrix row, either an id or an object
+     * @param any $col          matrix col, either an id or an object
+     * 
+     * @return boolean True if the cell($row, $col) was checked by the user. False otherwise.
      */
-    public function is_answered($response, $row, $col)
+    public function response($response, $row, $col)
     {
         $key = $this->key($row, $col);
         $value = isset($response[$key]) ? $response[$key] : false;
@@ -95,17 +97,14 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
     }
 
     /**
+     * Returns the expected answer for the cell at $row, $col.
      * 
-     * @param any $row
-     * @param any $col
+     * @param integer|object $row
+     * @param integer|object $col
      * 
-     * or
-     * 
-     * @param any $key
-     * 
-     * @return bool 
+     * @return boolean  True if cell($row, $col) is correct, false otherwise.
      */
-    public function is_correct($row = null, $col = null)
+    public function answer($row = null, $col = null)
     {
         return $this->weight($row, $col) > 0;
     }

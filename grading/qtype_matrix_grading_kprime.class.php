@@ -32,8 +32,7 @@ class qtype_matrix_grading_kprime extends qtype_matrix_grading
     public static function create($type)
     {
         static $result = false;
-        if ($result)
-        {
+        if ($result) {
             return $result;
         }
         return $result = new self();
@@ -48,39 +47,34 @@ class qtype_matrix_grading_kprime extends qtype_matrix_grading
      */
     public function grade_question($question, $answers)
     {
-        foreach ($question->rows as $row)
-        {
+        foreach ($question->rows as $row) {
             $grade = $this->grade_row($question, $row, $answers);
-            if ($grade < 1)
-            {
+            if ($grade < 1) {
                 return 0;
             }
         }
         return 1;
     }
 
+   
     /**
-     * Grade a specific row
+     * Grade a row
      * 
-     * @param qtype_matrix_question     $question
-     * @param object                    $row
-     * @param array                     $answers
-     * @return float 
+     * @param qtype_matrix_question $question   The question to grade
+     * @param integer|object $row               Row to grade
+     * @param array $responses                  User's responses
+     * @return float                            The row grade, either 0 or 1
      */
-    public function grade_row($question, $row, $answers)
+    public function grade_row($question, $row, $responses)
     {
-        $is_row_correct = true;
-        foreach ($question->cols as $col)
-        {
-            $is_correct = $question->is_correct($row, $col);
-            $is_answered = $question->is_answered($answers, $row, $col);
-            if ($is_answered != $is_correct)
-            {
-                $is_row_correct = false;
-                break;
+        foreach ($question->cols as $col) {
+            $answer = $question->answer($row, $col);
+            $response = $question->response($responses, $row, $col);
+            if ($answer != $response) {
+                return 0;
             }
         }
-        return $is_row_correct ? 1 : 0;
+        return 1;
     }
 
 }
