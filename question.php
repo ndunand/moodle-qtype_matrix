@@ -14,6 +14,8 @@ require_once($CFG->dirroot . '/question/type/matrix/libs/lang.php');
 class qtype_matrix_question extends question_graded_automatically_with_countback implements IteratorAggregate
 {
 
+    const KEY_ROWS_ORDER = '_order';
+
     public $rows;
     public $cols;
     public $weights;
@@ -21,6 +23,13 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
     public $multiple;
     public $shuffleanswers;
     public $use_dnd_ui;
+
+    /**
+     * Contains the keys of the rows array
+     * Used to maintain order when shuffling answers
+     * 
+     * @var array 
+     */
     protected $order = null;
 
     /**
@@ -120,14 +129,15 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      * Any information about how the question has been set up for this attempt
      * should be stored in the $step, by calling $step->set_qt_var(...).
      *
-     * @param question_attempt_step $step The first step of the {@link question_attempt}
-     *      being started. Can be used to store state.
-     * @param int $variant which variant of this question to start. Will be between
-     *      1 and {@link get_num_variants()} inclusive.
+     * @param question_attempt_step $step 
+     *          The first step of the {@link question_attempt} being started. 
+     *          Can be used to store state.
+     * @param int $variant 
+     *          Which variant of this question to start. Will be between 
+     *          1 and {@link get_num_variants()} inclusive.
      */
     function start_attempt(question_attempt_step $step, $variant)
     {
-        global $DB, $PAGE;
         // mod_ND : BEGIN
         if ($this->use_dnd_ui) {
             $PAGE->requires->jquery();
@@ -137,16 +147,110 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
         }
         // mod_ND : END
         $this->order = array_keys($this->rows);
-        $cm = $PAGE->cm;
-        if (is_object($cm)) {
-            $quiz = $DB->get_record('quiz', array('id' => $cm->instance));
-        } else {
-            $quiz = false;
-        }
-        if (!(($quiz != false && $quiz->shuffleanswers == false) || $this->shuffleanswers == false)) {
+        if ($this->shuffle_answers()) {
             shuffle($this->order);
         }
-        $step->set_qt_var('_order', implode(',', $this->order));
+        $this->write_data($step);
+    }
+
+    /**
+     * Question shuffle can be disabled at the Quiz level. If false then the
+     * question parts are not shuffled. If true then the question's shuffle parameter
+     * decide wheter the question's parts are actually shuffled.
+     * 
+     * If the question is executed outside of a Quiz (for example in preview)
+     * returns true. 
+     * 
+     * @global object $DB       Database object
+     * @global object $PAGE     Page object
+     * @return boolean          True if shuffling is authorized. False otherwise.
+     */
+    function shuffle_authorized()
+    {
+        global $DB, $PAGE;
+
+        $cm = $PAGE->cm;
+        if (!is_object($cm)) {
+            return true;
+        }
+        $quiz = $DB->get_record('quiz', array('id' => $cm->instance));
+        return $quiz->shuffleanswers;
+    }
+
+    /**
+     * 
+     * @return boolean True if rows should be shuffled. False otherwise.
+     */
+    function shuffle_answers()
+    {
+        if (!$this->shuffle_authorized()) {
+            return false;
+        }
+        return $this->shuffleanswers;
+    }
+
+    /**
+     * Write persistent data to a step for further retrieval
+     * 
+     * @param question_attempt_step $step Storage
+     */
+    protected function write_data(question_attempt_step $step)
+    {
+        $step->set_qt_var(self::KEY_ROWS_ORDER, implode(',', $this->order));
+    }
+
+    /**
+     * Load persistent data from a step.
+     * 
+     * @param question_attempt_step $step Storage
+     */
+    protected function load_data(question_attempt_step $step)
+    {
+        $order = $step->get_qt_var(self::KEY_ROWS_ORDER);
+        if ($order !== null) {
+            $this->order = explode(',', $order);
+        } else {
+            /**
+             * The order doesn't exist in the database. 
+             * This can happen because the question is old and doesn't have the shuffling possibility yet.
+             */
+            $this->order = array_keys($this->rows);
+            if ($this->shuffle_answers()) {
+                shuffle($this->order);
+            }
+            $this->write_order($step);
+        }
+
+        /**
+         * Rows can be deleted between attempts. We need therefore to remove
+         * those that were stored in the step but are not present anymore.
+         */
+        $rows_removed = array();
+        foreach ($this->order as $row_key) {
+            if (!isset($this->rows[$row_key])) {
+                $rows_removed[] = $row_key;
+            }
+        }
+        $this->order = array_diff($this->order, $rows_removed);
+
+
+        /**
+         * Rows can be added between attempts. We need therefore to add those
+         * rows that were not stored in the step.
+         */
+        $rows_added = array();
+        $rows_keys = array_keys($this->rows);
+        foreach ($rows_keys as $row_key) {
+            if (!in_array($row_key, $this->order)) {
+                $rows_added[] = $row_key;
+            }
+        }
+        if ($this->shuffle_answers()) {
+            shuffle($rows_added);
+        }
+        foreach ($rows_added as $row_key) {
+            $this->order[] = $row_key;
+        }
     }
 
     /**
@@ -173,15 +277,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
             $PAGE->requires->js('/question/type/matrix/js/dnd.js');
         }
         // mod_ND : END
-        $qt_var_order = $step->get_qt_var('_order');
-        if ($qt_var_order !== null) {
-            $this->order = explode(',', $step->get_qt_var('_order'));
-        } else {
-            // somehow the order doesn't exist in the database. 
-            // We assume this is because this is because this is an old question which didn't have the shuffling
-            // possibility yet, and assume the attempt was in the default order (no shuffling).
-            $this->order = array_keys($this->rows);
-        }
+        $this->load_data($step);
     }
 
     public function get_order(question_attempt $qa)
@@ -192,18 +288,23 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
 
     protected function init_order(question_attempt $qa)
     {
-        if (is_null($this->order)) {
-            $this->order = explode(',', $qa->get_step(0)->get_qt_var('_order'));
+        if ($this->order) {
+            return;
         }
+
+        $this->order = explode(',', $qa->get_step(0)->get_qt_var(self::KEY_ROWS_ORDER));
     }
 
     /**
      * Work out a final grade for this attempt, taking into account all the
      * tries the student made.
+     * 
      * @param array $responses the response for each try. Each element of this
      * array is a response array, as would be passed to {@link grade_response()}.
      * There may be between 1 and $totaltries responses.
+     * 
      * @param int $totaltries The maximum number of tries allowed.
+     * 
      * @return numeric the fraction that should be awarded for this
      * sequence of response.
      */

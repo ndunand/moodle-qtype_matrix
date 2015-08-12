@@ -49,6 +49,7 @@ class qtype_matrix_renderer extends qtype_with_combined_feedback_renderer
         }
 
         foreach ($order as $rowid) {
+
             $row = $question->rows[$rowid];
             $row_data = array();
             $row_data[] = self::matrix_header($row);
