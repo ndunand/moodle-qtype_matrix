@@ -69,13 +69,14 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      *
      * @param object $row
      * @param object $col
+     * @param boolean|null $multiple
      * @return string
      */
-    public function key($row, $col)
+    public function key($row, $col, $multiple = null)
     {
         $row_id = is_object($row) ? $row->id : $row;
         $col_id = is_object($col) ? $col->id : $col;
-        $multiple = $this->multiple;
+        $multiple = (is_null($multiple)) ? $this->multiple : $multiple;
 
         return qtype_matrix_grading::cell_name($row_id, $col_id, $multiple);
     }
@@ -92,13 +93,38 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      */
     public function response($response, $row, $col)
     {
-        $key = $this->key($row, $col);
+        /**
+         * A student may response with a question with the multiple answer turned on.
+         * Later the teacher may turn that flag off. The result is that the question
+         * and response formats won't match.
+         * 
+         * To fix that problem we don't use the question->multiple flag but instead we
+         * use the use the user's response to detect the correct value.
+         * 
+         * Note
+         * A part of the problems come from the fact that we use two representation formats
+         * depending on the multiple flags. The cause is the html matrix representation
+         * that requires two differents views (checkboxes or radio). This representation
+         * then leaks to memory.
+         * 
+         * A better strategy would be to use only one normalized representation in memory. 
+         * The same way we have only one representation in the DB. For that we 
+         * would need to transform the html form data after the post. 
+         * Not sure we can dot it.
+         */
+        $response_multiple = $this->multiple;
+        foreach ($response as $key => $value) {
+            $response_multiple = (strpos($key, '_') !== false);
+            break;
+        }
+
+        $key = $this->key($row, $col, $response_multiple);
         $value = isset($response[$key]) ? $response[$key] : false;
         if ($value === false) {
             return false;
         }
 
-        if ($this->multiple) {
+        if ($response_multiple) {
             return !empty($value);
         } else {
             return $value == $col->id;
