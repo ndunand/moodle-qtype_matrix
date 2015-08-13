@@ -5,14 +5,19 @@ defined('MOODLE_INTERNAL') || die();
 /**
  * restore plugin class that provides the necessary information
  * needed to restore one match qtype plugin
+ * 
+ * Note
+ * Failing to see why we are using $GLOBALS here. Adding a property to the class
+ * should do the work.
  */
-class restore_qtype_matrix_plugin extends restore_qtype_plugin {
+class restore_qtype_matrix_plugin extends restore_qtype_plugin
+{
 
     /**
      * Returns the paths to be handled by the plugin at question level
      */
-
-    protected function define_question_plugin_structure() {
+    protected function define_question_plugin_structure()
+    {
         $result = array();
 
         $elename = 'matrix';
@@ -39,7 +44,8 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
      * 
      * @return bool
      */
-    protected function is_question_created() {
+    protected function is_question_created()
+    {
         $oldquestionid = $this->get_old_parentid('question');
         //$newquestionid = $this->get_new_parentid('question');
         return $this->get_mappingid('question_created', $oldquestionid) ? true : false;
@@ -50,7 +56,8 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
      *
      * @param $data
      */
-    public function process_matrix($data) {
+    public function process_matrix($data)
+    {
         if (!$this->is_question_created()) {
             return;
         }
@@ -60,8 +67,8 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
         $data = (object) $data;
         $oldid = $data->id;
 
-       //todo: check import of version moodle1 data
-        
+        //todo: check import of version moodle1 data
+
         $data->questionid = $this->get_new_parentid('question');
         $newitemid = $DB->insert_record('question_matrix', $data);
         $this->set_mapping('matrix', $oldid, $newitemid);
@@ -72,7 +79,8 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
      *
      * @param $data
      */
-    public function process_col($data) {
+    public function process_col($data)
+    {
         global $DB;
 
         $data = (object) $data;
@@ -95,7 +103,8 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
      *
      * @param $data
      */
-    public function process_row($data) {
+    public function process_row($data)
+    {
         global $DB;
 
         $data = (object) $data;
@@ -118,7 +127,8 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
      *
      * @param $data
      */
-    public function process_weight($data) {
+    public function process_weight($data)
+    {
         if (!$this->is_question_created()) {
             return;
         }
@@ -127,7 +137,7 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
 
         $data = (object) $data;
         $oldid = $data->id;
-        $key = $data->colid . 'x' . $data->rowid ;
+        $key = $data->colid . 'x' . $data->rowid;
         $data->colid = $this->get_mappingid('col', $data->colid);
         $data->rowid = $this->get_mappingid('row', $data->rowid);
         $newitemid = $DB->insert_record('question_matrix_weights', $data);
@@ -140,7 +150,8 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
      * @param $state
      * @return string
      */
-    public function recode_state_answer($state) {
+    public function recode_state_answer($state)
+    {
         $result = array();
         $answer = unserialize($state->answer);
         foreach ($answer as $row_id => $row) {
@@ -155,8 +166,9 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
 
         return serialize($result);
     }
-    
-    public function recode_response($questionid, $sequencenumber, array $response) {
+
+    public function recode_response($questionid, $sequencenumber, array $response)
+    {
         $recodedResponse = array();
         foreach ($response as $responseKey => $responseVal) {
             if ($responseKey == '_order') {
@@ -164,8 +176,10 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
             } else if (substr($responseKey, 0, 4) == 'cell') {
                 $responseKeyNoCell = substr($responseKey, 4);
                 $responseKeyIDs = explode('_', $responseKeyNoCell);
-                $newRowID = $GLOBALS['matrixTempRows'][$responseKeyIDs[0]];//$this->get_mappingid('row', $responseKeyIDs[0]);
-                $newColID = $GLOBALS['matrixTempCols'][$responseVal];//$this->get_mappingid('col', $responseVal);
+                //$this->get_mappingid('row', $responseKeyIDs[0]);
+                $newRowID = $GLOBALS['matrixTempRows'][$responseKeyIDs[0]];
+                //$this->get_mappingid('col', $responseVal);
+                $newColID = isset($GLOBALS['matrixTempCols'][$responseVal]) ? $GLOBALS['matrixTempCols'][$responseVal] : false;
                 if (count($responseKeyIDs) == 1) {
                     $recodedResponse['cell' . $newRowID] = $newColID;
                 } else if (count($responseKeyIDs) == 2) {
@@ -179,16 +193,17 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
         }
         return $recodedResponse;
     }
-    
+
     /**
      * Recode the choice order as stored in the response.
      * @param string $order the original order.
      * @return string the recoded order.
      */
-    protected function recode_choice_order($order) {
+    protected function recode_choice_order($order)
+    {
         $neworder = array();
         foreach (explode(',', $order) as $id) {
-            if ($newid = $GLOBALS['matrixTempRows'][$id]){//$this->get_mappingid('row', $id)) {
+            if ($newid = $GLOBALS['matrixTempRows'][$id]) {//$this->get_mappingid('row', $id)) {
                 $neworder[] = $newid;
             }
         }
@@ -198,7 +213,8 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
     /**
      * Return the contents of this qtype to be processed by the links decoder
      */
-    static public function define_decode_contents() {
+    static public function define_decode_contents()
+    {
         $result = array();
 
         $fields = array('shorttext', 'description');
@@ -209,6 +225,6 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
         $result[] = new restore_decode_content('question_matrix_weights', $fields, 'question_matrix_weights');
 
         return $result;
-    }       
+    }
 
 }
