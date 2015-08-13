@@ -138,6 +138,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      */
     function start_attempt(question_attempt_step $step, $variant)
     {
+        global $PAGE;
         // mod_ND : BEGIN
         if ($this->use_dnd_ui) {
             $PAGE->requires->jquery();
