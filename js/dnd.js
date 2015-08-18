@@ -85,9 +85,9 @@
                 it++;
                 // each item has to be draggable, but only to a sortable in its own row
                 var $item = $(this);
-                var text = $item.text();
+                var text = $item.find('span.title').text();
                 var $tr = $matrix.find('tbody tr').eq(it - 1); // table row
-                var $draggable = $(this).find('span'); // draggable item
+                var $draggable = $(this).find('span.title'); // draggable item
 
                 $draggable.attr('class', dnduistr + '_item' + ' ' + dnduistr + '_' + n + '_item_' + it);
                 $draggable.draggable({
