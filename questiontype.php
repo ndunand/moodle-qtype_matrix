@@ -204,7 +204,7 @@ class qtype_matrix extends question_type
         $matrix->multiple = $question->multiple;
         $matrix->grademethod = $question->grademethod;
         $matrix->shuffleanswers = $question->shuffleanswers;
-        $matrix->use_dnd_ui = $question->use_dnd_ui;
+        $matrix->use_dnd_ui = isset($matrix->use_dnd_ui) ? ($matrix->use_dnd_ui) : (0);
 
         if ($is_new || $make_copy) {
             $store->insert_matrix($matrix);
