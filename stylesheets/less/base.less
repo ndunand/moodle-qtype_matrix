@@ -1,7 +1,7 @@
 @import "variables.less";
 
 .que.matrix {
-    
+
     .question_text {
         background-color: white;
     }
@@ -58,6 +58,8 @@
 
         padding: 8px;
 
+        z-index: 1000;
+
         p {  
             margin: 0;
         }
@@ -68,8 +70,9 @@
             margin-top: 6px;
         }
         &:hover{
-            display: block !important;
-            z-index: 10000 !important;
+            .description{
+                display: inline-block;
+            }
         }
     }
 
@@ -79,12 +82,13 @@
             margin-top: -8px;
         }
         &:hover{
-            display: inline-block !important;
-            z-index: 10000 !important;
+            .description{
+                display: inline-block;
+            }
         }
     }
-
 }
+
 
 
 
@@ -228,4 +232,3 @@
     }
 }
 
- 

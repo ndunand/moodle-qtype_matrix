@@ -49,6 +49,7 @@
   border: 1px solid #848484;
   font-weight: normal;
   padding: 8px;
+  z-index: 1000;
 }
 .que.matrix .description p {
   margin: 0;
@@ -56,17 +57,15 @@
 .que.matrix th .description {
   margin-top: 6px;
 }
-.que.matrix th:hover {
-  display: block !important;
-  z-index: 10000 !important;
+.que.matrix th:hover .description {
+  display: inline-block;
 }
 .que.matrix td .description {
   margin-left: 8px;
   margin-top: -8px;
 }
-.que.matrix td:hover {
-  display: inline-block !important;
-  z-index: 10000 !important;
+.que.matrix td:hover .description {
+  display: inline-block;
 }
 /** edit matrix **/
 .mform fieldset {
