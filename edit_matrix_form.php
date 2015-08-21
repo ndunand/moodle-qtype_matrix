@@ -82,7 +82,7 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
 
     function set_data($question)
     {
-        $is_new = empty($question->id) || empty($question->options->rows);
+        $is_new = empty($question->id);
 
         if (!$is_new) {
 
@@ -120,7 +120,7 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
                     $cell_name_single_answer = qtype_matrix_grading::cell_name($row_index, $col_index, false);
 
                     $weight = $options->weights[$row->id][$col->id];
-                    
+
 
                     $question->{$cell_name_multiple_answers} = ($weight > 0) ? 'on' : '';
                     $question->{$cell_name_single_answer} = $col_index;
@@ -141,7 +141,6 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
 
     function validation($data, $files)
     {
-        global $CFG;
         $errors = parent::validation($data, $files);
         if (config::show_kprime_gui()) {
             if ($this->col_count($data) == 0) {
@@ -181,7 +180,6 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
     public function add_multiple()
     {
         // multiple allowed
-        global $CFG;
         $builder = $this->builder;
 
         if (config::show_kprime_gui()) {
@@ -216,9 +214,7 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
 
     function add_matrix()
     {
-        global $CFG;
         $mform = $this->_form;
-        $data = $mform->exportValues();
         $builder = $this->builder;
 
         $cols_count = $this->param_cols();
