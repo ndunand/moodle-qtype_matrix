@@ -29,9 +29,7 @@ $string['grademethod_help'] = '<p>Il y a plusieurs méthodes d\'évaluation pour
 <p>Ces méthodes concerne généralement les <b>lignes</b> sauf pour le type Kprime. La note totale est la moyenne des notes pour chacune des lignes sauf pour le type Kprime ou il faut avoir toutes les réponses correctes pour obtenir les points.</p>
 <table>
 <tr><td><b>Kprime</b></td><td>L\'étudiant doir choisir toutes les réponses correctes parmis celles proposées et aucune réponse fausse pour obtenir 100%. Ceci inclue les lignes. Autrement l\'étudiant obtient 0%. </td></tr>
-<tr><td><b>Au moins une réponse correcte et aucune réponse fausse</b></td><td>L\'étudiant doir choisir au minimum une réponse correcte parmis celles proposées et aucune réponse fausse pour obtenir 100%. Autrement l\'étudiant obtient 0%.</td></tr>
-<tr><td><b>Toutes les réponses correctes et aucune réponse fausse</b></td><td>L\'étudiant doir choisir toutes les réponses correctes parmis celles proposées et aucune réponse fausse pour obtenir 100%. Autrement l\'étudiant obtient 0%.</td></tr>
-<tr><td><b>Pas d\'évaluation</b></td><td>Il n\'y a pas d\'évaluation.</td></tr>
+<tr><td><b>Au moins une réponse correcte et aucune réponse fausse</b></td><td>Pour chaque ligne l\'étudiant doir choisir au minimum une réponse correcte parmis celles proposées et aucune réponse fausse pour obtenir 100%. Autrement l\'étudiant obtient 0%. Si seulement une ligne est fausse alors le score est de 0.0. S\'il y plus d\'une ligne fausse le score est de 0.</td></tr>
 <tr><td><b>Pondérée</b></td><td>Chaque réponse reçoit un poid. La somme des réponses positives pour chaque ligne doit être de 100%.</td></tr></table>';
 
 //$string['renderer'] = 'Rendu';
