@@ -83,7 +83,6 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
     function set_data($question)
     {
         $is_new = empty($question->id);
-
         if (!$is_new) {
 
             $options = $question->options;

@@ -103,7 +103,7 @@ class qtype_matrix extends question_type
     function get_question_options($question)
     {
         parent::get_question_options($question);
-        $matrix = self::retrieve_matrix($question->id);
+        $matrix = self::retrieve_matrix($question->id);       
         if ($matrix) {
             $question->options->rows = $matrix->rows;
             $question->options->cols = $matrix->cols;
@@ -199,12 +199,12 @@ class qtype_matrix extends question_type
         $matrix = (object) $store->get_matrix_by_question_id($question_id);
 
         $is_new = !isset($matrix->id) || empty($matrix->id);
-
+        
         $matrix->questionid = $question_id;
         $matrix->multiple = $question->multiple;
         $matrix->grademethod = $question->grademethod;
         $matrix->shuffleanswers = $question->shuffleanswers;
-        $matrix->use_dnd_ui = isset($matrix->use_dnd_ui) ? ($matrix->use_dnd_ui) : (0);
+        $matrix->use_dnd_ui = isset($question->use_dnd_ui) ? ($question->use_dnd_ui) : (0);
 
         if ($is_new || $make_copy) {
             $store->insert_matrix($matrix);
