@@ -44,7 +44,7 @@
 }
 .que.matrix .description {
   display: none;
-  position: fixed !important;
+  position: absolute;
   background-color: #EEEEEE;
   border: 1px solid #848484;
   font-weight: normal;
@@ -58,14 +58,14 @@
   margin-top: 6px;
 }
 .que.matrix th:hover .description {
-  display: inline-block;
+  display: block;
 }
 .que.matrix td .description {
   margin-left: 8px;
   margin-top: -8px;
 }
 .que.matrix td:hover .description {
-  display: inline-block;
+  display: block;
 }
 /** edit matrix **/
 .mform fieldset {
@@ -240,7 +240,7 @@ mod_ND : BEGIN
   cursor: auto;
   opacity: 0.3;
 }
-.que.matrix.qtype_matrix_dndui .cell span {
+.que.matrix.qtype_matrix_dndui .cell span.title, .que.matrix.qtype_matrix_dndui .cell.ui-droppable > span {
   padding: 1em 2em 1em 1em;
   border: 0.2em solid #999;
   position: relative;

@@ -119,7 +119,7 @@
 
             // disable dragging if checkboxes are disabled
             if ($receptacles.eq(0).find('input').prop('disabled')) {
-                $items.find('span').draggable('disable').addClass('disabled');
+                $items.find('span.title').draggable('disable').addClass('disabled');
                 $receptacles.find('span span').remove();
             }
 
