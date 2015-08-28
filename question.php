@@ -166,7 +166,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
     {
         global $PAGE;
         // mod_ND : BEGIN
-        if ($this->use_dnd_ui) {
+        if ($this->use_dnd_ui && !$PAGE->requires->is_head_done()) {
             $PAGE->requires->jquery();
             $PAGE->requires->jquery_plugin('ui');
             $PAGE->requires->jquery_plugin('ui-css');
