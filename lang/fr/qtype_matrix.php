@@ -12,10 +12,10 @@ $string['matrix_help'] = '<p>Ce type de question permet aux enseignants de défi
 
 //gradings
 $string['all'] = 'Toutes les réponses correctes et aucune réponse fausse';
-$string['kany'] = "K' (au moins une réponse correcte et aucune réponse fausse)  ";
-$string['kprime'] = "K'";
+$string['kany'] = "Kprime (au moins une réponse correcte et aucune réponse fausse)  ";
+$string['kprime'] = "Kprime";
 $string['none'] = 'Pas d\'évaluation';
-$string['weighted'] = 'Pondérée';
+$string['weighted'] = 'Point partiel';
 
 //strings
 $string['true'] = 'Vraie';
@@ -26,18 +26,18 @@ $string['multipleallowed'] = 'Est-ce que plusieurs réponses sont authoriées?';
 
 $string['grademethod'] = 'Méthode d\'évaluation';
 $string['grademethod_help'] = "<p>Il y a plusieurs méthodes d\'évaluation pour le type matrice.</p>
-<p>Ces méthodes concerne généralement les <b>lignes</b> sauf pour le type K' La note totale est la moyenne des notes pour chacune des lignes sauf pour le type K' ou il faut avoir toutes les réponses correctes pour obtenir les points.</p>
+<p>Ces méthodes concerne généralement les <b>lignes</b> sauf pour le type Kprime La note totale est la moyenne des notes pour chacune des lignes sauf pour le type K' ou il faut avoir toutes les réponses correctes pour obtenir les points.</p>
 <table>
-<tr><td><b>K'</b></td><td>L\'étudiant doir choisir toutes les réponses correctes parmis celles proposées et aucune réponse fausse pour obtenir 100%. Ceci inclue les lignes. Autrement l\'étudiant obtient 0%. </td></tr>
-<tr><td><b>K' (au moins une réponse correcte et aucune réponse fausse)</b></td><td>Pour chaque ligne l\'étudiant doir choisir au minimum une réponse correcte parmis celles proposées et aucune réponse fausse pour obtenir 100%. Autrement l\'étudiant obtient 0%. Si seulement une ligne est fausse alors le score est de 0.0. S\'il y plus d\'une ligne fausse le score est de 0.</td></tr>
-<tr><td><b>Pondérée</b></td><td>Chaque réponse reçoit un poid. La somme des réponses positives pour chaque ligne doit être de 100%.</td></tr></table>";
+<tr><td><b>Kprime</b></td><td>1 point si toutes les réponses sont correctes, 0 point autrement</td></tr>
+<tr><td><b>Kprime (au moins une réponse correcte et aucune réponse fausse)</b></td><td>Pour chaque ligne l\'étudiant doir choisir au minimum une réponse correcte parmis celles proposées et aucune réponse fausse pour obtenir 100%. Autrement l\'étudiant obtient 0%. Si seulement une ligne est fausse alors le score est de 0.0. S\'il y plus d\'une ligne fausse le score est de 0.</td></tr>
+<tr><td><b>Point partiel</b></td><td>une fraction de point pour chaque ligne de réponses correctes.</td></tr></table>";
 
 //$string['renderer'] = 'Rendu';
 
 $string['rowsheader'] = 'Lignes';
 $string['rowsheaderdesc'] = "<p>Le titre est affiché en tête de ligne. La description est utilisée dans un balon d\'aide.<br/></p>
 <p>Les étudiants peuvent sélectionner soit une soit plusieurs réponses par ligne en fonction de la configuration. Chaque ligne reçoit une note en fonction de la méthode d\'évaluation choisie.</p>
-<p>La note finale est la moyenne des notes de chacune des lignes sauf pour le type K' ou il faut avoir toutes les réponses correctes pour obtenir les points.</p>";
+<p>La note finale est la moyenne des notes de chacune des lignes sauf pour le type Kprime ou il faut avoir toutes les réponses correctes pour obtenir les points.</p>";
 
 $string['rows_shorttext'] = 'Titre';
 $string['rows_description'] = 'Description';
@@ -48,7 +48,7 @@ $string['rows_feedback'] = 'Commentaires';
 $string['colsheader'] = 'Colonnes';
 $string['colsheaderdesc'] =  "<p>Le titre est affiché en-tête des colonnes. La description est affichée dans un balon d\'aide.<br/></p>
 <p>Les étudiants peuvent sélectionner soit une soit plusieurs réponses par ligne en fonction de la configuration. Chaque ligne reçoit une note en fonction de la méthode d\'évaluation choisie.</p>
-<p>La note finale est la moyenne des notes de chacune des lignes sauf pour le type K' ou il faut avoir toutes les réponses correctes pour obtenir les points.</p>";
+<p>La note finale est la moyenne des notes de chacune des lignes sauf pour le type Kprime ou il faut avoir toutes les réponses correctes pour obtenir les points.</p>";
 
 $string['cols_shorttext'] = 'Titre';
 $string['cols_description'] = 'Description';
