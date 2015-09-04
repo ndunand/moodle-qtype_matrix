@@ -83,9 +83,6 @@ $string['shuffleanswers'] = 'Shuffle answer statements?';
 $string['shuffleanswers_help'] = 'If enabled, the order of the answer statements is randomly shuffled for each attempt, provided that “Shuffle within questions” in the activity settings is also enabled.';
 $string['show_non_kprime_gui'] = 'Show graphical user interface for options which are not strictly kprime matrix options (more than four rows, more than two columsn, multiple options).';
 
-
-// mod_ND : BEGIN
 $string['allow_dnd_ui'] = 'Allow usage of Drag&Drop UI';
 $string['allow_dnd_ui_descr'] = 'If allowed, the teachers will have the possibility to enable the Drag&Drop feature to any Matrix questions';
 $string['use_dnd_ui'] = 'Use drag &amp; drop ?';
-// mod_ND : END
