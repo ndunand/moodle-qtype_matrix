@@ -5,7 +5,7 @@ $string['addingmatrix'] = 'Ajout Matrice';
 $string['editingmatrix'] = 'Modification Matrice';
 $string['matrix'] = 'Matrice';
 $string['matrixsummary'] = 'Type de question Matrice';
-
+$string['pluginnameediting'] = 'Modification d\'une question Matrix/Kprime';
 $string['matrix_help'] = '<p>Ce type de question permet aux enseignants de définir les lignes et les colonnes qui composent une matrice.</p>
 <p>Les étudiants peuvent choisir soit une réponse par ligne soit plusieurs, selon la façon dont a été définie la question. Chaque ligne est évaluée selon la méthode d\'évaluation choisie.</p>
 <p>La note finale pour la question est la moyenne des notes de chacune des lignes.</p>';
@@ -22,7 +22,7 @@ $string['true'] = 'Vraie';
 $string['false'] = 'Fausse';
 
 // form 
-$string['multipleallowed'] = 'Est-ce que plusieurs réponses sont authoriées?';
+$string['multipleallowed'] = 'Est-ce que plusieurs réponses sont autorisées ?';
 
 $string['grademethod'] = 'Méthode d\'évaluation';
 $string['grademethod_help'] = "<p>Il y a plusieurs méthodes d\'évaluation pour le type matrice.</p>
@@ -64,3 +64,10 @@ $string['mustdefine1by1'] = 'Vous devez définir au minimum une matrice de 1 x 1
 $string['mustaddupto100'] = 'La somme de toutes les valeurs non-négative doit être égal à 100%%';
 $string['weightednomultiple'] = 'Pour choisir une méthode d\'évaluation pondérée il faut activer l\'option "réponses multiples"';
 $string['selectcorrectanswers'] = 'Définition des réponses correctes';
+
+$string['shuffleanswers'] = 'Shuffle answer statements?';
+$string['shuffleanswers_help'] = 'If enabled, the order of the answer statements is randomly shuffled for each attempt, provided that “Shuffle within questions” in the activity settings is also enabled.';
+
+$string['allow_dnd_ui'] = 'Permettre l\'utilisation du glisser-déposer';
+$string['allow_dnd_ui_descr'] = 'Si activé, les enseignants auront la possibilité d\'activer le glisser-déposer pour la réponse aux questions';
+$string['use_dnd_ui'] = 'Utiliser le glisser-déposer ?';
