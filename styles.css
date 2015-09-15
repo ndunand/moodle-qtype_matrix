@@ -69,16 +69,16 @@
 }
 /** edit matrix **/
 .mform fieldset {
-  overflow: visible !important;
+  overflow: visible;
 }
 #page-content {
-  overflow: visible !important;
+  overflow: visible;
 }
 #page-content .region-content {
-  overflow: visible !important;
+  overflow: visible;
 }
 #page-content #region-main {
-  overflow: visible !important;
+  overflow: visible;
 }
 #matrixheader .fitemtitle {
   display: none;
