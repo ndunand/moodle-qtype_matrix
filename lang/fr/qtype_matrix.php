@@ -65,8 +65,8 @@ $string['mustaddupto100'] = 'La somme de toutes les valeurs non-négative doit �
 $string['weightednomultiple'] = 'Pour choisir une méthode d\'évaluation pondérée il faut activer l\'option "réponses multiples"';
 $string['selectcorrectanswers'] = 'Définition des réponses correctes';
 
-$string['shuffleanswers'] = 'Shuffle answer statements?';
-$string['shuffleanswers_help'] = 'If enabled, the order of the answer statements is randomly shuffled for each attempt, provided that “Shuffle within questions” in the activity settings is also enabled.';
+$string['shuffleanswers'] = 'Mélanger les réponses ?';
+$string['shuffleanswers_help'] = 'Si activé, l\'ordre des réponses sera mélangé au hasard lors de chaque tentative, pour autant que le réglage du test "Mélanger les éléments des questions" soit aussi activé.';
 
 $string['allow_dnd_ui'] = 'Permettre l\'utilisation du glisser-déposer';
 $string['allow_dnd_ui_descr'] = 'Si activé, les enseignants auront la possibilité d\'activer le glisser-déposer pour la réponse aux questions';
