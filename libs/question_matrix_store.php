@@ -122,18 +122,6 @@ class question_matrix_store
         $sql = "DELETE FROM {$prefix}question_matrix WHERE questionid = $question_id";
         $DB->execute($sql);
 
-        // attempts   
-        $sql = "DELETE 
-                    qasd, steps, attempts
-                FROM 
-                    {$prefix}question_attempt_step_data qasd
-                JOIN 
-                    {$prefix}question_attempt_steps steps ON steps.id = qasd.attemptstepid
-                JOIN
-                    {$prefix}question_attempts attempts ON attempts.id = steps.questionattemptid 
-                WHERE 
-                    attempts.questionid = $question_id";
-        $DB->execute($sql);
 
         return true;
     }
