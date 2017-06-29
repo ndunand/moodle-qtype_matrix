@@ -124,11 +124,11 @@ class question_matrix_store
 
         // attempts   
         $sql = "DELETE 
-                    data, steps, attempts 
+                    qasd, steps, attempts
                 FROM 
-                    {$prefix}question_attempt_step_data data
+                    {$prefix}question_attempt_step_data qasd
                 JOIN 
-                    {$prefix}question_attempt_steps steps ON steps.id = data.attemptstepid
+                    {$prefix}question_attempt_steps steps ON steps.id = qasd.attemptstepid
                 JOIN
                     {$prefix}question_attempts attempts ON attempts.id = steps.questionattemptid 
                 WHERE 
