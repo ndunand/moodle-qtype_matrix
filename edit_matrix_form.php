@@ -247,8 +247,8 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
 
         $matrix[] = $builder->create_static('<th>');
         if (config::show_kprime_gui()) {
-            $matrix[] = $builder->create_submit(self::PARAM_ADD_COLUMNS, '  ', array(
-                'class' => 'button add'));
+            $matrix[] = $builder->create_submit(self::PARAM_ADD_COLUMNS, '+', array(
+                'class' => 'button-add'));
             $builder->register_no_submit_button(self::PARAM_ADD_COLUMNS);
         }
         $matrix[] = $builder->create_static('</th>');
@@ -292,7 +292,7 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
         $matrix[] = $builder->create_static('<tr>');
         $matrix[] = $builder->create_static('<td>');
         if (config::show_kprime_gui()) {
-            $matrix[] = $builder->create_submit('add_rows', '  ', array('class' => 'button add'));
+            $matrix[] = $builder->create_submit('add_rows', '+', array('class' => 'button-add'));
             $builder->register_no_submit_button('add_rows');
         }
         $matrix[] = $builder->create_static('</td>');

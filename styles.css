@@ -172,15 +172,16 @@
 #id_refresh_matrix {
   background-image: url([[pix:a/refresh]]);
   background-repeat: no-repeat;
+  background-color: white;
+  color: black;
   background-position: 1px center;
   padding-left: 20px;
 }
-.button.add {
-  background-image: url([[pix:qtype_matrix|add]]);
-  background-repeat: no-repeat;
-  background-position: center center;
-  display: inline-block;
-  min-width: 25px;
+#id_add_rows, #id_add_cols{
+  font-size: 22px;
+  background-color: white;
+  color: black;
+  padding: 0px 5px 5px 5px;
 }
 /*
 mod_ND : BEGIN
