@@ -20,6 +20,6 @@ $plugin->component = 'qtype_matrix';
 $plugin->version   = 2018050700;
 
 $plugin->requires  = 2013040500;
-$plugin->release   = 'stable release for Moodle 2.7-3.5 (Build: 2018050700)';
+$plugin->release   = '3.5.0 for Moodle 2.7-3.5 (Build: 2018050700)';
 
 $plugin->maturity  = MATURITY_STABLE;
