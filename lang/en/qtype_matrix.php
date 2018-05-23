@@ -86,3 +86,5 @@ $string['show_non_kprime_gui'] = 'Show graphical user interface for options whic
 $string['allow_dnd_ui'] = 'Allow usage of Drag&Drop UI';
 $string['allow_dnd_ui_descr'] = 'If allowed, the teachers will have the possibility to enable the Drag&Drop feature to any Matrix questions';
 $string['use_dnd_ui'] = 'Use drag &amp; drop ?';
+$string['privacy:metadata'] = 'The Kprime/Matrix Question Type plugin does not store any personal data.';
+
