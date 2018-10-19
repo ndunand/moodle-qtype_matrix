@@ -94,8 +94,8 @@ class question_matrix_store
         $sql = "DELETE FROM {$prefix}question_matrix_weights
                 WHERE {$prefix}question_matrix_weights.rowid IN 
                       (
-                      SELECT rows.id FROM {$prefix}question_matrix_rows  AS rows
-                      INNER JOIN {$prefix}question_matrix      AS matrix ON rows.matrixid = matrix.id
+                      SELECT question_matrix_rows.id FROM {$prefix}question_matrix_rows  AS question_matrix_rows
+                      INNER JOIN {$prefix}question_matrix      AS matrix ON question_matrix_rows.matrixid = matrix.id
                       WHERE matrix.questionid = $question_id
                       )";
         $DB->execute($sql);
@@ -274,8 +274,8 @@ class question_matrix_store
         $sql = "SELECT weights.* 
                 FROM {$prefix}question_matrix_weights AS weights
                 WHERE 
-                    rowid IN (SELECT rows.id FROM {$prefix}question_matrix_rows     AS rows 
-                              INNER JOIN {$prefix}question_matrix                   AS matrix ON rows.matrixid = matrix.id
+                    rowid IN (SELECT question_matrix_rows.id FROM {$prefix}question_matrix_rows     AS question_matrix_rows
+                              INNER JOIN {$prefix}question_matrix                   AS matrix ON question_matrix_rows.matrixid = matrix.id
                               WHERE matrix.questionid = $question_id)
                     OR
                               
@@ -294,8 +294,8 @@ class question_matrix_store
         $sql = "DELETE FROM {$prefix}question_matrix_weights
                 WHERE {$prefix}question_matrix_weights.rowid IN
                 (
-                 SELECT rows.id FROM {$prefix}question_matrix_rows  AS rows
-                 INNER JOIN {$prefix}question_matrix AS matrix ON rows.matrixid = matrix.id
+                 SELECT question_matrix_rows.id FROM {$prefix}question_matrix_rows  AS question_matrix_rows
+                 INNER JOIN {$prefix}question_matrix AS matrix ON question_matrix_rows.matrixid = matrix.id
                  WHERE matrix.questionid = $question_id
                 )";
         return $DB->execute($sql);
