@@ -133,7 +133,23 @@ class question_matrix_store
         global $DB;
 
         $result = $DB->get_records(self::TABLE_QUESTION_MATRIX_ROWS, array('matrixid' => $matrix_id), 'id ASC');
-        return $result ? $result : array();
+
+        if (!$result) {
+            return array();
+        }
+
+        foreach ($result as &$row) {
+            $row->description = [
+                'text' => $row->description,
+                'format' => FORMAT_HTML
+            ];
+            $row->feedback = [
+                'text' => $row->feedback,
+                'format' => FORMAT_HTML
+            ];
+        }
+
+        return $result;
     }
 
     public function save_matrix_row($row)
@@ -176,8 +192,8 @@ class question_matrix_store
                 'id' => $row->id,
                 'matrixid' => $row->matrixid,
                 'shorttext' => $row->shorttext,
-                'description' => $row->description,
-                'feedback' => $row->feedback
+                'description' => $row->description['text'],
+                'feedback' => $row->feedback['text']
         );
         $DB->update_record(self::TABLE_QUESTION_MATRIX_ROWS, $data);
         return $data;
@@ -201,7 +217,20 @@ class question_matrix_store
         global $DB;
 
         $result = $DB->get_records(self::TABLE_QUESTION_MATRIX_COLS, array('matrixid' => $matrix_id), 'id ASC');
-        return $result ? $result : array();
+
+
+        if (!$result) {
+            return array();
+        }
+
+        foreach ($result as &$row) {
+            $row->description = [
+                    'text' => $row->description,
+                    'format' => FORMAT_HTML
+            ];
+        }
+
+        return $result;
     }
 
     public function save_matrix_col($col)
@@ -226,7 +255,7 @@ class question_matrix_store
         $data = (object) array(
                 'matrixid' => $col->matrixid,
                 'shorttext' => $col->shorttext,
-                'description' => $col->description
+                'description' => $col->description['text']
         );
 
         //$x = 1 / 0;
@@ -245,7 +274,7 @@ class question_matrix_store
                 'id' => $col->id,
                 'matrixid' => $col->matrixid,
                 'shorttext' => $col->shorttext,
-                'description' => $col->description
+                'description' => $col->description['text']
         );
         //var_dump($data);
         $DB->update_record(self::TABLE_QUESTION_MATRIX_COLS, $data);

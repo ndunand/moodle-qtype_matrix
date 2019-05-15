@@ -50,7 +50,7 @@ class matrix_form_builder implements ArrayAccess
             $short_name = reset($short_name);
             $label = qtype_matrix::get_string($short_name);
         }
-        return $this->_form->createElement('htmleditor', $name, $label);
+        return $this->_form->createElement('editor', $name, $label);
     }
 
     public function create_htmlpopup($name, $label = '')
