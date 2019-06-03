@@ -421,7 +421,7 @@ class qtype_matrix extends question_type
     // mod_ND : BEGIN
     public function extra_question_fields()
     {
-        return array('question_matrix', 'use_dnd_ui');
+        return array('question_matrix', 'use_dnd_ui', 'grademethod', 'multiple');
     }
 
     // mod_ND : END
