@@ -74,7 +74,7 @@ class qtype_matrix_renderer extends qtype_with_combined_feedback_renderer
 
             if ($options->correctness) {
                 $row_grade = $question->grading()->grade_row($question, $row, $response);
-                $feedback = $row->feedback;
+                $feedback = $row->feedback['text'];
                 $feedback = strip_tags($feedback) ? $feedback : '';
                 $row_data[] = $this->feedback_image($row_grade) . $feedback;
             }
@@ -92,7 +92,7 @@ class qtype_matrix_renderer extends qtype_with_combined_feedback_renderer
     {
         $text = $header->shorttext;
 
-        $description = $header->description;
+        $description = $header->description['text'];
         if (strip_tags($description)) {
             $description = preg_replace('-^<p>-', '', $description);
             $description = preg_replace('-</p>$-', '', $description);
