@@ -425,4 +425,207 @@ class qtype_matrix extends question_type
     }
 
     // mod_ND : END
+
+    /**
+     * import a matrix question from Moodle XML format
+     *
+     * @param $data
+     * @param $question
+     * @param qformat_xml $format
+     * @param null $extra
+     * @return bool|object
+     */
+    public function import_from_xml($data, $question, qformat_xml $format, $extra=null) {
+        if (!isset($data['@']['type']) || $data['@']['type'] != 'matrix') {
+            return false;
+        }
+
+        //initial
+        $question = $format->import_headers($data);
+        $question->qtype = 'matrix';
+        $question->options = new stdClass();
+
+        //use_dnd_ui
+        $question->options->use_dnd_ui = $format->trans_single(
+            $format->getpath($data, array('#', 'use_dnd_ui', 0, '#'), 0));
+
+        //grademethod
+        $question->grademethod = $format->getpath(
+            $data,
+            array('#', 'grademethod', 0, '#'),
+            self::defaut_grading()->get_name()
+        );
+
+        //shuffleanswers
+        $question->options->shuffleanswers = $format->trans_single($format->getpath(
+            $data,
+            array('#', 'shuffleanswers', 0, '#'),
+            1));
+
+        //multiple
+        $multiple  = $format->trans_single($format->getpath(
+            $data,
+            array('#', 'multiple', 0, '#'),
+            1));
+
+        if (intval($multiple) == 1) {
+            $question->multiple = true;
+        }else{
+            $question->multiple = false;
+        }
+
+        //renderer
+        $question->options->renderer = $format->getpath($data, array('#', 'renderer', 0, '#'), 'matrix');
+
+        //rows
+        $question->rows = array();
+        $question->rows_shorttext = array();
+        $question->rows_description = array();
+        $question->rows_feedback = array();
+        $question->rowid = array();
+        $index = 0;
+        $rowsXML = $data['#']['row'];
+
+        foreach($rowsXML as $rowXML){
+            $question->rows_shorttext[$index] = $format->getpath($rowXML, array('#', 'shorttext', 0, '#'), '');
+
+            $question->rows_description[$index] = array(
+                'text' => $format->getpath($rowXML, array('#', 'description', 0, '#', 'text',0, '#'), ''),
+                'format' => $format->trans_format(
+                    $format->getpath($rowXML, array('#', 'description', 0, '@', 'format'), 'html')
+                )
+            );
+
+            $question->rows_feedback[$index] = array(
+                'text' => $format->getpath($rowXML, array('#', 'feedback', 0, '#', 'text',0, '#'), ''),
+                'format' => $format->trans_format(
+                    $format->getpath($rowXML, array('#', 'feedback', 0, '@', 'format'), 'html')
+                )
+            );
+            $question->rowid[$index] = false;
+            $index++;
+        }
+
+        //cols
+        $question->cols = array();
+        $question->cols_shorttext = array();
+        $question->cols_description = array();
+        $question->colid = array();
+        $index = 0;
+        $colsXML = $data['#']['col'];
+
+        foreach($colsXML as $colXML){
+            $question->cols_shorttext[$index] = $format->getpath($colXML, array('#', 'shorttext', 0, '#'), '');
+            $question->cols_description[$index] = array(
+                'text' => $format->getpath($colXML, array('#', 'description', 0, '#', 'text',0, '#'), ''),
+                'format' => $format->trans_format(
+                    $format->getpath($colXML, array('#', 'description', 0, '@', 'format'), 'html')
+                )
+            );
+            $question->colid[$index] = false;
+            $index++;
+        }
+
+        //weights
+        $question->weights = array();
+        $weights_of_rowsXML = $data['#']['weights-of-row'];
+        $row_index = 0;
+
+        if($question->multiple){
+            foreach ($weights_of_rowsXML as $weights_of_rowXML){
+                $col_index = 0;
+                foreach ($weights_of_rowXML['#']['weight-of-col'] as $weight_of_colXML){
+                    $key = qtype_matrix_grading::cell_name($row_index, $col_index, $question->multiple);
+                    $question->{$key} = floatval ($weight_of_colXML['#']);
+                    $col_index ++;
+                }
+                $row_index++;
+            }
+        }else{
+            foreach ($weights_of_rowsXML as $weights_of_rowXML){
+                $col_index = 0;
+                foreach ($weights_of_rowXML['#']['weight-of-col'] as $weight_of_colXML){
+                    if(floatval ($weight_of_colXML['#']) != 0){
+                        $key = qtype_matrix_grading::cell_name($row_index, $col_index, $question->multiple);
+                        $question->{$key} =  $col_index;
+                    }
+                    $col_index ++;
+                }
+                $row_index++;
+            }
+        }
+
+        return $question;
+    }
+
+    /**
+     * export a matrix question to Moodle XML format
+     * 2020-06-05
+     *
+     * @param $question
+     * @param qformat_xml $format
+     * @param null $extra
+     * @return bool|string
+     */
+    public function export_to_xml($question, qformat_xml $format, $extra = null) {
+        $output = '';
+
+        //use_dnd_ui
+        $output .= "    <use_dnd_ui>" . $question->options->use_dnd_ui . "</use_dnd_ui>\n";
+
+        //rows
+        foreach ($question->options->rows as $rowId => $row) {
+            $output .= "<!--row: ".$rowId."-->\n";
+            $output .= "    <row>\n";
+            $output .= "        <shorttext>" . $row->shorttext . "</shorttext>\n";
+            $output .= "        <description {$format->format($row->description['format'])}>\n";
+            $output .= $format->writetext($row->description['text'], 3);
+            $output .= "        </description>\n";
+            $output .= "        <feedback {$format->format($row->feedback['format'])}>\n";
+            $output .= $format->writetext($row->feedback['text'], 3);
+            $output .= "        </feedback>\n";
+            $output .= "    </row>\n";
+        }
+
+        //cols
+        foreach ($question->options->cols as $colId => $col) {
+            $output .= "<!--col: ".$colId."-->\n";
+            $output .= "    <col>\n";
+            $output .= "        <shorttext>" . $col->shorttext . "</shorttext>\n";
+            $output .= "        <description {$format->format($col->description['format'])}>\n";
+            $output .= $format->writetext($col->description['text'], 3);
+            $output .= "        </description>\n";
+            $output .= "    </col>\n";
+        }
+
+        //weights
+        foreach ($question->options->weights as $rowId => $weights_of_row) {
+            $output .= "<!--weights of row: ".$rowId."-->\n";
+            $output .= "    <weights-of-row>\n";
+            foreach ($weights_of_row as $colId => $weight_of_col) {
+                $output .= "<!--weight of col: ".$colId."-->\n";
+                $output .= "    <weight-of-col>".$weight_of_col."</weight-of-col>\n";
+            }
+            $output .= "    </weights-of-row>\n";
+        }
+
+        //grademethod
+        $output .= '    <grademethod>' . $question->options->grademethod .
+            "</grademethod>\n";
+
+        //shuffleanswers
+        $output .= '    <shuffleanswers>' . $question->options->shuffleanswers .
+            "</shuffleanswers>\n";
+
+        //multiple
+        $multiple = 1;
+        if(!$question->options->multiple){
+            $multiple = 0;
+        }
+        $output .= '    <multiple>' . $multiple . "</multiple>\n";
+        //renderer
+        $output .= '    <renderer>' . $question->options->renderer . "</renderer>\n";
+
+        return $output;
+    }
 }
