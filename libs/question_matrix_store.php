@@ -174,8 +174,8 @@ class question_matrix_store
         $data = (object) array(
                 'matrixid' => $row->matrixid,
                 'shorttext' => $row->shorttext,
-                'description' => $row->description,
-                'feedback' => $row->feedback
+                'description' => $row->description['text'],
+                'feedback' => $row->feedback['text']
         );
         $new_id = $DB->insert_record(self::TABLE_QUESTION_MATRIX_ROWS, $data);
         $data->id = $new_id;
