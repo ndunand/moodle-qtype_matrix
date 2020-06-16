@@ -17,9 +17,9 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'qtype_matrix';
-$plugin->version   = 2018050703;
+$plugin->version   = 2020061600;
 
 $plugin->requires  = 2013040500;
-$plugin->release   = '3.5.3 for Moodle 2.7-3.7 (Build: 2018050703)';
+$plugin->release   = '3.6 for Moodle 2.7-3.9 (Build: 2020061600)';
 
 $plugin->maturity  = MATURITY_STABLE;
