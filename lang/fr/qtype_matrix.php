@@ -11,9 +11,9 @@ $string['matrix_help'] = '<p>Ce type de question permet aux enseignants de défi
 <p>La note finale pour la question est la moyenne des notes de chacune des lignes.</p>';
 
 //gradings
-$string['all'] = 'Toutes les réponses correctes et aucune réponse fausse';
+$string['all'] = 'Point partiel';
 $string['kany'] = "Kprime (au moins une réponse correcte et aucune réponse fausse)  ";
-$string['kprime'] = "Kprime";
+$string['kprime'] = "Kprime1/0";
 $string['none'] = 'Pas d\'évaluation';
 $string['weighted'] = 'Point partiel';
 
@@ -25,12 +25,12 @@ $string['false'] = 'Fausse';
 $string['multipleallowed'] = 'Est-ce que plusieurs réponses sont autorisées ?';
 
 $string['grademethod'] = 'Méthode d\'évaluation';
-$string['grademethod_help'] = "<p>Il y a plusieurs méthodes d\'évaluation pour le type matrice.</p>
-<p>Ces méthodes concerne généralement les <b>lignes</b> sauf pour le type Kprime La note totale est la moyenne des notes pour chacune des lignes sauf pour le type K' ou il faut avoir toutes les réponses correctes pour obtenir les points.</p>
-<table>
-<tr><td><b>Kprime</b></td><td>1 point si toutes les réponses sont correctes, 0 point autrement</td></tr>
-<tr><td><b>Kprime (au moins une réponse correcte et aucune réponse fausse)</b></td><td>Pour chaque ligne l\'étudiant doir choisir au minimum une réponse correcte parmis celles proposées et aucune réponse fausse pour obtenir 100%. Autrement l\'étudiant obtient 0%. Si seulement une ligne est fausse alors le score est de 0.0. S\'il y plus d\'une ligne fausse le score est de 0.</td></tr>
-<tr><td><b>Point partiel</b></td><td>une fraction de point pour chaque ligne de réponses correctes.</td></tr></table>";
+$string['grademethod_help'] = "<p>Ces méthodes concernent généralement les <b>lignes</b> sauf pour le type Kprime1/0. La note totale est la moyenne des notes pour chacune des lignes sauf pour le type Kprime ou il faut avoir toutes les réponses correctes pour obtenir les points.</p>
+<ul>
+    <li><b>Point partiel :</b> Une fraction de point pour chaque ligne de réponses correctes.</li>
+    <li><b>Kprime (au moins une réponse correcte et aucune réponse fausse) :</b> Pour chaque ligne l'étudiant doir choisir au minimum une réponse correcte parmis celles proposées et aucune réponse fausse pour obtenir 100%. Autrement l'étudiant obtient 0%. Si seulement une ligne est fausse alors le score est de 0.0. S'il y plus d'une ligne fausse le score est de 0.</li>
+    <li><b>Kprime1/0 :</b> 1 point si toutes les réponses sont correctes, 0 point autrement.</li>
+</ul>";
 
 //$string['renderer'] = 'Rendu';
 
