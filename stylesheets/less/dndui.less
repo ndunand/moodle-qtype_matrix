@@ -38,7 +38,7 @@ mod_ND : BEGIN
     opacity: 0.3;
 }
 
-.que.matrix.qtype_matrix_dndui .cell span {
+.que.matrix.qtype_matrix_dndui .cell span.title, .que.matrix.qtype_matrix_dndui .cell.ui-droppable > span {
     padding: 1em 2em 1em 1em;
     border: 0.2em solid #999;
     position: relative;
@@ -83,6 +83,13 @@ body#page-question-type-matrix #page-content {
 
 body#page-question-type-matrix div#region-main {
     overflow-x: scroll;
+}
+
+#id_add_rows, #id_add_cols{
+  font-size: 22px;
+  background-color: white;
+  color: black;
+  padding: 0px 5px 5px 5px;
 }
 
 /*

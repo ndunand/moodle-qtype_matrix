@@ -96,12 +96,12 @@ class qtype_matrix_renderer extends qtype_with_combined_feedback_renderer
         if (strip_tags($description)) {
             $description = preg_replace('-^<p>-', '', $description);
             $description = preg_replace('-</p>$-', '', $description);
-            $description = '<span class="description" >' . $description . '</span>';
+            $description = '<span class="description" >' . format_text($description) . '</span>';
         } else {
             $description = '';
         }
 
-        return '<span class="title">' . $text . '</span>' . $description;
+        return '<span class="title">' . format_text($text) . '</span>' . $description;
     }
 
     protected static function checkbox($name, $checked, $readonly)

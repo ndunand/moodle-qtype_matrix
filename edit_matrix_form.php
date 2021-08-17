@@ -260,8 +260,8 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
             $matrix[] = $builder->create_static('<td>');
 
             $matrix[] = $builder->create_static('<div class="input-group">');
-            $matrix[] = $builder->create_text("rows_shorttext[$row]", false);
 
+            $matrix[] = $builder->create_text("rows_shorttext[$row]", false);
             $question_popup = $builder->create_htmlpopup("rows_description[$row]", lang::row_long());
             $matrix = array_merge($matrix, $question_popup);
             $matrix[] = $builder->create_hidden("rowid[$row]");
@@ -272,7 +272,7 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
             for ($col = 0; $col < $cols_count; $col++) {
                 $matrix[] = $builder->create_static('<td>');
                 $cell_content = $grading->create_cell_element($mform, $row, $col, $multiple);
-                $cell_content = $cell_content ? $cell_content : $builder->create_static('');
+                $cell_content = $cell_content ?: $builder->create_static('');
                 $matrix[] = $cell_content;
                 $matrix[] = $builder->create_static('</td>');
             }
