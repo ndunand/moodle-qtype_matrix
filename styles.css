@@ -138,6 +138,7 @@
   min-width: 383px;
   padding: 0;
   margin-left: 0;
+  z-index: 1;
 }
 .quedit.matrix .popup .title {
   display: block;
@@ -177,12 +178,6 @@
   background-position: 1px center;
   padding-left: 20px;
 }
-#id_add_rows, #id_add_cols{
-  font-size: 22px;
-  background-color: white;
-  color: black;
-  padding: 0px 5px 5px 5px;
-}
 /*
 mod_ND : BEGIN
 // TODO add .qtype_matrix_dndui selector where needed
@@ -214,7 +209,8 @@ mod_ND : BEGIN
   cursor: auto;
   opacity: 0.3;
 }
-.que.matrix.qtype_matrix_dndui .cell span.title, .que.matrix.qtype_matrix_dndui .cell.ui-droppable > span {
+.que.matrix.qtype_matrix_dndui .cell span.title,
+.que.matrix.qtype_matrix_dndui .cell.ui-droppable > span {
   padding: 1em 2em 1em 1em;
   border: 0.2em solid #999;
   position: relative;
@@ -251,6 +247,13 @@ body#page-question-type-matrix #page-content {
 }
 body#page-question-type-matrix div#region-main {
   overflow-x: scroll;
+}
+#id_add_rows,
+#id_add_cols {
+  font-size: 22px;
+  background-color: white;
+  color: black;
+  padding: 0px 5px 5px 5px;
 }
 /*
 mod_ND : END
