@@ -52,7 +52,7 @@ abstract class qtype_matrix_grading
         $class = 'qtype_matrix_grading_' . $type;
 
         require_once dirname(__FILE__) . '/grading/' . $class . '.class.php';
-        return $resut[$type] = call_user_func(array($class, 'create'), $type);
+        return $result[$type] = call_user_func(array($class, 'create'), $type);
     }
 
     public static function get_name()
