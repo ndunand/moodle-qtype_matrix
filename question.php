@@ -337,7 +337,12 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      */
     public function compute_final_grade($responses, $totaltries)
     {
-        $x = 1 / 0;
+        $grade_value = 0;
+        foreach($responses as $response) {
+            $x = $this->grade_response($response);
+            $grade_value += $x[0];
+        }
+        return $grade_value;
     }
 
     /**
