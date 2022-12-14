@@ -5,7 +5,7 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->dirroot . '/question/engine/simpletest/helpers.php');
+require_once($CFG->dirroot . '/question/engine/tests/helpers.php');
 
 /**
  * Unit tests for the true-false question definition class.
