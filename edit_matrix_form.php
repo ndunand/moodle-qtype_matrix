@@ -14,6 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+use qtype_matrix\local\lang;
+use qtype_matrix\local\matrix_form_builder;
+use qtype_matrix\local\setting;
+
 defined('MOODLE_INTERNAL') || die;
 
 /**
@@ -21,9 +25,6 @@ defined('MOODLE_INTERNAL') || die;
  *
  */
 require_once($CFG->dirroot . '/question/type/edit_question_form.php');
-require_once($CFG->dirroot . '/question/type/matrix/libs/matrix_form_builder.php');
-require_once($CFG->dirroot . '/question/type/matrix/libs/lang.php');
-require_once($CFG->dirroot . '/question/type/matrix/libs/setting.php');
 
 /**
  * matrix editing form definition. For information about the Moodle forms library,

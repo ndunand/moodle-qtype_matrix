@@ -18,9 +18,10 @@
  * The question type class for the matrix question type.
  *
  */
-defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->dirroot . '/question/type/matrix/libs/lang.php');
+use qtype_matrix\local\lang;
+
+defined('MOODLE_INTERNAL') || die();
 
 /**
  * Represents a matrix question.

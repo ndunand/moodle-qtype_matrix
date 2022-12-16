@@ -14,34 +14,31 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL') || die();
-
-require_once($CFG->dirroot . '/question/type/matrix/libs/setting.php');
+namespace qtype_matrix\output;
 
 /**
  * Generates the output for matrix questions.
  */
-class qtype_matrix_renderer extends qtype_with_combined_feedback_renderer {
+class renderer extends \qtype_with_combined_feedback_renderer {
 
     /**
      * Generate the display of the formulation part of the question. This is the
-     * area that contains the quetsion text, and the controls for students to
+     * area that contains the question text, and the controls for students to
      * input their answers. Some question types also embed bits of feedback, for
      * example ticks and crosses, in this area.
      *
-     * @param question_attempt         $qa      the question attempt to display.
-     * @param question_display_options $options controls what should and should not be displayed.
+     * @param \question_attempt         $qa      the question attempt to display.
+     * @param \question_display_options $options controls what should and should not be displayed.
      * @return string HTML fragment.
      */
-    public function formulation_and_controls(question_attempt $qa, question_display_options $options) {
-
+    public function formulation_and_controls(\question_attempt $qa, \question_display_options $options) {
         $question = $qa->get_question();
         $response = $qa->get_last_qt_data();
 
-        $table = new html_table();
+        $table = new \html_table();
         $table->attributes['class'] = 'matrix';
 
-        if (setting::allow_dnd_ui() && $question->usedndui) {
+        if (\qtype_matrix\local\setting::allow_dnd_ui() && $question->usedndui) {
             $table->attributes['class'] .= ' uses_dndui';
         }
 
@@ -91,8 +88,8 @@ class qtype_matrix_renderer extends qtype_with_combined_feedback_renderer {
             $table->data[] = $rowdata;
         }
         $questiontext = $question->format_questiontext($qa);
-        $result = html_writer::tag('div', $questiontext, ['class' => 'question_text']);
-        $result .= html_writer::table($table, true);
+        $result = \html_writer::tag('div', $questiontext, ['class' => 'question_text']);
+        $result .= \html_writer::table($table, true);
         return $result;
     }
 
