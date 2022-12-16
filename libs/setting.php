@@ -14,11 +14,25 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL') || die();
+/**
+ *
+ */
+class setting {
+    const COMPONENT = 'qtype_matrix';
 
-$plugin->component = 'qtype_matrix';
-$plugin->version = 2022121601;
-$plugin->requires = 2013040500;
-$plugin->release = '3.6.1 for Moodle 3.5-3.11 (Build: 2022121601)';
-$plugin->maturity = MATURITY_STABLE;
+    public static function show_kprime_gui() {
+        global $CFG;
 
+        return !property_exists($CFG,
+                'qtype_matrix_show_non_kprime_gui') || $CFG->qtype_matrix_show_non_kprime_gui !== '0';
+    }
+
+    public static function allow_dnd_ui() {
+        return self::get('allow_dnd_ui');
+    }
+
+    public static function get($name) {
+        return get_config(self::COMPONENT, $name);
+    }
+
+}

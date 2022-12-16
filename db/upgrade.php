@@ -1,4 +1,18 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 // This file keeps track of upgrades to
 // the match qtype plugin
@@ -21,36 +35,34 @@
 // before any action that may take longer time to finish.
 
 function xmldb_qtype_matrix_upgrade($oldversion) {
-
-    global $CFG, $DB;
-
+    global $DB;
     $dbman = $DB->get_manager();
     if ($oldversion < 2014040800) {
-
-        // Define table matrix to be created
+        // Define table matrix to be created.
         $table = new xmldb_table('question_matrix');
-
-        // Adding fields to table matrix
-        $newField = $table->add_field('shuffleanswers', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '1');
-        $dbman->add_field($table, $newField);
-
-
+        // Adding fields to table matrix.
+        $newfield = $table->add_field('shuffleanswers', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '1');
+        $dbman->add_field($table, $newfield);
         upgrade_plugin_savepoint(true, 2014040800, 'qtype', 'matrix');
     }
 
-    // mod_ND : BEGIN
     if ($oldversion < 2015070100) {
-
-        // Define table matrix to be created
+        // Define table matrix to be created.
         $table = new xmldb_table('question_matrix');
-
-        // Adding fields to table matrix
-        $newField = $table->add_field('use_dnd_ui', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '0');
-        $dbman->add_field($table, $newField);
-
+        // Adding fields to table matrix.
+        $newfield = $table->add_field('use_dnd_ui', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '0');
+        $dbman->add_field($table, $newfield);
         upgrade_plugin_savepoint(true, 2015070100, 'qtype', 'matrix');
     }
-    // mod_ND : END
 
+    if ($oldversion < 2022121601) {
+        // Define table matrix to be created.
+        $table = new xmldb_table('question_matrix');
+        // Rename the field use_dnd_ui to usedndui because direct working with this variable will be hard in php,
+        // when the coding standard don't allow '_' in variable names.
+        $newfield = $table->add_field('use_dnd_ui', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '0');
+        $dbman->rename_field($table, $newfield, 'usedndui');
+        upgrade_plugin_savepoint(true, 2022121601, 'qtype', 'matrix');
+    }
     return true;
 }

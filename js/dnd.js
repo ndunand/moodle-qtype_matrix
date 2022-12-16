@@ -23,14 +23,14 @@
  */
 
 
-(function ($) {
+(function($) {
 
-    $(document).ready(function () {
+    $(document).ready(function() {
 
         var n = 0; // matrix question number (1..)
         var dnduistr = 'qtype_matrix_dndui';
 
-        var wasDropped = function (ismultiple, $tr, $cell, text, $draggable, check_boxes) {
+        var wasDropped = function(ismultiple, $tr, $cell, text, $draggable, check_boxes) {
             if (!ismultiple) {
                 if (check_boxes) {
                     // 1. uncheck all other boxes
@@ -48,7 +48,7 @@
             }
             var $newspan = $('<span>').text(text); // fill in the receptacle with a clue that it is checked
             var $deletebutton = $('<span>').text('X'); // button to uncheck a checkbox
-            $deletebutton.click(function () {
+            $deletebutton.click(function() {
                 var $btn = $(this);
                 // 1. uncheck the box
                 $btn.parents('td').find('input').prop('checked', false);
@@ -63,7 +63,7 @@
             $newspan.appendTo($cell);
         };
 
-        $('.que.matrix').each(function () {
+        $('.que.matrix').each(function() {
             n++;
             var $question = $(this); // question display DOM element
             var $matrix = $question.find('table.matrix'); // question table
@@ -81,7 +81,7 @@
             $receptacles.addClass('outerwalled'); // ditto
 
             var it = 0; // item number (1..)
-            $items.each(function () {
+            $items.each(function() {
                 it++;
                 // each item has to be draggable, but only to a sortable in its own row
                 var $item = $(this);
@@ -91,21 +91,21 @@
 
                 $draggable.attr('class', dnduistr + '_item' + ' ' + dnduistr + '_' + n + '_item_' + it);
                 $draggable.draggable({
-                    'helper':      'clone', // we drag a clone
-                    'revert':      'invalid', // revert if not dropped onto a valid target
-                    'opacity':     0.5, // opacity while dragging
+                    'helper': 'clone', // we drag a clone
+                    'revert': 'invalid', // revert if not dropped onto a valid target
+                    'opacity': 0.5, // opacity while dragging
                     'containment': $matrix, // can only be dragged this far
-                    'scope':       dnduistr + '_' + n + '_item_' + it // can only be dragged to its own row's droppables
+                    'scope': dnduistr + '_' + n + '_item_' + it // can only be dragged to its own row's droppables
                 });
 
-                $tr.find('.cell:has("input")').each(function () { // this row's each possible cell containing a checkbox
+                $tr.find('.cell:has("input")').each(function() { // this row's each possible cell containing a checkbox
                     var $cell = $(this);
                     $cell.droppable({
                         'activeClass': 'activated', // to hint the user where it can drop the currently dragged item
-                        'hoverClass':  'hovered', // to hint the user what will happen if dropped now
-                        'tolerance':   'pointer', // drop accepted if pointer within droppable boundaries (easiest UX)
-                        'scope':       dnduistr + '_' + n + '_item_' + it, // only accept draggable from this row
-                        'drop':        function (event, ui) {
+                        'hoverClass': 'hovered', // to hint the user what will happen if dropped now
+                        'tolerance': 'pointer', // drop accepted if pointer within droppable boundaries (easiest UX)
+                        'scope': dnduistr + '_' + n + '_item_' + it, // only accept draggable from this row
+                        'drop': function(event, ui) {
                             wasDropped(ismultiple, $tr, $cell, text, $draggable, true);
                         }
                     });

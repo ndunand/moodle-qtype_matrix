@@ -1,6 +1,21 @@
-<?php 
+<?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-// qtype strings
+// Todo: implement missing logic existing in the en/de version + add missing lang strings.
+
 $string['addingmatrix'] = 'Ajout Matrice';
 $string['editingmatrix'] = 'Modification Matrice';
 $string['matrix'] = 'Matrice';
@@ -10,18 +25,18 @@ $string['matrix_help'] = '<p>Ce type de question permet aux enseignants de défi
 <p>Les étudiants peuvent choisir soit une réponse par ligne soit plusieurs, selon la façon dont a été définie la question. Chaque ligne est évaluée selon la méthode d\'évaluation choisie.</p>
 <p>La note finale pour la question est la moyenne des notes de chacune des lignes.</p>';
 
-//gradings
+// Gradings.
 $string['all'] = 'Point partiel';
 $string['kany'] = "Kprime (au moins une réponse correcte et aucune réponse fausse)  ";
 $string['kprime'] = "Kprime1/0";
 $string['none'] = 'Pas d\'évaluation';
 $string['weighted'] = 'Point partiel';
 
-//strings
+// Strings.
 $string['true'] = 'Vraie';
 $string['false'] = 'Fausse';
 
-// form 
+// Form.
 $string['multipleallowed'] = 'Est-ce que plusieurs réponses sont autorisées ?';
 
 $string['grademethod'] = 'Méthode d\'évaluation';
@@ -32,8 +47,6 @@ $string['grademethod_help'] = "<p>Ces méthodes concernent généralement les <b
     <li><b>Kprime1/0 :</b> 1 point si toutes les réponses sont correctes, 0 point autrement.</li>
 </ul>";
 
-//$string['renderer'] = 'Rendu';
-
 $string['rowsheader'] = 'Lignes';
 $string['rowsheaderdesc'] = "<p>Le titre est affiché en tête de ligne. La description est utilisée dans un balon d\'aide.<br/></p>
 <p>Les étudiants peuvent sélectionner soit une soit plusieurs réponses par ligne en fonction de la configuration. Chaque ligne reçoit une note en fonction de la méthode d\'évaluation choisie.</p>
@@ -43,21 +56,16 @@ $string['rows_shorttext'] = 'Titre';
 $string['rows_description'] = 'Description';
 $string['rows_feedback'] = 'Commentaires';
 
-//$string['addmorerows'] = 'Ajouter {$a} ligne(s) de plus';
-
 $string['colsheader'] = 'Colonnes';
-$string['colsheaderdesc'] =  "<p>Le titre est affiché en-tête des colonnes. La description est affichée dans un balon d\'aide.<br/></p>
+$string['colsheaderdesc'] = "<p>Le titre est affiché en-tête des colonnes. La description est affichée dans un balon d\'aide.<br/></p>
 <p>Les étudiants peuvent sélectionner soit une soit plusieurs réponses par ligne en fonction de la configuration. Chaque ligne reçoit une note en fonction de la méthode d\'évaluation choisie.</p>
 <p>La note finale est la moyenne des notes de chacune des lignes sauf pour le type Kprime ou il faut avoir toutes les réponses correctes pour obtenir les points.</p>";
 
 $string['cols_shorttext'] = 'Titre';
 $string['cols_description'] = 'Description';
 
-//$string['addmorecols'] = 'Ajouter {$a} colonne(s) de plus';
-
 $string['refresh_matrix'] = 'Rafraichir la matrice';
 
-//$string['updatematrix'] = 'Mettre la matrice à jour pour refléter les nouvelles options choisies';
 $string['matrixheader'] = 'Matrice';
 
 $string['mustdefine1by1'] = 'Vous devez définir au minimum une matrice de 1 x 1 avec des titres pour les colonnes et les lignes.';

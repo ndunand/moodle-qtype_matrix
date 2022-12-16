@@ -118,7 +118,7 @@
     border-color: #848484;
 }
 
-.quedit.matrix input[type="submit"]:hover ,
+.quedit.matrix input[type="submit"]:hover,
 .quedit.matrix input[type="submit"]:active,
 .quedit.matrix input[type="submit"]:focus {
     background-position: center center;

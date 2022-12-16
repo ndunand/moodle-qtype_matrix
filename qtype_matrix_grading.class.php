@@ -1,92 +1,98 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * Base class for grading types
- * 
+ *
  * @abstract
  */
-abstract class qtype_matrix_grading
-{
+abstract class qtype_matrix_grading {
 
-    public static function gradings()
-    {
+    public static function gradings() {
         static $result = false;
-        if ($result)
-        {
+        if ($result) {
             return $result;
         }
-        $result = array();
+        $result = [];
 
         $dir = dirname(__FILE__) . '/grading';
         $files = scandir($dir);
-        $files = array_diff($files, array('.', '..'));
-        foreach ($files as $file)
-        {
+        $files = array_diff($files, ['.', '..']);
+        foreach ($files as $file) {
             include_once("$dir/$file");
             $class = str_replace('.class.php', '', $file);
-            if (class_exists($class))
-            {
+            if (class_exists($class)) {
                 $result[] = new $class();
             }
         }
         return $result;
     }
 
-    public static function default_grading()
-    {
+    public static function default_grading() {
         return self::create('kprime');
     }
 
     /**
-     *     
+     *
      * @param string $type
      * @return qtype_matrix_grading
      */
-    public static function create($type)
-    {
-        static $result = array();
-        if (isset($result[$type]))
-        {
+    public static function create($type) {
+        static $result = [];
+        if (isset($result[$type])) {
             return $result[$type];
         }
         $class = 'qtype_matrix_grading_' . $type;
-
-        require_once dirname(__FILE__) . '/grading/' . $class . '.class.php';
-        return $result[$type] = call_user_func(array($class, 'create'), $type);
+        // Todo: investigate if we have an lfi exploitation vector here.
+        require_once(dirname(__FILE__) . '/grading/' . $class . '.class.php');
+        return $result[$type] = call_user_func([$class, 'create'], $type);
     }
 
-    public static function get_name()
-    {
+    public static function get_title() {
+        $identifier = self::get_name();
+        return qtype_matrix::get_string($identifier);
+    }
+
+    public static function get_name() {
         $class = get_called_class();
         $result = str_replace('qtype_matrix_grading_', '', $class);
         return $result;
     }
 
-    public static function get_title()
-    {
-        $identifier = self::get_name();
-        return qtype_matrix::get_string($identifier);
+    public static function cell_index($name) {
+        $name = str_replace('cell', '', $name);
+        $result = explode('_', $name);
+        return $result;
     }
 
     /**
      * Create the form element used to define the weight of the cell
-     * 
-     * @param MoodleQuickForm   $form
-     * @param int $row          row number
-     * @param int $col          column number
-     * @param bool $multiple    whether the question allows multiple answers
+     *
+     * @param MoodleQuickForm $form
+     * @param int             $row      row number
+     * @param int             $col      column number
+     * @param bool            $multiple whether the question allows multiple answers
      * @return object
      */
-    public function create_cell_element($form, $row, $col, $multiple)
-    {
-        $cell_name = $this->cell_name($row, $col, $multiple);
-        if ($multiple)
-        {
-            return $form->createElement('checkbox', $cell_name, 'label');
-        }
-        else
-        {
-            return $form->createElement('radio', $cell_name, '', '', $col);
+    public function create_cell_element($form, $row, $col, $multiple) {
+        $cellname = $this->cell_name($row, $col, $multiple);
+        if ($multiple) {
+            return $form->createElement('checkbox', $cellname, 'label');
+        } else {
+            return $form->createElement('radio', $cellname, '', '', $col);
         }
     }
 
@@ -94,38 +100,28 @@ abstract class qtype_matrix_grading
      * Returns a cell name.
      * Should be a valid php and html identifier
      *
-     * @param int   $row row number
-     * @param int   $col col number
-     * @param bool  $multiple one answer per row or several
-     * 
+     * @param int  $row      row number
+     * @param int  $col      col number
+     * @param bool $multiple one answer per row or several
+     *
      * @return string
      */
-    public static function cell_name($row, $col, $multiple)
-    {
+    public static function cell_name($row, $col, $multiple) {
         $row = $row ? $row : '0';
         $col = $col ? $col : '0';
         return $multiple ? "cell{$row}_{$col}" : "cell{$row}";
     }
 
-    public static function cell_index($name)
-    {
-        $name = str_replace('cell', '', $name);
-        $result = explode('_', $name);
-        return $result;
-    }
-
     /**
      * Returns the question's grade. By default it is the average of correct questions.
-     * 
+     *
      * @param qtype_matrix_question $question
      * @param array                 $answers
-     * @return float 
+     * @return float
      */
-    public function grade_question($question, $answers)
-    {
-        $grades = array();
-        foreach ($question->rows as $row)
-        {
+    public function grade_question($question, $answers) {
+        $grades = [];
+        foreach ($question->rows as $row) {
             $grades[] = $this->grade_row($question, $row, $answers);
         }
         $result = array_sum($grades) / count($grades);
@@ -136,44 +132,32 @@ abstract class qtype_matrix_grading
 
     /**
      * Grade a specific row
-     * 
-     * @param qtype_matrix_question     $question
-     * @param object                    $row
-     * @param array                     $answers
-     * @return float 
+     *
+     * @param qtype_matrix_question $question
+     * @param object                $row
+     * @param array                 $answers
+     * @return float
      */
-    public function grade_row($question, $row, $answers)
-    {
+    public function grade_row($question, $row, $answers) {
         return 0;
     }
 
     /**
-     * validate 
+     * validate
      *
      * @param array $data the raw form data
      *
      * @return array of errors
      */
-    public function validation($data)
-    {
-        return array();
+    public function validation($data) {
+        return [];
     }
 
-//    /**
-//     * whether this grade method requires manual intervention
-//     */
-//    public function is_manual_graded()
-//    {
-//        return false;
-//    }
-
-    protected function col_count($data)
-    {
+    protected function col_count($data) {
         return count($data['cols_shorttext']);
     }
 
-    protected function row_count($data)
-    {
+    protected function row_count($data) {
         return count($data['rows_shorttext']);
     }
 }

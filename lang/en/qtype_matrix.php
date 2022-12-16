@@ -1,6 +1,18 @@
 <?php
-
-// qtype strings
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 global $CFG;
 if (!property_exists($CFG, 'qtype_matrix_show_non_kprime_gui') || $CFG->qtype_matrix_show_non_kprime_gui !== '0') {
@@ -29,24 +41,21 @@ Kprime questions consist of an item stem and four corresponding answer statement
 }
 
 
-
 $string['pluginname_link'] = 'question/type/matrix';
 
-//gradings
+// Gradings.
 $string['all'] = 'Subpoints';
 $string['kany'] = 'Kprime (at least one correct, no wrong answer)  ';
 $string['kprime'] = "Kprime1/0";
 
-//strings
+// Strings.
 $string['true'] = 'True';
 $string['false'] = 'False';
 
-//form
+// Form.
 $string['multipleallowed'] = 'Allow multiple responses per answer statement?';
 
 $string['grademethod'] = 'Scoring method';
-
-//$string['renderer'] = 'Renderer';
 
 $string['rowsheader'] = 'Matrix rows';
 $string['rowsheader_desc'] = '<p>Shorttext will be used when it\'s present, with the longer text as a tooltip.<br />Be mindful of how this will be displayed</p>
@@ -57,8 +66,6 @@ $string['rows_shorttext'] = 'Answer statement';
 $string['rows_description'] = 'Description';
 $string['rows_feedback'] = 'Feedback';
 
-//$string['addmorerows'] = 'Add {$a} more rows';
-
 $string['colsheader'] = 'Matrix columns';
 $string['colsheader_desc'] = '<p>Shorttext will be used when it\'s present, with the longer text as a tooltip.<br />Be mindful of how this will be displayed.</p>
 <p>Students can select multiple or single columns per row, depending on how the question has been configured, and each row receives a grade, defined by one of the grading methods.</p>
@@ -67,11 +74,8 @@ $string['colsheader_desc'] = '<p>Shorttext will be used when it\'s present, with
 $string['cols_shorttext'] = 'Response';
 $string['cols_description'] = 'Description';
 
-//$string['addmorecols'] = 'Add {$a} more columns';
-
 $string['refresh_matrix'] = 'Refresh response matrix';
 
-//$string['updatematrix'] = 'Update matrix to reflect new options';
 $string['matrixheader'] = 'Response matrix';
 
 $string['mustdefine1by1'] = 'You must define at least a 1 x 1 matrix; with either short or long answer defined for each row and column';
@@ -85,6 +89,5 @@ $string['show_non_kprime_gui'] = 'Show graphical user interface for options whic
 
 $string['allow_dnd_ui'] = 'Allow usage of Drag&Drop UI';
 $string['allow_dnd_ui_descr'] = 'If allowed, the teachers will have the possibility to enable the Drag&Drop feature to any Matrix questions';
-$string['use_dnd_ui'] = 'Use drag &amp; drop ?';
-$string['privacy:metadata'] = 'The Kprime/Matrix Question Type plugin does not store any personal data.';
-
+$string['use_dnd_ui'] = 'Drag &amp; Drop verwenden ?';
+$string['privacy:metadata'] = 'Das Kprime/Matrix Question Type Plugin speichert keine persönlichen Daten.';
