@@ -88,40 +88,39 @@ class question_matrix_store {
             return false;
         }
 
-        global $DB, $CFG;
-        $prefix = $CFG->prefix;
+        global $DB;
 
         // Note: $DB->execute does not accept multiple SQL statements
         // Weights.
-        $sql = "DELETE FROM {$prefix}question_matrix_weights
-                WHERE {$prefix}question_matrix_weights.rowid IN
+        $sql = "DELETE FROM {question_matrix_weights} qmw
+                WHERE qmw.rowid IN
                       (
-                      SELECT question_matrix_rows.id FROM {$prefix}question_matrix_rows  AS question_matrix_rows
-                      INNER JOIN {$prefix}question_matrix AS matrix ON question_matrix_rows.matrixid = matrix.id
-                      WHERE matrix.questionid = $questionid
+                      SELECT qmr.id FROM {question_matrix_rows} qmr
+                      INNER JOIN {question_matrix} qm ON qmr.matrixid = qm.id
+                      WHERE qm.questionid = $questionid
                       )"; // Todo: remove unsafe sql operation.
         $DB->execute($sql);
 
         // Rows.
-        $sql = "DELETE FROM {$prefix}question_matrix_rows
-                WHERE {$prefix}question_matrix_rows.matrixid IN
+        $sql = "DELETE FROM {question_matrix_rows} qmr
+                WHERE qmr.matrixid IN
                       (
-                      SELECT matrix.id FROM {$prefix}question_matrix AS matrix
-                      WHERE matrix.questionid = $questionid
+                      SELECT qm.id FROM {question_matrix} qm
+                      WHERE qm.questionid = $questionid
                       )"; // Todo: remove unsafe sql operation.
         $DB->execute($sql);
 
         // Cols.
-        $sql = "DELETE FROM {$prefix}question_matrix_cols
-                WHERE {$prefix}question_matrix_cols.matrixid IN
+        $sql = "DELETE FROM {question_matrix_cols} qmc
+                WHERE qmc.matrixid IN
                       (
-                      SELECT matrix.id FROM {$prefix}question_matrix AS matrix
-                      WHERE matrix.questionid = $questionid
+                      SELECT qm.id FROM {question_matrix} qm
+                      WHERE qm.questionid = $questionid
                       )"; // Todo: remove unsafe sql operation.
         $DB->execute($sql);
 
         // Matrix.
-        $sql = "DELETE FROM {$prefix}question_matrix WHERE questionid = $questionid";
+        $sql = "DELETE FROM {question_matrix} WHERE questionid = $questionid";
         // Todo: remove unsafe sql operation.
         $DB->execute($sql);
         return true;
@@ -278,34 +277,30 @@ class question_matrix_store {
     // Weights.
 
     public function get_matrix_weights_by_question_id($questionid) {
-        global $DB, $CFG;
-        $prefix = $CFG->prefix;
-
+        global $DB;
         // Todo: check AND?
-        $sql = "SELECT weights.*
-                FROM {$prefix}question_matrix_weights AS weights
+        $sql = "SELECT qmw.*
+                FROM {question_matrix_weights} qmw
                 WHERE
-                    rowid IN (SELECT question_matrix_rows.id FROM {$prefix}question_matrix_rows AS question_matrix_rows
-                              INNER JOIN {$prefix}question_matrix AS matrix ON question_matrix_rows.matrixid = matrix.id
-                              WHERE matrix.questionid = $questionid)
+                    rowid IN (SELECT qmr.id FROM {question_matrix_rows} qmr
+                              INNER JOIN {question_matrix} qm ON qmr.matrixid = qm.id
+                              WHERE qm.questionid = $questionid)
                     OR
-                    colid IN (SELECT cols.id FROM {$prefix}question_matrix_cols AS cols
-                              INNER JOIN {$prefix}question_matrix AS matrix ON cols.matrixid = matrix.id
-                              WHERE matrix.questionid = $questionid)
+                    colid IN (SELECT qmc.id FROM {question_matrix_cols} qmc
+                              INNER JOIN {question_matrix} qm ON qmc.matrixid = qm.id
+                              WHERE qm.questionid = $questionid)
                "; // Todo: remove unsafe sql operation.
         return $DB->get_records_sql($sql);
     }
 
     public function delete_matrix_weights($questionid) {
-        global $DB, $CFG;
-        $prefix = $CFG->prefix;
-
-        $sql = "DELETE FROM {$prefix}question_matrix_weights
-                WHERE {$prefix}question_matrix_weights.rowid IN
+        global $DB;
+        $sql = "DELETE FROM {question_matrix_weights} qmw
+                WHERE qmw.rowid IN
                 (
-                 SELECT question_matrix_rows.id FROM {$prefix}question_matrix_rows  AS question_matrix_rows
-                 INNER JOIN {$prefix}question_matrix AS matrix ON question_matrix_rows.matrixid = matrix.id
-                 WHERE matrix.questionid = $questionid
+                 SELECT qmr.id FROM {question_matrix_rows} AS qmr
+                 INNER JOIN {question_matrix} qm ON qmr.matrixid = qm.id
+                 WHERE qm.questionid = $questionid
                 )"; // Todo: remove unsafe sql operation.
         return $DB->execute($sql);
     }
