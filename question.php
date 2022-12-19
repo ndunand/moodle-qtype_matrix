@@ -169,7 +169,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
             $PAGE->requires->jquery();
             $PAGE->requires->jquery_plugin('ui');
             $PAGE->requires->jquery_plugin('ui-css');
-            $PAGE->requires->js('/question/type/matrix/js/dnd.js');
+            $PAGE->requires->js_call_amd('qtype_matrix/dnd', 'init');
         }
         $this->order = array_keys($this->rows);
         if ($this->shuffle_answers()) {
@@ -245,7 +245,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
             $PAGE->requires->jquery();
             $PAGE->requires->jquery_plugin('ui');
             $PAGE->requires->jquery_plugin('ui-css');
-            $PAGE->requires->js('/question/type/matrix/js/dnd.js');
+            $PAGE->requires->js_call_amd('qtype_matrix/dnd', 'init');
         }
         $this->load_data($step);
     }
