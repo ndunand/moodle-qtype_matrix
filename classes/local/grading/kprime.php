@@ -13,31 +13,35 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+namespace qtype_matrix\local\grading;
+
+use qtype_matrix\local\qtype_matrix_grading;
 
 /**
- * Per row grading. The total grade is the average of grading received
- * for reach one of the rows.
  *
- * For a row all of the correct and none of the wrong answers must be selected
- * to get 100% otherwise 0.
+ * Total grading - i.e. including rows.
+ *
+ * The student must choose all correct answers, and none of the wrong ones
+ * to get 100% otherwise he gets 0%. Including rows.
+ * If one row is wrong then the mark for the question is 0.
  */
-class qtype_matrix_grading_all extends qtype_matrix_grading {
+class kprime extends qtype_matrix_grading {
 
-    const TYPE = 'all';
+    const TYPE = 'kprime';
 
     public static function get_name() {
         return self::TYPE;
     }
 
     public static function get_title() {
-        return qtype_matrix::get_string(self::TYPE);
+        return \qtype_matrix::get_string(self::TYPE);
     }
 
     /**
      * Factory
      *
      * @param string $type
-     * @return qtype_matrix_grading_all
+     * @return kprime
      */
     public static function create($type) {
         static $result = false;
@@ -48,9 +52,27 @@ class qtype_matrix_grading_all extends qtype_matrix_grading {
     }
 
     /**
+     * Returns the question's grade. By default it is the average of correct questions.
+     *
+     * @param \qtype_matrix_question $question
+     * @param array                 $answers
+     * @return float
+     */
+    public function grade_question($question, $answers) {
+        foreach ($question->rows as $row) {
+            $grade = $this->grade_row($question, $row, $answers);
+            if ($grade < 1) {
+                return 0;
+            }
+        }
+        return 1;
+    }
+
+
+    /**
      * Grade a row
      *
-     * @param qtype_matrix_question $question  The question to grade
+     * @param \qtype_matrix_question $question  The question to grade
      * @param integer|object        $row       Row to grade
      * @param array                 $responses User's responses
      * @return float                            The row grade, either 0 or 1
@@ -65,4 +87,5 @@ class qtype_matrix_grading_all extends qtype_matrix_grading {
         }
         return 1;
     }
+
 }

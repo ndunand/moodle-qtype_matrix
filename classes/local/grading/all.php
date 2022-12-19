@@ -14,29 +14,34 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace qtype_matrix\local\grading;
+
+use qtype_matrix\local\qtype_matrix_grading;
+
 /**
  * Per row grading. The total grade is the average of grading received
  * for reach one of the rows.
  *
- * Any correct and no wrong answer to get 100% otherwise 0
+ * For a row all of the correct and none of the wrong answers must be selected
+ * to get 100% otherwise 0.
  */
-class qtype_matrix_grading_kany extends qtype_matrix_grading {
+class all extends qtype_matrix_grading {
 
-    const TYPE = 'kany';
+    const TYPE = 'all';
 
     public static function get_name() {
         return self::TYPE;
     }
 
     public static function get_title() {
-        return qtype_matrix::get_string(self::TYPE);
+        return \qtype_matrix::get_string(self::TYPE);
     }
 
     /**
      * Factory
      *
      * @param string $type
-     * @return qtype_matrix_grading_kany
+     * @return all
      */
     public static function create($type) {
         static $result = false;
@@ -46,47 +51,22 @@ class qtype_matrix_grading_kany extends qtype_matrix_grading {
         return $result = new self();
     }
 
-    public function grade_question($question, $answers) {
-        $numberofcorrectrows = 0;
-        foreach ($question->rows as $row) {
-            $grade = $this->grade_row($question, $row, $answers);
-            if ($grade >= 1) {
-                $numberofcorrectrows++;
-            }
-        }
-        if ($numberofcorrectrows == count($question->rows)) {
-            return 1;
-        } else if ((count($question->rows) - $numberofcorrectrows) == 1) {
-            return 0.5;
-        }
-        return 0;
-    }
-
     /**
      * Grade a row
      *
-     * @param qtype_matrix_question $question  The question to grade
+     * @param \qtype_matrix_question $question  The question to grade
      * @param integer|object        $row       Row to grade
      * @param array                 $responses User's responses
      * @return float                            The row grade, either 0 or 1
      */
     public function grade_row($question, $row, $responses) {
-        $onecorrectanswer = false;
         foreach ($question->cols as $col) {
             $answer = $question->answer($row, $col);
             $response = $question->response($responses, $row, $col);
-            if (!$answer && $response) {
+            if ($answer != $response) {
                 return 0;
             }
-            if ($answer && $response) {
-                $onecorrectanswer = true;
-            }
         }
-        return ($onecorrectanswer) ? 1 : 0;
+        return 1;
     }
-
-    public function validation($data) {
-        return [];
-    }
-
 }

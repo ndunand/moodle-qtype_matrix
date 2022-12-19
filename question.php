@@ -20,6 +20,7 @@
  */
 
 use qtype_matrix\local\lang;
+use qtype_matrix\local\qtype_matrix_grading;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -51,18 +52,18 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      * If the user didn't make an answer at all (no response) the method returns false.
      *
      * @param array $response object containing the raw answer data
-     * @param any   $row      matrix row, either an id or an object
-     * @param any   $col      matrix col, either an id or an object
+     * @param mixed   $row      matrix row, either an id or an object
+     * @param mixed   $col      matrix col, either an id or an object
      *
      * @return boolean True if the cell($row, $col) was checked by the user. False otherwise.
      */
     public function response($response, $row, $col) {
-        // A student may response with a question with the multiple answer turned on.
+        // A student may respond with a question with the multiple answer turned on.
         // Later the teacher may turn that flag off. The result is that the question
         // and response formats won't match.
         //
         // To fix that problem we don't use the question->multiple flag but instead we
-        // use the use the user's response to detect the correct value.
+        // use the user's response to detect the correct value.
         //
         // Note
         // A part of the problems come from the fact that we use two representation formats
@@ -73,7 +74,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
         // A better strategy would be to use only one normalized representation in memory.
         // The same way we have only one representation in the DB. For that we
         // would need to transform the html form data after the post.
-        // Not sure we can dot it.
+        // Not sure if we can do it.
         $responsemultiple = $this->multiple;
         foreach ($response as $key => $value) {
             $responsemultiple = (strpos($key, '_') !== false);
@@ -104,7 +105,6 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
         $rowid = is_object($row) ? $row->id : $row;
         $colid = is_object($col) ? $col->id : $col;
         $multiple = (is_null($multiple)) ? $this->multiple : $multiple;
-
         return qtype_matrix_grading::cell_name($rowid, $colid, $multiple);
     }
 

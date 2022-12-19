@@ -13,7 +13,7 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-
+namespace qtype_matrix\local;
 /**
  * Base class for grading types
  *
@@ -27,16 +27,11 @@ abstract class qtype_matrix_grading {
             return $result;
         }
         $result = [];
-
-        $dir = dirname(__FILE__) . '/grading';
-        $files = scandir($dir);
-        $files = array_diff($files, ['.', '..']);
-        foreach ($files as $file) {
-            include_once("$dir/$file");
-            $class = str_replace('.class.php', '', $file);
-            if (class_exists($class)) {
-                $result[] = new $class();
-            }
+        $classlist = ['all', 'kany', 'kprime'];
+        $namespace = 'qtype_matrix\\local\\grading\\';
+        foreach ($classlist as $class) {
+            $classname = $namespace.$class;
+            $result[] = new $classname();
         }
         return $result;
     }
@@ -55,21 +50,17 @@ abstract class qtype_matrix_grading {
         if (isset($result[$type])) {
             return $result[$type];
         }
-        $class = 'qtype_matrix_grading_' . $type;
-        // Todo: investigate if we have an lfi exploitation vector here.
-        require_once(dirname(__FILE__) . '/grading/' . $class . '.class.php');
+        $class = 'qtype_matrix\\local\\grading\\' . $type;
         return $result[$type] = call_user_func([$class, 'create'], $type);
     }
 
     public static function get_title() {
         $identifier = self::get_name();
-        return qtype_matrix::get_string($identifier);
+        return \qtype_matrix::get_string($identifier);
     }
 
     public static function get_name() {
-        $class = get_called_class();
-        $result = str_replace('qtype_matrix_grading_', '', $class);
-        return $result;
+        return get_called_class();
     }
 
     public static function cell_index($name) {
@@ -81,7 +72,7 @@ abstract class qtype_matrix_grading {
     /**
      * Create the form element used to define the weight of the cell
      *
-     * @param MoodleQuickForm $form
+     * @param \MoodleQuickForm $form
      * @param int             $row      row number
      * @param int             $col      column number
      * @param bool            $multiple whether the question allows multiple answers
@@ -115,7 +106,7 @@ abstract class qtype_matrix_grading {
     /**
      * Returns the question's grade. By default it is the average of correct questions.
      *
-     * @param qtype_matrix_question $question
+     * @param \qtype_matrix_question $question
      * @param array                 $answers
      * @return float
      */
@@ -133,7 +124,7 @@ abstract class qtype_matrix_grading {
     /**
      * Grade a specific row
      *
-     * @param qtype_matrix_question $question
+     * @param \qtype_matrix_question $question
      * @param object                $row
      * @param array                 $answers
      * @return float

@@ -16,6 +16,7 @@
 
 use qtype_matrix\local\lang;
 use qtype_matrix\local\matrix_form_builder;
+use qtype_matrix\local\qtype_matrix_grading;
 use qtype_matrix\local\setting;
 
 defined('MOODLE_INTERNAL') || die;

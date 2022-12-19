@@ -19,12 +19,12 @@
  *
  */
 
+use qtype_matrix\local\qtype_matrix_grading;
 use qtype_matrix\local\question_matrix_store;
 
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->libdir . '/questionlib.php');
-require_once(dirname(__FILE__) . '/qtype_matrix_grading.class.php');
 
 /**
  * The matrix question class
