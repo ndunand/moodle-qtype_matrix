@@ -44,11 +44,11 @@ class qtype_matrix extends question_type {
     /**
      * Deletes question from the question-type specific tables
      *
-     * @param int  $questionid The question being deleted
-     * @param int|null $contextid  The context id
+     * @param int $questionid The question being deleted
      * @return boolean to indicate success of failure.
+     * @throws dml_exception
      */
-    public function delete_question_options(int $questionid, int $contextid = null): bool {
+    public function delete_question_options(int $questionid): bool {
         if (empty($questionid)) {
             return false;
         }
@@ -63,6 +63,7 @@ class qtype_matrix extends question_type {
      * @param integer $questionid The question being deleted
      * @param integer $contextid
      * @return boolean to indicate success of failure.
+     * @throws dml_exception
      */
     public function delete_question($questionid, $contextid = null): bool {
         global $DB;
@@ -89,6 +90,7 @@ class qtype_matrix extends question_type {
      *
      * @param object $question
      * @return boolean
+     * @throws dml_exception
      */
     public function get_question_options($question): bool {
         parent::get_question_options($question);
@@ -99,7 +101,7 @@ class qtype_matrix extends question_type {
             $question->options->weights = $matrix->weights;
             $question->options->grademethod = $matrix->grademethod;
             // Allow for old versions which don't have this field.
-            $question->options->shuffleanswers = isset($matrix->shuffleanswers) ? $matrix->shuffleanswers : true;
+            $question->options->shuffleanswers = $matrix->shuffleanswers ?? true;
             $question->options->usedndui = $matrix->usedndui;
             $question->options->multiple = $matrix->multiple;
             $question->options->renderer = $matrix->renderer;
@@ -163,6 +165,8 @@ class qtype_matrix extends question_type {
      *
      * @param object $question This holds the information from the editing form, it is not a standard question object.
      * @return object $result->error or $result->noticeyesno or $result->notice
+     * @throws dml_exception
+     * @throws dml_transaction_exception
      */
     public function save_question_options($question): object {
         global $DB;
@@ -176,7 +180,7 @@ class qtype_matrix extends question_type {
         // The variable $questionid is not equal to matrix->id.
         $matrix = (object) $store->get_matrix_by_question_id($questionid);
 
-        $isnew = !isset($matrix->id) || empty($matrix->id);
+        $isnew = empty($matrix->id);
 
         $matrix->questionid = $questionid;
         $matrix->multiple = $question->multiple;
@@ -266,16 +270,15 @@ class qtype_matrix extends question_type {
         //
         // This is bit hacky but it is safe. The to_weight_matrix returns only
         // 0 or 1.
-        $weights = [];
         if ($question->multiple) {
             $weights = $this->to_weigth_matrix($question, true);
             if ($this->is_matrix_empty($weights)) {
-                $weights = $this->to_weigth_matrix((object)$_POST, false); // Todo: remove unsafe $_POST.
+                $weights = $this->to_weigth_matrix((object) $_POST, false); // Todo: remove unsafe $_POST.
             }
         } else {
             $weights = $this->to_weigth_matrix($question, false);
             if ($this->is_matrix_empty($weights)) {
-                $weights = $this->to_weigth_matrix((object)$_POST, true); // Todo: remove unsafe $_POST.
+                $weights = $this->to_weigth_matrix((object) $_POST, true); // Todo: remove unsafe $_POST.
             }
         }
 
@@ -336,14 +339,14 @@ class qtype_matrix extends question_type {
         if ($frommultiple) {
             for ($row = 0; $row < $rowcount; $row++) {
                 for ($col = 0; $col < $colcount; $col++) {
-                    $key = qtype_matrix_grading::cell_name($row, $col, $frommultiple);
-                    $value = isset($data->{$key}) ? $data->{$key} : 0;
+                    $key = qtype_matrix_grading::cell_name($row, $col, true);
+                    $value = $data->{$key} ?? 0;
                     $result[$row][$col] = $value ? 1 : 0;
                 }
             }
         } else {
             for ($row = 0; $row < $rowcount; $row++) {
-                $key = qtype_matrix_grading::cell_name($row, 0, $frommultiple);
+                $key = qtype_matrix_grading::cell_name($row, 0, false);
                 if (isset($data->{$key})) {
                     $col = $data->{$key};
                     $result[$row][$col] = 1;
@@ -442,7 +445,7 @@ class qtype_matrix extends question_type {
             ['#', 'multiple', 0, '#'],
             1));
 
-        if (intval($multiple) == 1) {
+        if ($multiple == 1) {
             $question->multiple = true;
         } else {
             $question->multiple = false;

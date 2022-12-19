@@ -34,6 +34,15 @@
 // Please do not forget to use upgrade_set_timeout()
 // before any action that may take longer time to finish.
 
+/**
+ * @param int $oldversion
+ * @return bool
+ * @throws ddl_exception
+ * @throws ddl_field_missing_exception
+ * @throws ddl_table_missing_exception
+ * @throws downgrade_exception
+ * @throws upgrade_exception
+ */
 function xmldb_qtype_matrix_upgrade(int $oldversion): bool {
     global $DB;
     $dbman = $DB->get_manager();

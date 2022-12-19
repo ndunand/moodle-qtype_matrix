@@ -44,6 +44,8 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
      * Process the qtype/matrix
      *
      * @param $data
+     * @return void
+     * @throws dml_exception
      */
     public function process_matrix($data): void {
         if (!$this->is_question_created()) {
@@ -67,13 +69,15 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
      */
     protected function is_question_created(): bool {
         $oldquestionid = $this->get_old_parentid('question');
-        return $this->get_mappingid('question_created', $oldquestionid) ? true : false;
+        return (bool) $this->get_mappingid('question_created', $oldquestionid);
     }
 
     /**
      * Process the qtype/cols/col
      *
      * @param $data
+     * @return void
+     * @throws dml_exception
      */
     public function process_col($data): void {
         global $DB;
@@ -95,6 +99,8 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
      * Process the qtype/rows/row element
      *
      * @param $data
+     * @return void
+     * @throws dml_exception
      */
     public function process_row($data): void {
         global $DB;
@@ -116,6 +122,8 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
      * Process the qtype/weights/weight element
      *
      * @param $data
+     * @return void
+     * @throws dml_exception
      */
     public function process_weight($data): void {
         if (!$this->is_question_created()) {
@@ -162,7 +170,7 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
                 $responsekeynocell = substr($responsekey, 4);
                 $responsekeyids = explode('_', $responsekeynocell);
                 $newrowid = $this->matrixrows[$responsekeyids[0]];
-                $newcolid = isset($this->matrixcols[$responseval]) ? $this->matrixcols[$responseval] : false;
+                $newcolid = $this->matrixcols[$responseval] ?? false;
                 if (count($responsekeyids) == 1) {
                     $recodedresponse['cell' . $newrowid] = $newcolid;
                 } else if (count($responsekeyids) == 2) {
@@ -183,7 +191,7 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
      * @param string $order the original order.
      * @return string the recoded order.
      */
-    protected function recode_choice_order($order): string {
+    protected function recode_choice_order(string $order): string {
         $neworder = [];
         foreach (explode(',', $order) as $id) {
             if ($newid = $this->matrixrows[$id]) {

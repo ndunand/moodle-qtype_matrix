@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace qtype_matrix\local;
+use dml_exception;
+
 /**
  *
  */
@@ -28,6 +30,10 @@ class setting {
                 'qtype_matrix_show_non_kprime_gui') || $CFG->qtype_matrix_show_non_kprime_gui !== '0';
     }
 
+    /**
+     * @return bool
+     * @throws dml_exception
+     */
     public static function allow_dnd_ui(): bool {
         return self::get('allow_dnd_ui');
     }
@@ -37,7 +43,7 @@ class setting {
      *
      * @param string $name
      * @return false|mixed|object|string
-     * @throws \dml_exception
+     * @throws dml_exception
      */
     public static function get(string $name) {
         return get_config(self::COMPONENT, $name);

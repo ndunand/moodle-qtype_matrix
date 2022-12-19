@@ -15,8 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 namespace qtype_matrix\local\grading;
 
+use coding_exception;
 use qtype_matrix\local\lang;
 use qtype_matrix\local\qtype_matrix_grading;
+use qtype_matrix_question;
 
 /**
  * Per row grading. The total grade is the average of grading received
@@ -32,6 +34,10 @@ class kany extends qtype_matrix_grading {
         return self::TYPE;
     }
 
+    /**
+     * @return string
+     * @throws coding_exception
+     */
     public static function get_title(): string {
         return lang::get(self::TYPE);
     }
@@ -50,7 +56,7 @@ class kany extends qtype_matrix_grading {
         return $result = new self();
     }
 
-    public function grade_question(\qtype_matrix_question $question, array $answers): float {
+    public function grade_question(qtype_matrix_question $question, array $answers): float {
         $numberofcorrectrows = 0.0;
         foreach ($question->rows as $row) {
             $grade = $this->grade_row($question, $row, $answers);
@@ -69,12 +75,12 @@ class kany extends qtype_matrix_grading {
     /**
      * Grade a row
      *
-     * @param \qtype_matrix_question $question  The question to grade
+     * @param qtype_matrix_question $question  The question to grade
      * @param integer|object         $row       Row to grade
      * @param array                  $responses User's responses
      * @return float                            The row grade, either 0 or 1
      */
-    public function grade_row(\qtype_matrix_question $question, $row, array $responses): float {
+    public function grade_row(qtype_matrix_question $question, $row, array $responses): float {
         $onecorrectanswer = false;
         foreach ($question->cols as $col) {
             $answer = $question->answer($row, $col);

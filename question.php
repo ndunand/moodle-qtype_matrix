@@ -80,7 +80,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
         }
 
         $key = $this->key($row, $col, $responsemultiple);
-        $value = isset($response[$key]) ? $response[$key] : false;
+        $value = $response[$key] ?? false;
         if ($value === false) {
             return false;
         }
@@ -130,6 +130,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      * @return float
      */
     public function weight($row = null, $col = null): float {
+        // Todo: What the heck is this? It is used in two ways? Better Split it up then!
         if (is_string($row) && is_null($col)) {
             $key = str_replace('cell', $col, $row);
             [$rowid, $colid] = explode('x', $key);
@@ -151,12 +152,16 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      * Any information about how the question has been set up for this attempt
      * should be stored in the $step, by calling $step->set_qt_var(...).
      *
+     *
      * @param question_attempt_step $step
      *          The first step of the {@link question_attempt} being started.
      *          Can be used to store state.
      * @param int                   $variant
      *          Which variant of this question to start. Will be between
      *          1 and {@link get_num_variants()} inclusive.
+     * @return void
+     * @throws coding_exception
+     * @throws dml_exception
      */
     public function start_attempt(question_attempt_step $step, $variant): void {
         global $PAGE;
@@ -174,8 +179,8 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
     }
 
     /**
-     *
-     * @return boolean True if rows should be shuffled. False otherwise.
+     * @return bool True if rows should be shuffled. False otherwise.
+     * @throws dml_exception
      */
     public function shuffle_answers(): bool {
         if (!$this->shuffle_authorized()) {
@@ -193,8 +198,9 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      * returns true.
      *
      * @return boolean          True if shuffling is authorized. False otherwise.
-     * @global object $PAGE Page object
+     * @throws dml_exception
      * @global object $DB   Database object
+     * @global object $PAGE Page object
      */
     public function shuffle_authorized(): bool {
         global $DB, $PAGE;
@@ -209,7 +215,9 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
     /**
      * Write persistent data to a step for further retrieval
      *
-     * @param question_attempt_step $step Storage
+     * @param question_attempt_step $step
+     * @return void
+     * @throws coding_exception
      */
     protected function write_data(question_attempt_step $step): void {
         $step->set_qt_var(self::KEY_ROWS_ORDER, implode(',', $this->order));
@@ -225,8 +233,11 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      * originally. All the information required to do this should be in the
      * $step object, which is the first step of the question_attempt being loaded.
      *
+     *
      * @param question_attempt_step $step The first step of the {@link question_attempt}
      *                                    being loaded.
+     * @return void
+     * @throws dml_exception
      */
     public function apply_attempt_state(question_attempt_step $step): void {
         if ($this->usedndui) {
@@ -243,6 +254,8 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      * Load persistent data from a step.
      *
      * @param question_attempt_step $step Storage
+     * @return void
+     * @throws dml_exception
      */
     protected function load_data(question_attempt_step $step): void {
         $order = $step->get_qt_var(self::KEY_ROWS_ORDER);
@@ -255,7 +268,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
             if ($this->shuffle_answers()) {
                 shuffle($this->order);
             }
-            $this->write_order($step);
+            $this->write_order($step); // Todo: where does this function comes from ?
         }
 
         // Rows can be deleted between attempts. We need therefore to remove
@@ -287,16 +300,25 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
         }
     }
 
+    /**
+     * @param question_attempt $qa
+     * @return array
+     * @throws coding_exception
+     */
     public function get_order(question_attempt $qa): array {
         $this->init_order($qa);
         return $this->order;
     }
 
+    /**
+     * @param question_attempt $qa
+     * @return void
+     * @throws coding_exception
+     */
     protected function init_order(question_attempt $qa): void {
         if ($this->order) {
             return;
         }
-
         $this->order = explode(',', $qa->get_step(0)->get_qt_var(self::KEY_ROWS_ORDER));
     }
 
@@ -374,6 +396,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      *
      * @param array $response
      * @return string the message.
+     * @throws coding_exception
      */
     public function get_validation_error(array $response): string {
         $isgradable = $this->is_gradable_response($response);
@@ -395,9 +418,9 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
             $row = $this->rows[$rowid];
             foreach ($this->cols as $col) {
                 $key = $this->key($row, $col);
-                $value = isset($response[$key]) ? $response[$key] : false;
+                $value = $response[$key] ?? false;
                 if ($value == $col->id) {
-                    $result[] = "{$row->shorttext}: {$col->shorttext}";
+                    $result[] = "$row->shorttext: $col->shorttext";
                 }
             }
         }

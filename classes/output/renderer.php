@@ -16,10 +16,18 @@
 
 namespace qtype_matrix\output;
 
+use dml_exception;
+use html_table;
+use html_writer;
+use qtype_matrix\local\setting;
+use qtype_with_combined_feedback_renderer;
+use question_attempt;
+use question_display_options;
+
 /**
  * Generates the output for matrix questions.
  */
-class renderer extends \qtype_with_combined_feedback_renderer {
+class renderer extends qtype_with_combined_feedback_renderer {
 
     /**
      * Generate the display of the formulation part of the question. This is the
@@ -27,18 +35,19 @@ class renderer extends \qtype_with_combined_feedback_renderer {
      * input their answers. Some question types also embed bits of feedback, for
      * example ticks and crosses, in this area.
      *
-     * @param \question_attempt         $qa      the question attempt to display.
-     * @param \question_display_options $options controls what should and should not be displayed.
+     * @param question_attempt         $qa      the question attempt to display.
+     * @param question_display_options $options controls what should and should not be displayed.
      * @return string HTML fragment.
+     * @throws dml_exception
      */
-    public function formulation_and_controls(\question_attempt $qa, \question_display_options $options): string {
+    public function formulation_and_controls(question_attempt $qa, question_display_options $options): string {
         $question = $qa->get_question();
         $response = $qa->get_last_qt_data();
 
-        $table = new \html_table();
+        $table = new html_table();
         $table->attributes['class'] = 'matrix';
 
-        if (\qtype_matrix\local\setting::allow_dnd_ui() && $question->usedndui) {
+        if (setting::allow_dnd_ui() && $question->usedndui) {
             $table->attributes['class'] .= ' uses_dndui';
         }
 
@@ -88,8 +97,8 @@ class renderer extends \qtype_with_combined_feedback_renderer {
             $table->data[] = $rowdata;
         }
         $questiontext = $question->format_questiontext($qa);
-        $result = \html_writer::tag('div', $questiontext, ['class' => 'question_text']);
-        $result .= \html_writer::table($table, true);
+        $result = html_writer::tag('div', $questiontext, ['class' => 'question_text']);
+        $result .= html_writer::table($table);
         return $result;
     }
 
@@ -108,7 +117,7 @@ class renderer extends \qtype_with_combined_feedback_renderer {
         return '<span class="title">' . format_text($text) . '</span>' . $description;
     }
 
-    protected static function checkbox(string $name, bool $checked,bool $readonly): string {
+    protected static function checkbox(string $name, bool $checked, bool $readonly): string {
         $readonly = $readonly ? 'readonly="readonly" disabled="disabled"' : '';
         $checked = $checked ? 'checked="checked"' : '';
         return "<input type=\"checkbox\" name=\"$name\" $checked $readonly />";

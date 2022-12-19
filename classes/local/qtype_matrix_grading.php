@@ -14,6 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 namespace qtype_matrix\local;
+
+use coding_exception;
+use MoodleQuickForm;
+use qtype_matrix_question;
+
 /**
  * Base class for grading types
  *
@@ -21,6 +26,12 @@ namespace qtype_matrix\local;
  */
 abstract class qtype_matrix_grading {
 
+    /**
+     * @return array
+     * @uses \qtype_matrix\local\grading\kany
+     * @uses \qtype_matrix\local\grading\kprime
+     * @uses \qtype_matrix\local\grading\all
+     */
     public static function gradings(): array {
         static $result = false;
         if ($result !== false) {
@@ -55,6 +66,10 @@ abstract class qtype_matrix_grading {
         return $result[$type] = call_user_func([$class, 'create'], $type);
     }
 
+    /**
+     * @return string
+     * @throws coding_exception
+     */
     public static function get_title(): string {
         $identifier = self::get_name();
         return lang::get($identifier);
@@ -64,22 +79,16 @@ abstract class qtype_matrix_grading {
         return get_called_class();
     }
 
-    public static function cell_index(string $name): array {
-        $name = str_replace('cell', '', $name);
-        $result = explode('_', $name);
-        return $result;
-    }
-
     /**
      * Create the form element used to define the weight of the cell
      *
-     * @param \MoodleQuickForm $form
-     * @param int              $row      row number
-     * @param int              $col      column number
-     * @param bool             $multiple whether the question allows multiple answers
+     * @param MoodleQuickForm $form
+     * @param int             $row      row number
+     * @param int             $col      column number
+     * @param bool            $multiple whether the question allows multiple answers
      * @return object
      */
-    public function create_cell_element(\MoodleQuickForm $form, int $row, int $col, bool $multiple): object {
+    public function create_cell_element(MoodleQuickForm $form, int $row, int $col, bool $multiple): object {
         $cellname = $this->cell_name($row, $col, $multiple);
         if ($multiple) {
             return $form->createElement('checkbox', $cellname, 'label');
@@ -99,36 +108,35 @@ abstract class qtype_matrix_grading {
      * @return string
      */
     public static function cell_name(int $row, int $col, bool $multiple): string {
-        return $multiple ? "cell{$row}_{$col}" : "cell{$row}";
+        return $multiple ? "cell{$row}_$col" : "cell$row";
     }
 
     /**
-     * Returns the question's grade. By default it is the average of correct questions.
+     * Returns the question's grade. By default, it is the average of correct questions.
      *
-     * @param \qtype_matrix_question $question
-     * @param array                  $answers
+     * @param qtype_matrix_question $question
+     * @param array                 $answers
      * @return float
      */
-    public function grade_question(\qtype_matrix_question $question, array $answers): float {
+    public function grade_question(qtype_matrix_question $question, array $answers): float {
         $grades = [];
         foreach ($question->rows as $row) {
             $grades[] = $this->grade_row($question, $row, $answers);
         }
         $result = array_sum($grades) / count($grades);
         $result = min(1, $result);
-        $result = max(0, $result);
-        return $result;
+        return max(0, $result);
     }
 
     /**
      * Grade a specific row
      *
-     * @param \qtype_matrix_question $question
-     * @param object                 $row
-     * @param array                  $responses
+     * @param qtype_matrix_question $question
+     * @param mixed                 $row
+     * @param array                 $responses
      * @return float
      */
-    public function grade_row(\qtype_matrix_question $question, $row, array $responses): float {
+    public function grade_row(qtype_matrix_question $question, $row, array $responses): float {
         return 0.0;
     }
 

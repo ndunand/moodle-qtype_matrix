@@ -21,6 +21,9 @@ class backup_qtype_matrix_plugin extends backup_qtype_plugin {
 
     /**
      * Returns the qtype information to attach to question element
+     *
+     * @return backup_plugin_element
+     * @throws base_element_struct_exception
      */
     protected function define_question_plugin_structure(): backup_plugin_element {
         // Define the virtual plugin element with the condition to fulfill.

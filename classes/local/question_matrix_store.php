@@ -15,9 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace qtype_matrix\local;
-/**
- *
- */
+
+use dml_exception;
+use stdClass;
+
 class question_matrix_store {
 
     const COMPONENT = 'qtype_matrix';
@@ -32,8 +33,8 @@ class question_matrix_store {
      * This function is not strong typed false|object should not be ok.
      *
      * @param int $questionid
-     * @return false|mixed|\stdClass
-     * @throws \dml_exception
+     * @return false|mixed|stdClass
+     * @throws dml_exception
      */
     public function get_matrix_by_question_id(int $questionid) {
         global $DB;
@@ -44,20 +45,12 @@ class question_matrix_store {
         return $result;
     }
 
-    public function save_matrix(object $question) {
-        $isnew = empty($question->id);
-        if ($isnew) {
-            return $this->insert_matrix($question);
-        } else {
-            return $this->update_matrix($question);
-        }
-    }
-
     /**
      * We may want to insert an existing question to make a copy
      *
      * @param object $matrix
      * @return object
+     * @throws dml_exception
      */
     public function insert_matrix(object $matrix): object {
         global $DB;
@@ -76,6 +69,11 @@ class question_matrix_store {
         return $matrix;
     }
 
+    /**
+     * @param object $matrix
+     * @return object
+     * @throws dml_exception
+     */
     public function update_matrix(object $matrix): object {
         global $DB;
         $data = (object) [
@@ -91,13 +89,17 @@ class question_matrix_store {
         return $matrix;
     }
 
+    /**
+     * @param int $questionid
+     * @return bool
+     * @throws dml_exception
+     */
     public function delete_question(int $questionid): bool {
+        global $DB;
         if (empty($questionid)) {
             return false;
         }
-
-        global $DB;
-
+        // Todo: use this -> $DB->delete_records_select('')
         // Note: $DB->execute does not accept multiple SQL statements
         // Weights.
         $sql = "DELETE FROM {question_matrix_weights} qmw
@@ -136,13 +138,18 @@ class question_matrix_store {
 
     // Row.
 
+    /**
+     * @param int $matrixid
+     * @return array
+     * @throws dml_exception
+     */
     public function get_matrix_rows_by_matrix_id(int $matrixid): array {
         global $DB;
         $result = $DB->get_records(self::TABLE_QUESTION_MATRIX_ROWS, ['matrixid' => $matrixid], 'id ASC');
         if (!$result) {
             return [];
         }
-        foreach ($result as &$row) {
+        foreach ($result as $row) {
             $row->description = [
                 'text' => $row->description,
                 'format' => FORMAT_HTML
@@ -161,27 +168,12 @@ class question_matrix_store {
      *
      * @param object $row
      * @return false|object
-     */
-    public function save_matrix_row(object $row) {
-        $isnew = !isset($row->id) || empty($row->id);
-        if ($isnew) {
-            return $this->insert_matrix_row($row);
-        } else {
-            return $this->update_matrix_row($row);
-        }
-    }
-
-    /**
-     * cant type this function result false|object should not be ok.
-     *
-     * @param object $row
-     * @return false|object
-     * @throws \dml_exception
+     * @throws dml_exception
      */
     public function insert_matrix_row(object $row) {
         global $DB;
 
-        $text = isset($row->shorttext) ? $row->shorttext : false;
+        $text = $row->shorttext ?? false;
         if (empty($text)) {
             return false;
         }
@@ -198,6 +190,11 @@ class question_matrix_store {
         return $data;
     }
 
+    /**
+     * @param object $row
+     * @return object
+     * @throws dml_exception
+     */
     public function update_matrix_row(object $row): object {
         global $DB;
         // TODO: Add a possibility to delete if (empty($short)).
@@ -212,10 +209,15 @@ class question_matrix_store {
         return $data;
     }
 
+    /**
+     * @param object $row
+     * @return bool
+     * @throws dml_exception
+     */
     public function delete_matrix_row(object $row): bool {
         global $DB;
 
-        if (!isset($row->id) || empty($row->id)) {
+        if (empty($row->id)) {
             return false;
         }
 
@@ -224,6 +226,11 @@ class question_matrix_store {
 
     // Cols.
 
+    /**
+     * @param int $matrixid
+     * @return array
+     * @throws dml_exception
+     */
     public function get_matrix_cols_by_matrix_id(int $matrixid): array {
         global $DB;
 
@@ -232,7 +239,7 @@ class question_matrix_store {
             return [];
         }
 
-        foreach ($result as &$row) {
+        foreach ($result as $row) {
             $row->description = [
                 'text' => $row->description,
                 'format' => FORMAT_HTML
@@ -246,28 +253,12 @@ class question_matrix_store {
      *
      * @param object $col
      * @return false|object
-     * @throws \dml_exception
-     */
-    public function save_matrix_col(object $col) {
-        $isnew = !isset($col->id) || empty($col->id);
-        if ($isnew) {
-            return $this->insert_matrix_col($col);
-        } else {
-            return $this->update_matrix_col($col);
-        }
-    }
-
-    /**
-     * Cant type this function result can be false|object
-     *
-     * @param object $col
-     * @return false|object
-     * @throws \dml_exception
+     * @throws dml_exception
      */
     public function insert_matrix_col(object $col) {
         global $DB;
 
-        $text = isset($col->shorttext) ? $col->shorttext : false;
+        $text = $col->shorttext ?? false;
         if (empty($text)) {
             return false;
         }
@@ -284,6 +275,11 @@ class question_matrix_store {
         return $data;
     }
 
+    /**
+     * @param object $col
+     * @return object
+     * @throws dml_exception
+     */
     public function update_matrix_col(object $col): object {
         global $DB;
 
@@ -299,10 +295,15 @@ class question_matrix_store {
         return $data;
     }
 
+    /**
+     * @param object $col
+     * @return bool
+     * @throws dml_exception
+     */
     public function delete_matrix_col(object $col): bool {
         global $DB;
 
-        if (!isset($col->id) || empty($col->id)) {
+        if (empty($col->id)) {
             return false;
         }
 
@@ -311,6 +312,11 @@ class question_matrix_store {
 
     // Weights.
 
+    /**
+     * @param int $questionid
+     * @return array
+     * @throws dml_exception
+     */
     public function get_matrix_weights_by_question_id(int $questionid): array {
         global $DB;
         // Todo: check AND?
@@ -328,6 +334,11 @@ class question_matrix_store {
         return $DB->get_records_sql($sql);
     }
 
+    /**
+     * @param int $questionid
+     * @return bool
+     * @throws dml_exception
+     */
     public function delete_matrix_weights(int $questionid): bool {
         global $DB;
         $sql = "DELETE FROM {question_matrix_weights} qmw
@@ -340,6 +351,11 @@ class question_matrix_store {
         return $DB->execute($sql);
     }
 
+    /**
+     * @param object $weight
+     * @return object
+     * @throws dml_exception
+     */
     public function insert_matrix_weight(object $weight): object {
         global $DB;
 

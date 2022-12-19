@@ -16,17 +16,28 @@
 
 namespace qtype_matrix\local;
 
+use ArrayAccess;
+use coding_exception;
+use HTML_QuickForm_element;
+use MoodleQuickForm;
+
 /**
  * Helper class to build the form.
  */
-class matrix_form_builder implements \ArrayAccess {
+class matrix_form_builder implements ArrayAccess {
 
-    private $_form = null;
+    private $_form;
 
-    public function __construct(\MoodleQuickForm $form) {
+    public function __construct(MoodleQuickForm $form) {
         $this->_form = $form;
     }
 
+    /**
+     * @param string $name
+     * @param string $label
+     * @return object
+     * @throws coding_exception
+     */
     public function create_text(string $name, string $label = ''): object {
         if ($label === '') {
             $shortname = explode('[', $name);
@@ -36,6 +47,12 @@ class matrix_form_builder implements \ArrayAccess {
         return $this->_form->createElement('text', $name, $label);
     }
 
+    /**
+     * @param string $name
+     * @param string $label
+     * @return array
+     * @throws coding_exception
+     */
     public function create_htmlpopup(string $name, string $label = ''): array {
         static $popcount = 0;
         $popcount++;
@@ -68,6 +85,12 @@ class matrix_form_builder implements \ArrayAccess {
         return '__j' . $count++;
     }
 
+    /**
+     * @param string $name
+     * @param string $label
+     * @return object
+     * @throws coding_exception
+     */
     public function create_htmleditor(string $name, string $label = ''): object {
         if ($label === '') {
             $shortname = explode('[', $name);
@@ -81,6 +104,15 @@ class matrix_form_builder implements \ArrayAccess {
         return $this->_form->createElement('hidden', $name, $value);
     }
 
+    /**
+     * @param string|null $name
+     * @param string|null $label
+     * @param array       $elements
+     * @param string      $separator
+     * @param bool        $appendname
+     * @return object
+     * @throws coding_exception
+     */
     public function create_group(?string $name = null,
         ?string $label = null,
         array $elements = [],
@@ -94,6 +126,12 @@ class matrix_form_builder implements \ArrayAccess {
         return $this->_form->createElement('group', $name, $label, $elements, $separator, $appendname);
     }
 
+    /**
+     * @param string $name
+     * @param string $label
+     * @return object
+     * @throws coding_exception
+     */
     public function create_header(string $name, string $label = ''): object {
         if ($label === '') {
             $shortname = explode('[', $name);
@@ -103,6 +141,13 @@ class matrix_form_builder implements \ArrayAccess {
         return $this->_form->createElement('header', $name, $label);
     }
 
+    /**
+     * @param string $name
+     * @param string $label
+     * @param array  $attributes
+     * @return object
+     * @throws coding_exception
+     */
     public function create_submit(string $name, string $label = '', array $attributes = []): object {
         if ($label === '') {
             $shortname = explode('[', $name);
@@ -126,80 +171,19 @@ class matrix_form_builder implements \ArrayAccess {
         return $this->_form->createElement('static', $name, null, $html);
     }
 
-    public function add_static(string $html): \HTML_QuickForm_element {
-        return $this->_form->addElement('static', null, null, $html);
-    }
-
-    public function add_text(string $name, string $label = ''): \HTML_QuickForm_element {
+    /**
+     * @param string $name
+     * @param string $label
+     * @return HTML_QuickForm_element
+     * @throws coding_exception
+     */
+    public function add_selectyesno(string $name, string $label = ''): HTML_QuickForm_element {
         if ($label === '') {
             $shortname = explode('[', $name);
             $shortname = reset($shortname);
             $label = lang::get($shortname);
         }
-        return $this->_form->addElement('text', $name, $label);
-    }
-
-    public function add_htmleditor(string $name, string $label = ''): \HTML_QuickForm_element {
-        if ($label === '') {
-            $shortname = explode('[', $name);
-            $shortname = reset($shortname);
-            $label = lang::get($shortname);
-        }
-        return $this->_form->addElement('htmleditor', $name, $label);
-    }
-
-    public function add_hidden(string $name, $value = null): \HTML_QuickForm_element {
-        return $this->_form->addElement('hidden', $name, $value);
-    }
-
-    public function add_group(?string $name = null,
-        ?string $label = null,
-        array $elements = [],
-        string $separator = '',
-        bool $appendname = true): \HTML_QuickForm_element {
-        if ($label === '') {
-            $shortname = explode('[', $name);
-            $shortname = reset($shortname);
-            $label = lang::get($shortname);
-        }
-        return $this->_form->addElement('group', $name, $label, $elements, $separator, $appendname);
-    }
-
-    public function add_header(string $name, string $label = ''): \HTML_QuickForm_element {
-        if ($label === '') {
-            $shortname = explode('[', $name);
-            $shortname = reset($shortname);
-            $label = lang::get($shortname);
-        }
-        return $this->_form->addElement('header', $name, $label);
-    }
-
-    public function add_selectyesno(string $name, string $label = ''): \HTML_QuickForm_element {
-        if ($label === '') {
-            $shortname = explode('[', $name);
-            $shortname = reset($shortname);
-            $label = lang::get($shortname);
-        }
-        $result = $this->_form->addElement('advcheckbox', $name, $label);
-        return $result;
-    }
-
-    public function add_select(string $name, string $label = '', array $options = []): \HTML_QuickForm_element {
-        if ($label === '') {
-            $shortname = explode('[', $name);
-            $shortname = reset($shortname);
-            $label = lang::get($shortname);
-        }
-        return $this->_form->addElement('select', $name, $label, $options);
-    }
-
-    public function add_submit(string $name, string $label = ''): \HTML_QuickForm_element {
-        if ($label === '') {
-            $shortname = explode('[', $name);
-            $shortname = reset($shortname);
-            $label = lang::get($shortname);
-        }
-        return $this->_form->addElement('submit', $name, $label);
+        return $this->_form->addElement('advcheckbox', $name, $label);
     }
 
     public function add_help_button(string $elementname,
@@ -215,10 +199,6 @@ class matrix_form_builder implements \ArrayAccess {
 
     public function set_default(string $name, $value): void {
         $this->_form->setDefault($name, $value);
-    }
-
-    public function element_exists(string $name): bool {
-        return $this->_form->elementExists($name);
     }
 
     public function insert_element_before($element, $beforename): object {
@@ -240,12 +220,10 @@ class matrix_form_builder implements \ArrayAccess {
     }
 
     /**
-     * Cant type this function returns object/mixed ?
-     *
      * @param $offset
-     * @return mixed|object
+     * @return object
      */
-    public function offsetGet($offset) {
+    public function offsetGet($offset): object {
         return $this->_form->getElement($offset);
     }
 

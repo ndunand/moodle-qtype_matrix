@@ -17,6 +17,7 @@ namespace qtype_matrix\local\grading;
 
 use qtype_matrix\local\lang;
 use qtype_matrix\local\qtype_matrix_grading;
+use qtype_matrix_question;
 
 /**
  *
@@ -55,11 +56,11 @@ class kprime extends qtype_matrix_grading {
     /**
      * Returns the question's grade. By default, it is the average of correct questions.
      *
-     * @param \qtype_matrix_question $question
+     * @param qtype_matrix_question $question
      * @param array                  $answers
      * @return float
      */
-    public function grade_question(\qtype_matrix_question $question, array $answers): float {
+    public function grade_question(qtype_matrix_question $question, array $answers): float {
         foreach ($question->rows as $row) {
             $grade = $this->grade_row($question, $row, $answers);
             if ($grade < 1) {
@@ -73,12 +74,12 @@ class kprime extends qtype_matrix_grading {
     /**
      * Grade a row
      *
-     * @param \qtype_matrix_question $question  The question to grade
+     * @param qtype_matrix_question $question  The question to grade
      * @param integer|object         $row       Row to grade
      * @param array                  $responses User's responses
      * @return float                            The row grade, either 0 or 1
      */
-    public function grade_row(\qtype_matrix_question $question, $row, array $responses): float {
+    public function grade_row(qtype_matrix_question $question, $row, array $responses): float {
         foreach ($question->cols as $col) {
             $answer = $question->answer($row, $col);
             $response = $question->response($responses, $row, $col);
