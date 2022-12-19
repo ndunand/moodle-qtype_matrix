@@ -145,9 +145,9 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
      * @param $state
      * @return string
      */
-    public function recode_state_answer($state): string {
+    public function recode_legacy_state_answer($state): string {
         $result = [];
-        $answer = unserialize($state->answer); // Todo: Fix: Possible to exploit if archive is passed around !!!!
+        $answer = unserialize($state->answer, ['allowed_classes' => false]);
         foreach ($answer as $rowid => $row) {
             $newrowid = $this->get_mappingid('row', $rowid);
             $newrow = [];
