@@ -22,8 +22,6 @@
 use qtype_matrix\local\lang;
 use qtype_matrix\local\qtype_matrix_grading;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Represents a matrix question.
  */
@@ -52,12 +50,12 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      * If the user didn't make an answer at all (no response) the method returns false.
      *
      * @param array $response object containing the raw answer data
-     * @param mixed   $row      matrix row, either an id or an object
-     * @param mixed   $col      matrix col, either an id or an object
+     * @param mixed $row      matrix row, either an id or an object
+     * @param mixed $col      matrix col, either an id or an object
      *
      * @return boolean True if the cell($row, $col) was checked by the user. False otherwise.
      */
-    public function response($response, $row, $col) {
+    public function response(array $response, $row, $col): bool {
         // A student may respond with a question with the multiple answer turned on.
         // Later the teacher may turn that flag off. The result is that the question
         // and response formats won't match.
@@ -101,7 +99,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      * @param boolean|null $multiple
      * @return string
      */
-    public function key($row, $col, $multiple = null) {
+    public function key($row, $col, bool $multiple = null): string {
         $rowid = is_object($row) ? $row->id : $row;
         $colid = is_object($col) ? $col->id : $col;
         $multiple = (is_null($multiple)) ? $this->multiple : $multiple;
@@ -116,7 +114,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      *
      * @return boolean  True if cell($row, $col) is correct, false otherwise.
      */
-    public function answer($row = null, $col = null) {
+    public function answer($row = null, $col = null): bool {
         return $this->weight($row, $col) > 0;
     }
 
@@ -131,7 +129,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      *
      * @return float
      */
-    public function weight($row = null, $col = null) {
+    public function weight($row = null, $col = null): float {
         if (is_string($row) && is_null($col)) {
             $key = str_replace('cell', $col, $row);
             [$rowid, $colid] = explode('x', $key);
@@ -160,7 +158,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      *          Which variant of this question to start. Will be between
      *          1 and {@link get_num_variants()} inclusive.
      */
-    public function start_attempt(question_attempt_step $step, $variant) {
+    public function start_attempt(question_attempt_step $step, $variant): void {
         global $PAGE;
         if ($this->usedndui && !$PAGE->requires->is_head_done()) {
             $PAGE->requires->jquery();
@@ -179,7 +177,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      *
      * @return boolean True if rows should be shuffled. False otherwise.
      */
-    public function shuffle_answers() {
+    public function shuffle_answers(): bool {
         if (!$this->shuffle_authorized()) {
             return false;
         }
@@ -198,7 +196,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      * @global object $PAGE Page object
      * @global object $DB   Database object
      */
-    public function shuffle_authorized() {
+    public function shuffle_authorized(): bool {
         global $DB, $PAGE;
         $cm = $PAGE->cm;
         if (!is_object($cm)) {
@@ -213,7 +211,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      *
      * @param question_attempt_step $step Storage
      */
-    protected function write_data(question_attempt_step $step) {
+    protected function write_data(question_attempt_step $step): void {
         $step->set_qt_var(self::KEY_ROWS_ORDER, implode(',', $this->order));
     }
 
@@ -230,7 +228,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      * @param question_attempt_step $step The first step of the {@link question_attempt}
      *                                    being loaded.
      */
-    public function apply_attempt_state(question_attempt_step $step) {
+    public function apply_attempt_state(question_attempt_step $step): void {
         if ($this->usedndui) {
             global $PAGE;
             $PAGE->requires->jquery();
@@ -246,7 +244,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      *
      * @param question_attempt_step $step Storage
      */
-    protected function load_data(question_attempt_step $step) {
+    protected function load_data(question_attempt_step $step): void {
         $order = $step->get_qt_var(self::KEY_ROWS_ORDER);
         if ($order !== null) {
             $this->order = explode(',', $order);
@@ -289,12 +287,12 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
         }
     }
 
-    public function get_order(question_attempt $qa) {
+    public function get_order(question_attempt $qa): array {
         $this->init_order($qa);
         return $this->order;
     }
 
-    protected function init_order(question_attempt $qa) {
+    protected function init_order(question_attempt $qa): void {
         if ($this->order) {
             return;
         }
@@ -315,7 +313,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      * @return numeric the fraction that should be awarded for this
      * sequence of response.
      */
-    public function compute_final_grade($responses, $totaltries) {
+    public function compute_final_grade($responses, $totaltries): float {
         $gradevalue = 0;
         foreach ($responses as $response) {
             $x = $this->grade_response($response);
@@ -333,7 +331,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      *                        {@link question_attempt_step::get_qt_data()}.
      * @return array (number, integer) the fraction, and the state.
      */
-    public function grade_response(array $response) {
+    public function grade_response(array $response): array {
         $grade = $this->grading()->grade_question($this, $response);
         $state = question_state::graded_state_for_fraction($grade);
         return [$grade, $state];
@@ -343,7 +341,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      *
      * @return qtype_matrix_grading
      */
-    public function grading() {
+    public function grading(): qtype_matrix_grading {
         return qtype_matrix::grading($this->grademethod);
     }
 
@@ -356,7 +354,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      *                        {@link question_attempt_step::get_qt_data()}.
      * @return bool whether this response is a complete answer to this question.
      */
-    public function is_complete_response(array $response) {
+    public function is_complete_response(array $response): bool {
         if ($this->multiple) {
             return true;
         }
@@ -377,7 +375,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      * @param array $response
      * @return string the message.
      */
-    public function get_validation_error(array $response) {
+    public function get_validation_error(array $response): string {
         $isgradable = $this->is_gradable_response($response);
         if ($isgradable) {
             return '';
@@ -388,10 +386,10 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
     /**
      * Produce a plain text summary of a response.
      *
-     * @param array response A response, as might be passed to {@link grade_response()}.
+     * @param array $response A response, as might be passed to {@link grade_response()}.
      * @return string a plain text summary of that response, that could be used in reports.
      */
-    public function summarise_response(array $response) {
+    public function summarise_response(array $response): string {
         $result = [];
         foreach ($this->order as $rowid) {
             $row = $this->rows[$rowid];
@@ -417,7 +415,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      * @return bool whether the two sets of responses are the same - that is
      *                            whether the new set of responses can safely be discarded.
      */
-    public function is_same_response(array $prevresponse, array $newresponse) {
+    public function is_same_response(array $prevresponse, array $newresponse): bool {
         if (count($prevresponse) != count($newresponse)) {
             return false;
         }
@@ -441,7 +439,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      *
      * @return array parameter name => value.
      */
-    public function get_correct_response() {
+    public function get_correct_response(): array {
         $result = [];
         foreach ($this->order as $rowid) {
             $row = $this->rows[$rowid];
@@ -468,7 +466,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      *      that should only be used in unavoidable, the constant question_attempt::USE_RAW_DATA
      *      meaning take all the raw submitted data belonging to this question.
      */
-    public function get_expected_data() {
+    public function get_expected_data(): array {
         $result = [];
         $cells = $this->cells();
         foreach ($cells as $key => $weight) {
@@ -483,7 +481,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      *
      * @return array
      */
-    public function cells() {
+    public function cells(): array {
         $result = [];
         foreach ($this->order as $rowid) {
             $row = $this->rows[$rowid];
@@ -497,9 +495,10 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
     /**
      * Returns an array where keys are the weights' cell names and the values
      * are the weights
+     * Todo: perhaps we can use the iterator field here?
      */
     // @codingStandardsIgnoreLine We can ignore this error in codechecker because it implements an interface.
-    public function getIterator() {
+    public function getIterator(): ArrayIterator {
         return new ArrayIterator($this->cells());
     }
 

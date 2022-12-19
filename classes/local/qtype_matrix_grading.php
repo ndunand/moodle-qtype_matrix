@@ -21,22 +21,22 @@ namespace qtype_matrix\local;
  */
 abstract class qtype_matrix_grading {
 
-    public static function gradings() {
+    public static function gradings(): array {
         static $result = false;
-        if ($result) {
+        if ($result !== false) {
             return $result;
         }
         $result = [];
         $classlist = ['all', 'kany', 'kprime'];
         $namespace = 'qtype_matrix\\local\\grading\\';
         foreach ($classlist as $class) {
-            $classname = $namespace.$class;
+            $classname = $namespace . $class;
             $result[] = new $classname();
         }
         return $result;
     }
 
-    public static function default_grading() {
+    public static function default_grading(): qtype_matrix_grading {
         return self::create('kprime');
     }
 
@@ -45,25 +45,26 @@ abstract class qtype_matrix_grading {
      * @param string $type
      * @return qtype_matrix_grading
      */
-    public static function create($type) {
+    public static function create(string $type): qtype_matrix_grading {
         static $result = [];
         if (isset($result[$type])) {
             return $result[$type];
         }
         $class = 'qtype_matrix\\local\\grading\\' . $type;
+        // This looks short but not good to read!
         return $result[$type] = call_user_func([$class, 'create'], $type);
     }
 
-    public static function get_title() {
+    public static function get_title(): string {
         $identifier = self::get_name();
-        return \qtype_matrix::get_string($identifier);
+        return lang::get($identifier);
     }
 
-    public static function get_name() {
+    public static function get_name(): string {
         return get_called_class();
     }
 
-    public static function cell_index($name) {
+    public static function cell_index(string $name): array {
         $name = str_replace('cell', '', $name);
         $result = explode('_', $name);
         return $result;
@@ -73,12 +74,12 @@ abstract class qtype_matrix_grading {
      * Create the form element used to define the weight of the cell
      *
      * @param \MoodleQuickForm $form
-     * @param int             $row      row number
-     * @param int             $col      column number
-     * @param bool            $multiple whether the question allows multiple answers
+     * @param int              $row      row number
+     * @param int              $col      column number
+     * @param bool             $multiple whether the question allows multiple answers
      * @return object
      */
-    public function create_cell_element($form, $row, $col, $multiple) {
+    public function create_cell_element(\MoodleQuickForm $form, int $row, int $col, bool $multiple): object {
         $cellname = $this->cell_name($row, $col, $multiple);
         if ($multiple) {
             return $form->createElement('checkbox', $cellname, 'label');
@@ -97,9 +98,7 @@ abstract class qtype_matrix_grading {
      *
      * @return string
      */
-    public static function cell_name($row, $col, $multiple) {
-        $row = $row ? $row : '0';
-        $col = $col ? $col : '0';
+    public static function cell_name(int $row, int $col, bool $multiple): string {
         return $multiple ? "cell{$row}_{$col}" : "cell{$row}";
     }
 
@@ -107,10 +106,10 @@ abstract class qtype_matrix_grading {
      * Returns the question's grade. By default it is the average of correct questions.
      *
      * @param \qtype_matrix_question $question
-     * @param array                 $answers
+     * @param array                  $answers
      * @return float
      */
-    public function grade_question($question, $answers) {
+    public function grade_question(\qtype_matrix_question $question, array $answers): float {
         $grades = [];
         foreach ($question->rows as $row) {
             $grades[] = $this->grade_row($question, $row, $answers);
@@ -125,12 +124,12 @@ abstract class qtype_matrix_grading {
      * Grade a specific row
      *
      * @param \qtype_matrix_question $question
-     * @param object                $row
-     * @param array                 $answers
+     * @param object                 $row
+     * @param array                  $responses
      * @return float
      */
-    public function grade_row($question, $row, $answers) {
-        return 0;
+    public function grade_row(\qtype_matrix_question $question, $row, array $responses): float {
+        return 0.0;
     }
 
     /**
@@ -140,15 +139,15 @@ abstract class qtype_matrix_grading {
      *
      * @return array of errors
      */
-    public function validation($data) {
+    public function validation(array $data): array {
         return [];
     }
 
-    protected function col_count($data) {
+    protected function col_count(array $data): int {
         return count($data['cols_shorttext']);
     }
 
-    protected function row_count($data) {
+    protected function row_count(array $data): int {
         return count($data['rows_shorttext']);
     }
 }

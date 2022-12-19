@@ -33,26 +33,22 @@ require_once($CFG->libdir . '/questionlib.php');
  */
 class qtype_matrix extends question_type {
 
-    public static function get_string($identifier, $component = 'qtype_matrix', $a = null) {
-        return get_string($identifier, $component, $a);
-    }
-
-    public static function gradings() {
+    public static function gradings(): array {
         return qtype_matrix_grading::gradings();
     }
 
-    public static function grading($type) {
+    public static function grading(string $type): qtype_matrix_grading {
         return qtype_matrix_grading::create($type);
     }
 
     /**
      * Deletes question from the question-type specific tables
      *
-     * @param integer $questionid The question being deleted
-     * @param integer $contextid  The context id
+     * @param int  $questionid The question being deleted
+     * @param int|null $contextid  The context id
      * @return boolean to indicate success of failure.
      */
-    public function delete_question_options($questionid, $contextid = null) {
+    public function delete_question_options(int $questionid, int $contextid = null): bool {
         if (empty($questionid)) {
             return false;
         }
@@ -68,11 +64,11 @@ class qtype_matrix extends question_type {
      * @param integer $contextid
      * @return boolean to indicate success of failure.
      */
-    public function delete_question($questionid, $contextid = null) {
+    public function delete_question($questionid, $contextid = null): bool {
+        global $DB;
         if (empty($questionid)) {
             return false;
         }
-        global $DB;
 
         $transaction = $DB->start_delegated_transaction();
         $this->delete_question_options($questionid);
@@ -85,7 +81,7 @@ class qtype_matrix extends question_type {
     /**
      * @return boolean true if this question type sometimes requires manual grading.
      */
-    public function is_manual_graded() {
+    public function is_manual_graded(): bool {
         return true;
     }
 
@@ -94,7 +90,7 @@ class qtype_matrix extends question_type {
      * @param object $question
      * @return boolean
      */
-    public function get_question_options($question) {
+    public function get_question_options($question): bool {
         parent::get_question_options($question);
         $matrix = self::retrieve_matrix($question->id);
         if ($matrix) {
@@ -119,7 +115,14 @@ class qtype_matrix extends question_type {
         return true;
     }
 
-    public static function retrieve_matrix($questionid) {
+    /**
+     * cant type this function -> to many returning options!
+     *
+     * @param int $questionid
+     * @return mixed|stdClass|null
+     * @throws dml_exception
+     */
+    public static function retrieve_matrix(int $questionid) {
         $store = new question_matrix_store();
 
         if (empty($questionid)) {
@@ -150,7 +153,7 @@ class qtype_matrix extends question_type {
         return $matrix;
     }
 
-    public static function defaut_grading() {
+    public static function defaut_grading(): qtype_matrix_grading {
         return qtype_matrix_grading::default_grading();
     }
 
@@ -161,7 +164,7 @@ class qtype_matrix extends question_type {
      * @param object $question This holds the information from the editing form, it is not a standard question object.
      * @return object $result->error or $result->noticeyesno or $result->notice
      */
-    public function save_question_options($question) {
+    public function save_question_options($question): object {
         global $DB;
         $store = new question_matrix_store();
 
@@ -267,12 +270,12 @@ class qtype_matrix extends question_type {
         if ($question->multiple) {
             $weights = $this->to_weigth_matrix($question, true);
             if ($this->is_matrix_empty($weights)) {
-                $weights = $this->to_weigth_matrix($_POST, false); // Todo: remove unsafe $_POST.
+                $weights = $this->to_weigth_matrix((object)$_POST, false); // Todo: remove unsafe $_POST.
             }
         } else {
             $weights = $this->to_weigth_matrix($question, false);
             if ($this->is_matrix_empty($weights)) {
-                $weights = $this->to_weigth_matrix($_POST, true); // Todo: remove unsafe $_POST.
+                $weights = $this->to_weigth_matrix((object)$_POST, true); // Todo: remove unsafe $_POST.
             }
         }
 
@@ -291,7 +294,7 @@ class qtype_matrix extends question_type {
         }
 
         $transaction->allow_commit();
-        return (object)[]; // Todo: is this expected behavior?
+        return (object) []; // Todo: is this expected behavior?
     }
 
     /**
@@ -318,8 +321,7 @@ class qtype_matrix extends question_type {
      * @param boolean $frommultiple Whether we extract from multiple representation or not
      * @result array                    The weights
      */
-    public function to_weigth_matrix($data, $frommultiple) {
-        $data = (object) $data;
+    public function to_weigth_matrix(object $data, bool $frommultiple): array {
         $result = [];
         $rowcount = 20;
         $colcount = 20;
@@ -357,7 +359,7 @@ class qtype_matrix extends question_type {
      * @param array $matrix Array of arrays
      * @return boolean True if the matrix contains only zeros. False otherwise
      */
-    public function is_matrix_empty($matrix) {
+    public function is_matrix_empty(array $matrix): bool {
         foreach ($matrix as $row) {
             foreach ($row as $value) {
                 if ($value && $value > 0) {
@@ -376,7 +378,7 @@ class qtype_matrix extends question_type {
      * @param object             $question
      * @param string             $wizardnow is '' for first page.
      */
-    public function display_question_editing_page($mform, $question, $wizardnow) {
+    public function display_question_editing_page($mform, $question, $wizardnow): void {
         global $OUTPUT;
         $heading = $this->get_heading(empty($question->id));
 
@@ -388,15 +390,16 @@ class qtype_matrix extends question_type {
         $mform->display();
     }
 
-    public function name() {
+    public function name(): string {
         return 'matrix';
     }
 
-    public function extra_question_fields() {
+    public function extra_question_fields(): array {
         return ['question_matrix', 'usedndui', 'grademethod', 'multiple'];
     }
 
     /**
+     * Cant type this function to many  types returned!
      * import a matrix question from Moodle XML format
      *
      * @param             $data
@@ -536,9 +539,9 @@ class qtype_matrix extends question_type {
      * @param             $question
      * @param qformat_xml $format
      * @param null        $extra
-     * @return bool|string
+     * @return string
      */
-    public function export_to_xml($question, qformat_xml $format, $extra = null) {
+    public function export_to_xml($question, qformat_xml $format, $extra = null): string {
         $output = '';
 
         // Use_dnd_ui.
@@ -606,7 +609,7 @@ class qtype_matrix extends question_type {
      * @param question_definition $question     the question_definition we are creating.
      * @param object              $questiondata the question data loaded from the database.
      */
-    protected function initialise_question_instance(question_definition $question, $questiondata) {
+    protected function initialise_question_instance(question_definition $question, $questiondata): void {
         parent::initialise_question_instance($question, $questiondata);
         $question->rows = $questiondata->options->rows;
         $question->cols = $questiondata->options->cols;

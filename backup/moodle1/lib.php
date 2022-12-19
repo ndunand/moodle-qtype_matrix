@@ -25,7 +25,7 @@ class moodle1_qtype_matrix_handler extends moodle1_qtype_handler {
      *
      * @return array of strings
      */
-    public function get_question_subpaths() {
+    public function get_question_subpaths(): array {
         $result = [
             'MATRIX',
             'MATRIX/ROWS/ROW',
@@ -41,7 +41,7 @@ class moodle1_qtype_matrix_handler extends moodle1_qtype_handler {
      * @param array $data grouped question data
      * @param array $raw  grouped raw QUESTION data
      */
-    public function process_question(array $data, array $raw) {
+    public function process_question(array $data, array $raw): void {
         $matrix = $data['matrix'][0];
         $matrix['id'] = isset($matrix['id']) ? $matrix['id'] : self::create_id();
 
@@ -72,7 +72,7 @@ class moodle1_qtype_matrix_handler extends moodle1_qtype_handler {
         $this->xmlwriter->end_tag('matrix');
     }
 
-    public static function create_id() {
+    public static function create_id(): int {
         static $result = 0;
         return $result++;
     }

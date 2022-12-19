@@ -16,6 +16,7 @@
 
 namespace qtype_matrix\local\grading;
 
+use qtype_matrix\local\lang;
 use qtype_matrix\local\qtype_matrix_grading;
 
 /**
@@ -29,12 +30,12 @@ class all extends qtype_matrix_grading {
 
     const TYPE = 'all';
 
-    public static function get_name() {
+    public static function get_name(): string {
         return self::TYPE;
     }
 
-    public static function get_title() {
-        return \qtype_matrix::get_string(self::TYPE);
+    public static function get_title(): string {
+        return lang::get(self::TYPE);
     }
 
     /**
@@ -43,7 +44,7 @@ class all extends qtype_matrix_grading {
      * @param string $type
      * @return all
      */
-    public static function create($type) {
+    public static function create(string $type): all {
         static $result = false;
         if ($result) {
             return $result;
@@ -55,18 +56,18 @@ class all extends qtype_matrix_grading {
      * Grade a row
      *
      * @param \qtype_matrix_question $question  The question to grade
-     * @param integer|object        $row       Row to grade
-     * @param array                 $responses User's responses
+     * @param integer|object         $row       Row to grade
+     * @param array                  $responses User's responses
      * @return float                            The row grade, either 0 or 1
      */
-    public function grade_row($question, $row, $responses) {
+    public function grade_row(\qtype_matrix_question $question, $row, array $responses): float {
         foreach ($question->cols as $col) {
             $answer = $question->answer($row, $col);
             $response = $question->response($responses, $row, $col);
             if ($answer != $response) {
-                return 0;
+                return 0.0;
             }
         }
-        return 1;
+        return 1.0;
     }
 }

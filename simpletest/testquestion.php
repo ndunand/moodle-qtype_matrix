@@ -27,7 +27,7 @@ require_once($CFG->dirroot . '/question/engine/simpletest/helpers.php');
  */
 class qtype_matrix_question_test extends UnitTestCase {
 
-    public function test_is_complete_response() {
+    public function test_is_complete_response(): void {
         $question = self::make_question('multiple');
 
         $answer = [];
@@ -57,7 +57,7 @@ class qtype_matrix_question_test extends UnitTestCase {
      * @param string $type
      * @return question_definition the requested question object.
      */
-    protected static function make_question($type = 'kprime') {
+    protected static function make_question(string $type = 'kprime'): question_definition {
         return test_question_maker::make_question('matrix', $type);
     }
 
@@ -66,7 +66,7 @@ class qtype_matrix_question_test extends UnitTestCase {
      * @param qtype_matrix_question $question
      * @return array
      */
-    protected static function make_answer_correct($question) {
+    protected static function make_answer_correct($question): array {
         $result = [];
         foreach ($question->rows as $row) {
             $col = 0;
@@ -82,7 +82,7 @@ class qtype_matrix_question_test extends UnitTestCase {
      * @param qtype_matrix_question $question
      * @return array
      */
-    protected static function make_answer_incorrect($question) {
+    protected static function make_answer_incorrect($question): array {
         $result = [];
         foreach ($question->rows as $row) {
             $col = 3;
@@ -93,7 +93,7 @@ class qtype_matrix_question_test extends UnitTestCase {
         return $result;
     }
 
-    public function test_get_correct_response() {
+    public function test_get_correct_response(): void {
         $question = self::make_question('multiple');
 
         $answer = self::make_answer_correct($question);
@@ -112,13 +112,13 @@ class qtype_matrix_question_test extends UnitTestCase {
         $this->assertNotIdentical($answer, $question->get_correct_response());
     }
 
-    public function test_get_question_summary() {
+    public function test_get_question_summary(): void {
         $question = self::make_question('multiple');
         $summary = $question->get_question_summary();
         $this->assertFalse(empty($summary));
     }
 
-    public function test_summarise_response() {
+    public function test_summarise_response(): void {
         $question = self::make_question('multiple');
 
         $answer = self::make_answer_correct($question);
@@ -142,7 +142,7 @@ class qtype_matrix_question_test extends UnitTestCase {
         $this->assertFalse(empty($summary));
     }
 
-    public function test_is_same_response() {
+    public function test_is_same_response(): void {
         $question = self::make_question('multiple');
 
         $correct = $question->get_correct_response();
@@ -156,7 +156,7 @@ class qtype_matrix_question_test extends UnitTestCase {
         $this->assertNotIdentical($answer, $correct);
     }
 
-    public function test_grading() {
+    public function test_grading(): void {
         $question = self::make_question('all');
         $question->multiple = true;
         $this->question_grading_pass($question, 0.5);
@@ -206,7 +206,7 @@ class qtype_matrix_question_test extends UnitTestCase {
         $this->question_grading_pass($question, 0);
     }
 
-    protected function question_grading_pass($question, $partialgrading = 0.5) {
+    protected function question_grading_pass($question, float $partialgrading = 0.5): void {
         $answer = self::make_answer_correct($question);
         $grade = $question->grade_response($answer);
         $this->assertEqual([1, question_state::$gradedright], $grade);
@@ -232,7 +232,7 @@ class qtype_matrix_question_test extends UnitTestCase {
      * @param qtype_matrix_question $question
      * @return array
      */
-    protected static function make_answer_partial($question) {
+    protected static function make_answer_partial($question): array {
         $result = [];
         foreach ($question->rows as $row) {
             $col = $row->id < 2 ? 0 : 3;
@@ -248,7 +248,7 @@ class qtype_matrix_question_test extends UnitTestCase {
      * @param qtype_matrix_question $question
      * @return array
      */
-    protected static function make_answer_multiple_partial($question) {
+    protected static function make_answer_multiple_partial($question): array {
         $result = [];
         foreach ($question->rows as $row) {
             if ($row->id < 2) {
@@ -280,7 +280,7 @@ class qtype_matrix_question_test extends UnitTestCase {
      * @param qtype_matrix_question $question
      * @return array
      */
-    protected static function make_answer_multiple_correct($question) {
+    protected static function make_answer_multiple_correct($question): array {
         $result = [];
         foreach ($question->rows as $row) {
             $key = $question->key($row, $col = 0);
@@ -297,7 +297,7 @@ class qtype_matrix_question_test extends UnitTestCase {
      * @param qtype_matrix_question $question
      * @return array
      */
-    protected static function make_answer_multiple_incorrect($question) {
+    protected static function make_answer_multiple_incorrect($question): array {
         $result = [];
         foreach ($question->rows as $row) {
             $key = $question->key($row, $col = 2);

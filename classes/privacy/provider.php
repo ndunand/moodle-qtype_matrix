@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Privacy Subsystem implementation for mod_choicegroup.
+ * Privacy Subsystem implementation for qtype_matrix.
  *
  * @package    qtype_matrix
  * @copyright  2018 Nicolas Dunand

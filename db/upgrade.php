@@ -34,7 +34,7 @@
 // Please do not forget to use upgrade_set_timeout()
 // before any action that may take longer time to finish.
 
-function xmldb_qtype_matrix_upgrade($oldversion) {
+function xmldb_qtype_matrix_upgrade(int $oldversion): bool {
     global $DB;
     $dbman = $DB->get_manager();
     if ($oldversion < 2014040800) {

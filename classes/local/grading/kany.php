@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 namespace qtype_matrix\local\grading;
 
+use qtype_matrix\local\lang;
 use qtype_matrix\local\qtype_matrix_grading;
 
 /**
@@ -27,12 +28,12 @@ class kany extends qtype_matrix_grading {
 
     const TYPE = 'kany';
 
-    public static function get_name() {
+    public static function get_name(): string {
         return self::TYPE;
     }
 
-    public static function get_title() {
-        return \qtype_matrix::get_string(self::TYPE);
+    public static function get_title(): string {
+        return lang::get(self::TYPE);
     }
 
     /**
@@ -41,7 +42,7 @@ class kany extends qtype_matrix_grading {
      * @param string $type
      * @return kany
      */
-    public static function create($type) {
+    public static function create(string $type): kany {
         static $result = false;
         if ($result) {
             return $result;
@@ -49,8 +50,8 @@ class kany extends qtype_matrix_grading {
         return $result = new self();
     }
 
-    public function grade_question($question, $answers) {
-        $numberofcorrectrows = 0;
+    public function grade_question(\qtype_matrix_question $question, array $answers): float {
+        $numberofcorrectrows = 0.0;
         foreach ($question->rows as $row) {
             $grade = $this->grade_row($question, $row, $answers);
             if ($grade >= 1) {
@@ -58,22 +59,22 @@ class kany extends qtype_matrix_grading {
             }
         }
         if ($numberofcorrectrows == count($question->rows)) {
-            return 1;
+            return 1.0;
         } else if ((count($question->rows) - $numberofcorrectrows) == 1) {
             return 0.5;
         }
-        return 0;
+        return 0.0;
     }
 
     /**
      * Grade a row
      *
      * @param \qtype_matrix_question $question  The question to grade
-     * @param integer|object        $row       Row to grade
-     * @param array                 $responses User's responses
+     * @param integer|object         $row       Row to grade
+     * @param array                  $responses User's responses
      * @return float                            The row grade, either 0 or 1
      */
-    public function grade_row($question, $row, $responses) {
+    public function grade_row(\qtype_matrix_question $question, $row, array $responses): float {
         $onecorrectanswer = false;
         foreach ($question->cols as $col) {
             $answer = $question->answer($row, $col);
@@ -85,11 +86,6 @@ class kany extends qtype_matrix_grading {
                 $onecorrectanswer = true;
             }
         }
-        return ($onecorrectanswer) ? 1 : 0;
+        return ($onecorrectanswer) ? 1.0 : 0.0;
     }
-
-    public function validation($data) {
-        return [];
-    }
-
 }

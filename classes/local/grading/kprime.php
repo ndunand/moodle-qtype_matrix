@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 namespace qtype_matrix\local\grading;
 
+use qtype_matrix\local\lang;
 use qtype_matrix\local\qtype_matrix_grading;
 
 /**
@@ -29,12 +30,12 @@ class kprime extends qtype_matrix_grading {
 
     const TYPE = 'kprime';
 
-    public static function get_name() {
+    public static function get_name(): string {
         return self::TYPE;
     }
 
-    public static function get_title() {
-        return \qtype_matrix::get_string(self::TYPE);
+    public static function get_title(): string {
+        return lang::get(self::TYPE);
     }
 
     /**
@@ -43,7 +44,7 @@ class kprime extends qtype_matrix_grading {
      * @param string $type
      * @return kprime
      */
-    public static function create($type) {
+    public static function create(string $type): kprime {
         static $result = false;
         if ($result) {
             return $result;
@@ -52,20 +53,20 @@ class kprime extends qtype_matrix_grading {
     }
 
     /**
-     * Returns the question's grade. By default it is the average of correct questions.
+     * Returns the question's grade. By default, it is the average of correct questions.
      *
      * @param \qtype_matrix_question $question
-     * @param array                 $answers
+     * @param array                  $answers
      * @return float
      */
-    public function grade_question($question, $answers) {
+    public function grade_question(\qtype_matrix_question $question, array $answers): float {
         foreach ($question->rows as $row) {
             $grade = $this->grade_row($question, $row, $answers);
             if ($grade < 1) {
-                return 0;
+                return 0.0;
             }
         }
-        return 1;
+        return 1.0;
     }
 
 
@@ -73,19 +74,19 @@ class kprime extends qtype_matrix_grading {
      * Grade a row
      *
      * @param \qtype_matrix_question $question  The question to grade
-     * @param integer|object        $row       Row to grade
-     * @param array                 $responses User's responses
+     * @param integer|object         $row       Row to grade
+     * @param array                  $responses User's responses
      * @return float                            The row grade, either 0 or 1
      */
-    public function grade_row($question, $row, $responses) {
+    public function grade_row(\qtype_matrix_question $question, $row, array $responses): float {
         foreach ($question->cols as $col) {
             $answer = $question->answer($row, $col);
             $response = $question->response($responses, $row, $col);
             if ($answer != $response) {
-                return 0;
+                return 0.0;
             }
         }
-        return 1;
+        return 1.0;
     }
 
 }

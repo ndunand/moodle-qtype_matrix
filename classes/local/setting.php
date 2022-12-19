@@ -21,18 +21,25 @@ namespace qtype_matrix\local;
 class setting {
     const COMPONENT = 'qtype_matrix';
 
-    public static function show_kprime_gui() {
+    public static function show_kprime_gui(): bool {
         global $CFG;
 
         return !property_exists($CFG,
                 'qtype_matrix_show_non_kprime_gui') || $CFG->qtype_matrix_show_non_kprime_gui !== '0';
     }
 
-    public static function allow_dnd_ui() {
+    public static function allow_dnd_ui(): bool {
         return self::get('allow_dnd_ui');
     }
 
-    public static function get($name) {
+    /**
+     * Not sure how to type this -> should this be used outside to? did not found any class extern calls?
+     *
+     * @param string $name
+     * @return false|mixed|object|string
+     * @throws \dml_exception
+     */
+    public static function get(string $name) {
         return get_config(self::COMPONENT, $name);
     }
 

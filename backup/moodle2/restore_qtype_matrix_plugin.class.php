@@ -27,7 +27,7 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
     /**
      * Return the contents of this qtype to be processed by the links decoder
      */
-    public static function define_decode_contents() {
+    public static function define_decode_contents(): array {
         $result = [];
 
         $fields = ['shorttext', 'description'];
@@ -45,7 +45,7 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
      *
      * @param $data
      */
-    public function process_matrix($data) {
+    public function process_matrix($data): void {
         if (!$this->is_question_created()) {
             return;
         }
@@ -65,7 +65,7 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
      *
      * @return bool
      */
-    protected function is_question_created() {
+    protected function is_question_created(): bool {
         $oldquestionid = $this->get_old_parentid('question');
         return $this->get_mappingid('question_created', $oldquestionid) ? true : false;
     }
@@ -75,7 +75,7 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
      *
      * @param $data
      */
-    public function process_col($data) {
+    public function process_col($data): void {
         global $DB;
         $data = (object) $data;
 
@@ -96,7 +96,7 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
      *
      * @param $data
      */
-    public function process_row($data) {
+    public function process_row($data): void {
         global $DB;
         $data = (object) $data;
         $this->matrixrows[$data->id] = $data->id;
@@ -117,7 +117,7 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
      *
      * @param $data
      */
-    public function process_weight($data) {
+    public function process_weight($data): void {
         if (!$this->is_question_created()) {
             return;
         }
@@ -137,9 +137,9 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
      * @param $state
      * @return string
      */
-    public function recode_state_answer($state) {
+    public function recode_state_answer($state): string {
         $result = [];
-        $answer = unserialize($state->answer);
+        $answer = unserialize($state->answer); // Todo: Fix: Possible to exploit if archive is passed around !!!!
         foreach ($answer as $rowid => $row) {
             $newrowid = $this->get_mappingid('row', $rowid);
             $newrow = [];
@@ -153,7 +153,7 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
         return serialize($result);
     }
 
-    public function recode_response($questionid, $sequencenumber, array $response) {
+    public function recode_response($questionid, $sequencenumber, array $response): array {
         $recodedresponse = [];
         foreach ($response as $responsekey => $responseval) {
             if ($responsekey == '_order') {
@@ -183,7 +183,7 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
      * @param string $order the original order.
      * @return string the recoded order.
      */
-    protected function recode_choice_order($order) {
+    protected function recode_choice_order($order): string {
         $neworder = [];
         foreach (explode(',', $order) as $id) {
             if ($newid = $this->matrixrows[$id]) {
@@ -196,7 +196,7 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
     /**
      * Returns the paths to be handled by the plugin at question level
      */
-    protected function define_question_plugin_structure() {
+    protected function define_question_plugin_structure(): array {
         $result = [];
 
         $elename = 'matrix';

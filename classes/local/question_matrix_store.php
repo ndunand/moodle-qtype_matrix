@@ -28,7 +28,14 @@ class question_matrix_store {
 
     // Question.
 
-    public function get_matrix_by_question_id($questionid) {
+    /**
+     * This function is not strong typed false|object should not be ok.
+     *
+     * @param int $questionid
+     * @return false|mixed|\stdClass
+     * @throws \dml_exception
+     */
+    public function get_matrix_by_question_id(int $questionid) {
         global $DB;
         $result = $DB->get_record(self::TABLE_QUESTION_MATRIX, ['questionid' => $questionid]);
         if ($result) {
@@ -37,7 +44,7 @@ class question_matrix_store {
         return $result;
     }
 
-    public function save_matrix($question) {
+    public function save_matrix(object $question) {
         $isnew = empty($question->id);
         if ($isnew) {
             return $this->insert_matrix($question);
@@ -52,7 +59,7 @@ class question_matrix_store {
      * @param object $matrix
      * @return object
      */
-    public function insert_matrix($matrix) {
+    public function insert_matrix(object $matrix): object {
         global $DB;
         $data = (object) [
             'questionid' => $matrix->questionid,
@@ -69,7 +76,7 @@ class question_matrix_store {
         return $matrix;
     }
 
-    public function update_matrix($matrix) {
+    public function update_matrix(object $matrix): object {
         global $DB;
         $data = (object) [
             'id' => $matrix->id,
@@ -84,7 +91,7 @@ class question_matrix_store {
         return $matrix;
     }
 
-    public function delete_question($questionid) {
+    public function delete_question(int $questionid): bool {
         if (empty($questionid)) {
             return false;
         }
@@ -129,7 +136,7 @@ class question_matrix_store {
 
     // Row.
 
-    public function get_matrix_rows_by_matrix_id($matrixid) {
+    public function get_matrix_rows_by_matrix_id(int $matrixid): array {
         global $DB;
         $result = $DB->get_records(self::TABLE_QUESTION_MATRIX_ROWS, ['matrixid' => $matrixid], 'id ASC');
         if (!$result) {
@@ -149,7 +156,13 @@ class question_matrix_store {
         return $result;
     }
 
-    public function save_matrix_row($row) {
+    /**
+     * cant type this function result false|object should not be ok.
+     *
+     * @param object $row
+     * @return false|object
+     */
+    public function save_matrix_row(object $row) {
         $isnew = !isset($row->id) || empty($row->id);
         if ($isnew) {
             return $this->insert_matrix_row($row);
@@ -158,7 +171,14 @@ class question_matrix_store {
         }
     }
 
-    public function insert_matrix_row($row) {
+    /**
+     * cant type this function result false|object should not be ok.
+     *
+     * @param object $row
+     * @return false|object
+     * @throws \dml_exception
+     */
+    public function insert_matrix_row(object $row) {
         global $DB;
 
         $text = isset($row->shorttext) ? $row->shorttext : false;
@@ -178,7 +198,7 @@ class question_matrix_store {
         return $data;
     }
 
-    public function update_matrix_row($row) {
+    public function update_matrix_row(object $row): object {
         global $DB;
         // TODO: Add a possibility to delete if (empty($short)).
         $data = (object) [
@@ -192,11 +212,11 @@ class question_matrix_store {
         return $data;
     }
 
-    public function delete_matrix_row($row) {
+    public function delete_matrix_row(object $row): bool {
         global $DB;
 
         if (!isset($row->id) || empty($row->id)) {
-            return;
+            return false;
         }
 
         return $DB->delete_records(self::TABLE_QUESTION_MATRIX_ROWS, ['id' => $row->id]);
@@ -204,7 +224,7 @@ class question_matrix_store {
 
     // Cols.
 
-    public function get_matrix_cols_by_matrix_id($matrixid) {
+    public function get_matrix_cols_by_matrix_id(int $matrixid): array {
         global $DB;
 
         $result = $DB->get_records(self::TABLE_QUESTION_MATRIX_COLS, ['matrixid' => $matrixid], 'id ASC');
@@ -221,7 +241,14 @@ class question_matrix_store {
         return $result;
     }
 
-    public function save_matrix_col($col) {
+    /**
+     * Cant type this function result can be false|object
+     *
+     * @param object $col
+     * @return false|object
+     * @throws \dml_exception
+     */
+    public function save_matrix_col(object $col) {
         $isnew = !isset($col->id) || empty($col->id);
         if ($isnew) {
             return $this->insert_matrix_col($col);
@@ -230,7 +257,14 @@ class question_matrix_store {
         }
     }
 
-    public function insert_matrix_col($col) {
+    /**
+     * Cant type this function result can be false|object
+     *
+     * @param object $col
+     * @return false|object
+     * @throws \dml_exception
+     */
+    public function insert_matrix_col(object $col) {
         global $DB;
 
         $text = isset($col->shorttext) ? $col->shorttext : false;
@@ -250,7 +284,7 @@ class question_matrix_store {
         return $data;
     }
 
-    public function update_matrix_col($col) {
+    public function update_matrix_col(object $col): object {
         global $DB;
 
         // TODO: Add a possibility to delete if (empty($short)).
@@ -265,11 +299,11 @@ class question_matrix_store {
         return $data;
     }
 
-    public function delete_matrix_col($col) {
+    public function delete_matrix_col(object $col): bool {
         global $DB;
 
         if (!isset($col->id) || empty($col->id)) {
-            return;
+            return false;
         }
 
         return $DB->delete_records(self::TABLE_QUESTION_MATRIX_COLS, ['id' => $col->id]);
@@ -277,7 +311,7 @@ class question_matrix_store {
 
     // Weights.
 
-    public function get_matrix_weights_by_question_id($questionid) {
+    public function get_matrix_weights_by_question_id(int $questionid): array {
         global $DB;
         // Todo: check AND?
         $sql = "SELECT qmw.*
@@ -294,7 +328,7 @@ class question_matrix_store {
         return $DB->get_records_sql($sql);
     }
 
-    public function delete_matrix_weights($questionid) {
+    public function delete_matrix_weights(int $questionid): bool {
         global $DB;
         $sql = "DELETE FROM {question_matrix_weights} qmw
                 WHERE qmw.rowid IN
@@ -306,7 +340,7 @@ class question_matrix_store {
         return $DB->execute($sql);
     }
 
-    public function insert_matrix_weight($weight) {
+    public function insert_matrix_weight(object $weight): object {
         global $DB;
 
         $data = (object) [
