@@ -62,8 +62,9 @@ abstract class qtype_matrix_grading {
             return $result[$type];
         }
         $class = 'qtype_matrix\\local\\grading\\' . $type;
-        // This looks short but not good to read!
-        return $result[$type] = call_user_func([$class, 'create'], $type);
+        $grading = call_user_func([$class, 'create_grade'], $type);
+        $result[$type] = $grading;
+        return $grading;
     }
 
     /**
@@ -71,8 +72,7 @@ abstract class qtype_matrix_grading {
      * @throws coding_exception
      */
     public static function get_title(): string {
-        $identifier = self::get_name();
-        return lang::get($identifier);
+        return lang::get(self::get_name());
     }
 
     public static function get_name(): string {
@@ -144,7 +144,6 @@ abstract class qtype_matrix_grading {
      * validate
      *
      * @param array $data the raw form data
-     *
      * @return array of errors
      */
     public function validation(array $data): array {

@@ -17,6 +17,7 @@
 namespace qtype_matrix\local\grading;
 
 use coding_exception;
+use qtype_matrix\local\interfaces\grading;
 use qtype_matrix\local\lang;
 use qtype_matrix\local\qtype_matrix_grading;
 use qtype_matrix_question;
@@ -28,7 +29,7 @@ use qtype_matrix_question;
  * For a row all of the correct and none of the wrong answers must be selected
  * to get 100% otherwise 0.
  */
-class all extends qtype_matrix_grading {
+class all extends qtype_matrix_grading implements grading {
 
     const TYPE = 'all';
 
@@ -47,10 +48,9 @@ class all extends qtype_matrix_grading {
     /**
      * Factory
      *
-     * @param string $type
      * @return all
      */
-    public static function create(string $type): all {
+    public static function create_grade(): all {
         static $result = false;
         if ($result) {
             return $result;

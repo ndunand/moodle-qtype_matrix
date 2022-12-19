@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 namespace qtype_matrix\local\grading;
 
+use qtype_matrix\local\interfaces\grading;
 use qtype_matrix\local\lang;
 use qtype_matrix\local\qtype_matrix_grading;
 use qtype_matrix_question;
@@ -27,7 +28,7 @@ use qtype_matrix_question;
  * to get 100% otherwise he gets 0%. Including rows.
  * If one row is wrong then the mark for the question is 0.
  */
-class kprime extends qtype_matrix_grading {
+class kprime extends qtype_matrix_grading implements grading {
 
     const TYPE = 'kprime';
 
@@ -42,10 +43,9 @@ class kprime extends qtype_matrix_grading {
     /**
      * Factory
      *
-     * @param string $type
      * @return kprime
      */
-    public static function create(string $type): kprime {
+    public static function create_grade(): kprime {
         static $result = false;
         if ($result) {
             return $result;
@@ -57,7 +57,7 @@ class kprime extends qtype_matrix_grading {
      * Returns the question's grade. By default, it is the average of correct questions.
      *
      * @param qtype_matrix_question $question
-     * @param array                  $answers
+     * @param array                 $answers
      * @return float
      */
     public function grade_question(qtype_matrix_question $question, array $answers): float {
@@ -75,8 +75,8 @@ class kprime extends qtype_matrix_grading {
      * Grade a row
      *
      * @param qtype_matrix_question $question  The question to grade
-     * @param integer|object         $row       Row to grade
-     * @param array                  $responses User's responses
+     * @param integer|object        $row       Row to grade
+     * @param array                 $responses User's responses
      * @return float                            The row grade, either 0 or 1
      */
     public function grade_row(qtype_matrix_question $question, $row, array $responses): float {

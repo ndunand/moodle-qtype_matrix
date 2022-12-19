@@ -16,6 +16,7 @@
 namespace qtype_matrix\local\grading;
 
 use coding_exception;
+use qtype_matrix\local\interfaces\grading;
 use qtype_matrix\local\lang;
 use qtype_matrix\local\qtype_matrix_grading;
 use qtype_matrix_question;
@@ -26,7 +27,7 @@ use qtype_matrix_question;
  *
  * Any correct and no wrong answer to get 100% otherwise 0
  */
-class kany extends qtype_matrix_grading {
+class kany extends qtype_matrix_grading implements grading {
 
     const TYPE = 'kany';
 
@@ -45,10 +46,9 @@ class kany extends qtype_matrix_grading {
     /**
      * Factory
      *
-     * @param string $type
      * @return kany
      */
-    public static function create(string $type): kany {
+    public static function create_grade(): kany {
         static $result = false;
         if ($result) {
             return $result;
