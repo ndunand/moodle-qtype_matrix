@@ -25,7 +25,7 @@ use qtype_matrix\local\qtype_matrix_grading;
 /**
  * Represents a matrix question.
  */
-class qtype_matrix_question extends question_graded_automatically_with_countback implements IteratorAggregate {
+class qtype_matrix_question extends question_graded_automatically_with_countback {
 
     const KEY_ROWS_ORDER = '_order';
 
@@ -233,6 +233,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      *                                    being loaded.
      * @return void
      * @throws dml_exception
+     * @throws coding_exception
      */
     public function apply_attempt_state(question_attempt_step $step): void {
         if ($this->usedndui) {
@@ -251,6 +252,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      * @param question_attempt_step $step Storage
      * @return void
      * @throws dml_exception
+     * @throws coding_exception
      */
     protected function load_data(question_attempt_step $step): void {
         $order = $step->get_qt_var(self::KEY_ROWS_ORDER);
@@ -263,7 +265,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
             if ($this->shuffle_answers()) {
                 shuffle($this->order);
             }
-            $this->write_order($step); // Todo: where does this function comes from ?
+            $this->write_data($step); // Todo: Does this solves https://github.com/ndunand/moodle-qtype_matrix/issues/31 ?
         }
 
         // Rows can be deleted between attempts. We need therefore to remove
@@ -509,15 +511,4 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
         }
         return $result;
     }
-
-    /**
-     * Returns an array where keys are the weights' cell names and the values
-     * are the weights
-     * Todo: perhaps we can use the iterator field here?
-     */
-    // @codingStandardsIgnoreLine We can ignore this error in codechecker because it implements an interface.
-    public function getIterator(): ArrayIterator {
-        return new ArrayIterator($this->cells());
-    }
-
 }

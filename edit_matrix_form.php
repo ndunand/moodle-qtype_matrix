@@ -355,7 +355,6 @@ class qtype_matrix_edit_form extends question_edit_form {
     }
 
     public function get_javascript(): string {
-        // Todo: move this javascript code to own file/function.
         return "var YY = null;
         window.mtrx_current = false;
         function mtrx_popup(id) {
@@ -447,7 +446,7 @@ class qtype_matrix_edit_form extends question_edit_form {
      * @return array
      * @throws coding_exception
      */
-    public function validation($fromform, $files) : array {
+    public function validation($fromform, $files): array {
         $errors = parent::validation($fromform, $files);
         if (setting::show_kprime_gui()) {
             if ($this->col_count($fromform) == 0) {

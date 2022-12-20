@@ -27,8 +27,8 @@ $string['matrix_help'] = '<p>Ce type de question permet aux enseignants de défi
 
 // Gradings.
 $string['all'] = 'Point partiel';
-$string['kany'] = "Kprime (au moins une réponse correcte et aucune réponse fausse)  ";
-$string['kprime'] = "Kprime1/0";
+$string['kany'] = 'Kprime (au moins une réponse correcte et aucune réponse fausse)  ';
+$string['kprime'] = 'Kprime1/0';
 $string['none'] = 'Pas d\'évaluation';
 $string['weighted'] = 'Point partiel';
 

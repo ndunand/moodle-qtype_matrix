@@ -46,7 +46,7 @@ $string['pluginname_link'] = 'question/type/matrix';
 // Gradings.
 $string['all'] = 'Teilpunkte';
 $string['kany'] = 'Kprim';
-$string['kprime'] = "Kprim1/0";
+$string['kprime'] = 'Kprim1/0';
 
 // Strings.
 $string['true'] = 'Richtig';

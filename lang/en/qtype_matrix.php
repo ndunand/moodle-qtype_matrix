@@ -46,7 +46,7 @@ $string['pluginname_link'] = 'question/type/matrix';
 // Gradings.
 $string['all'] = 'Subpoints';
 $string['kany'] = 'Kprime (at least one correct, no wrong answer)  ';
-$string['kprime'] = "Kprime1/0";
+$string['kprime'] = 'Kprime1/0';
 
 // Strings.
 $string['true'] = 'True';
