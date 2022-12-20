@@ -33,10 +33,8 @@ require_once($CFG->dirroot . '/question/type/edit_question_form.php');
  *
  * @see http://docs.moodle.org/en/Development:lib/formslib.php
  */
-class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess {
+class qtype_matrix_edit_form extends question_edit_form {
 
-    // How many elements are added each time somebody click the add row/add column button.
-    const DEFAULT_REPEAT_ELEMENTS = 1;
     const PARAM_COLS = 'cols_shorttext';
     const DEFAULT_COLS = 2;
     const PARAM_ADD_COLUMNS = 'add_cols';
@@ -62,8 +60,10 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess {
     }
 
     /**
-     * @param $mform MoodleQuickForm should be MoodleQuickForm but cant type it due the parent not settign it also
+     * @param $mform MoodleQuickForm should be MoodleQuickForm but cant type it due the parent function not implementing it.
      * @return void
+     * @throws coding_exception
+     * @throws dml_exception
      */
     public function definition_inner($mform): void {
         $this->builder = new matrix_form_builder($mform);
@@ -85,6 +85,10 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess {
         $builder->set_default(self::PARAM_SHUFFLE_ANSERS, self::DEFAULT_SHUFFLE_ANSWERS);
     }
 
+    /**
+     * @return void
+     * @throws coding_exception
+     */
     public function add_multiple(): void {
         // Multiple allowed.
         $builder = $this->builder;
@@ -98,6 +102,10 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess {
         }
     }
 
+    /**
+     * @return void
+     * @throws coding_exception
+     */
     public function add_grading(): void {
         $builder = $this->builder;
 
@@ -129,6 +137,7 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess {
      * All form setup that is dependent on form values should go in here.
      *
      * @return void
+     * @throws coding_exception
      */
     public function definition_after_data(): void {
         $builder = $this->builder;
@@ -137,6 +146,10 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess {
         $builder->add_javascript($this->get_javascript());
     }
 
+    /**
+     * @return void
+     * @throws coding_exception
+     */
     public function add_matrix(): void {
         $mform = $this->_form;
         $builder = $this->builder;
@@ -229,8 +242,8 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess {
 
         $matrixheader = $builder->create_header('matrixheader');
         $matrixgroup = $builder->create_group('matrix', null, $matrix, '', false);
-
-        if (isset($this['tagsheader'])) {
+        $isheader = $this->_form->getElement('tagsheader');
+        if (isset($isheader)) {
             $builder->insert_element_before($matrixheader, 'tagsheader');
             $refreshbutton = $builder->create_submit('refresh_matrix');
             $builder->register_no_submit_button('refresh_matrix');
@@ -239,13 +252,13 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess {
             $builder->insert_element_before($refreshbutton, 'tagsheader');
             $builder->insert_element_before($matrixgroup, 'tagsheader');
         } else {
-            $this[] = $matrixheader;
+            $this->_form->addElement($matrixheader);
             $refreshbutton = $builder->create_submit('refresh_matrix');
             $builder->register_no_submit_button('refresh_matrix');
             $builder->disabled_if('refresh_matrix', self::PARAM_GRADE_METHOD, 'eq', 'none');
             $builder->disabled_if('defaultgrade', self::PARAM_GRADE_METHOD, 'eq', 'none');
-            $this[] = $refreshbutton;
-            $this[] = $matrixgroup;
+            $this->_form->addElement($refreshbutton);
+            $this->_form->addElement($matrixgroup);
         }
 
         if ($colscount > 1 && (empty($this->question->id) || empty($this->question->options->rows))) {
@@ -432,6 +445,7 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess {
      * @param $fromform
      * @param $files
      * @return array
+     * @throws coding_exception
      */
     public function validation($fromform, $files) : array {
         $errors = parent::validation($fromform, $files);
@@ -462,23 +476,4 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess {
     protected function row_count(array $data): int {
         return count($data['rows_shorttext']);
     }
-
-    // Implement ArrayAccess.
-
-    public function offsetExists($offset): bool {
-        return $this->_form->elementExists($offset);
-    }
-
-    public function offsetGet($offset): object {
-        return $this->_form->getElement($offset);
-    }
-
-    public function offsetSet($offset, $value): void {
-        $this->_form->addElement($value);
-    }
-
-    public function offsetUnset($offset): void {
-        $this->_form->removeElement($offset);
-    }
-
 }

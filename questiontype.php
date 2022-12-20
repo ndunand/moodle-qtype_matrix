@@ -297,7 +297,7 @@ class qtype_matrix extends question_type {
         }
 
         $transaction->allow_commit();
-        return (object) []; // Todo: is this expected behavior?
+        return (object) [];
     }
 
     /**
@@ -456,9 +456,9 @@ class qtype_matrix extends question_type {
 
         // Rows.
         $question->rows = [];
-        $question->rows_shorttext = []; // Todo: perhaps rename this, its not defined in question type.
-        $question->rows_description = []; // Todo: perhaps rename this, its not defined in question type.
-        $question->rows_feedback = []; // Todo: perhaps rename this, its not defined in question type.
+        $question->rows_shorttext = [];
+        $question->rows_description = [];
+        $question->rows_feedback = [];
         $question->rowid = [];
         $index = 0;
         $rowsxml = $data['#']['row'];
@@ -485,8 +485,8 @@ class qtype_matrix extends question_type {
 
         // Cols.
         $question->cols = [];
-        $question->cols_shorttext = []; // Todo: perhaps rename this, its not defined in question type.
-        $question->cols_description = []; // Todo: perhaps rename this, its not defined in question type.
+        $question->cols_shorttext = [];
+        $question->cols_description = [];
         $question->colid = [];
         $index = 0;
         $colsxml = $data['#']['col'];

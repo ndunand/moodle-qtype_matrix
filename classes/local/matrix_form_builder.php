@@ -16,7 +16,6 @@
 
 namespace qtype_matrix\local;
 
-use ArrayAccess;
 use coding_exception;
 use HTML_QuickForm_element;
 use MoodleQuickForm;
@@ -24,8 +23,11 @@ use MoodleQuickForm;
 /**
  * Helper class to build the form.
  */
-class matrix_form_builder implements ArrayAccess {
+class matrix_form_builder {
 
+    /**
+     * @var MoodleQuickForm
+     */
     private $_form;
 
     public function __construct(MoodleQuickForm $form) {
@@ -159,7 +161,7 @@ class matrix_form_builder implements ArrayAccess {
 
     public function add_javascript(string $js): object {
         $element = $this->create_javascript($js);
-        $this[] = $element; // Unsure if arrayaccess should be really used like this, seems to be hacky.
+        $this->_form->addElement($element);
         return $element;
     }
 
@@ -211,27 +213,5 @@ class matrix_form_builder implements ArrayAccess {
 
     public function register_no_submit_button(string $name): void {
         $this->_form->registerNoSubmitButton($name);
-    }
-
-    // Implement ArrayAccess.
-
-    public function offsetExists($offset): bool {
-        return $this->_form->elementExists($offset);
-    }
-
-    /**
-     * @param $offset
-     * @return object
-     */
-    public function offsetGet($offset): object {
-        return $this->_form->getElement($offset);
-    }
-
-    public function offsetSet($offset, $value): void {
-        $this->_form->addElement($value);
-    }
-
-    public function offsetUnset($offset): void {
-        $this->_form->removeElement($offset);
     }
 }

@@ -94,8 +94,8 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
 
     /**
      *
-     * @param object       $row
-     * @param object       $col
+     * @param mixed        $row
+     * @param mixed        $col
      * @param boolean|null $multiple
      * @return string
      */
@@ -120,13 +120,8 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
 
     /**
      *
-     * @param mixed  $row
-     * @param mixed  $col
-     *
-     * or
-     *
-     * @param object $key
-     *
+     * @param mixed $row
+     * @param mixed $col
      * @return float
      */
     public function weight($row = null, $col = null): float {
