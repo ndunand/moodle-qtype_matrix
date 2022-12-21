@@ -47,6 +47,7 @@ $string['pluginname_link'] = 'question/type/matrix';
 $string['all'] = 'Subpoints';
 $string['kany'] = 'Kprime (at least one correct, no wrong answer)  ';
 $string['kprime'] = 'Kprime1/0';
+$string['difference'] = 'Difference';
 
 // Strings.
 $string['true'] = 'True';

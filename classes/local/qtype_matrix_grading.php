@@ -38,7 +38,7 @@ abstract class qtype_matrix_grading {
             return $result;
         }
         $result = [];
-        $classlist = ['all', 'kany', 'kprime'];
+        $classlist = ['all', 'kany', 'kprime', 'difference'];
         $namespace = 'qtype_matrix\\local\\grading\\';
         foreach ($classlist as $class) {
             $classname = $namespace . $class;

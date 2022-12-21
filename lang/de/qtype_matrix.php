@@ -47,6 +47,7 @@ $string['pluginname_link'] = 'question/type/matrix';
 $string['all'] = 'Teilpunkte';
 $string['kany'] = 'Kprim';
 $string['kprime'] = 'Kprim1/0';
+$string['difference'] = 'Differenz';
 
 // Strings.
 $string['true'] = 'Richtig';
