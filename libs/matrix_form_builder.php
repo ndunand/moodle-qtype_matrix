@@ -60,7 +60,7 @@ class matrix_form_builder implements ArrayAccess
         $id = "htmlpopup$pop_count";
 
         $result = array();
-        $result[] = $this->create_static('<a class="pbutton input-group-addon" href="#" onclick="mtrx_popup(\'' . $id . '\');return false;" >...</a>');
+        $result[] = $this->create_static('<a class="pbutton input-group-addon" href="#" onclick="mtrx_popup(\'' . $id . '\');return false;" ><i class="fa fa-comment"></i> </a>');
         $result[] = $this->create_static('<div id="' . $id . '" class="popup">');
         $result[] = $this->create_static('<div>');
         $result[] = $this->create_static('<a class="pbutton close" href="#" onclick="mtrx_popup(\'' . $id . '\');return false;" >&nbsp;&nbsp;&nbsp;</a>');

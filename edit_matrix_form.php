@@ -351,13 +351,13 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
             else if(current_id == new_id)
             {
                 node = YY.one(window.mtrx_current);
-                node.hide();
+                node.setStyle('display', 'none');
                 window.mtrx_current = false;
             }
             else
             {
                 node = YY.one(current_id);
-                node.hide();
+                node.setStyle('display', 'none');
                 
                 node = YY.one(new_id)
                 node.setStyle('display', 'block');
