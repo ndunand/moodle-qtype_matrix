@@ -115,7 +115,7 @@ class qtype_matrix_test_helper extends question_test_helper
             {
                 $col = (object) array();
                 $col->id = $c;
-                $col->shortext = "Column $c";
+                $col->shorttext = "Column $c";
                 $col->description = "Description $c";
                 $result->cols[$c] = $col;
 
@@ -160,7 +160,7 @@ class qtype_matrix_test_helper extends question_test_helper
             {
                 $col = (object) array();
                 $col->id = $c;
-                $col->shortext = "Column $c";
+                $col->shorttext = "Column $c";
                 $col->description = "Description $c";
                 $result->cols[$c] = $col;
 

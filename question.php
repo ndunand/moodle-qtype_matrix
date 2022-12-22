@@ -394,19 +394,15 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
     {
         $result = array();
 
-        $row_index = 0;
-        foreach ($this->order as $rowid) {
+        foreach ($this->order ?? array_keys($this->rows) as $rowid) {
             $row = $this->rows[$rowid];
-            $col_index = 0;
             foreach ($this->cols as $col) {
                 $key = $this->key($row, $col);
-                $value = isset($response[$key]) ? $response[$key] : false;
-                if ($value == $col->id) {
+                $value = $response[$key] ?? false;
+                if ($value === $col->id || $value === 'on') {
                     $result[] = "{$row->shorttext}: {$col->shorttext}";
                 }
-                $col_index++;
             }
-            $row_index++;
         }
         return implode("; ", $result);
     }
@@ -450,7 +446,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
     public function get_correct_response()
     {
         $result = array();
-        foreach ($this->order as $rowid) {
+        foreach ($this->order ?? array_keys($this->rows) as $rowid) {
             $row = $this->rows[$rowid];
             foreach ($this->cols as $col) {
                 $weight = $this->weight($row, $col);
