@@ -171,8 +171,7 @@ class matrix_form_builder implements ArrayAccess
             $short_name = reset($short_name);
             $label = qtype_matrix::get_string($short_name);
         }
-        $result = $this->_form->addElement('advcheckbox', $name, $label);
-        return $result;
+        return $this->_form->addElement('advcheckbox', $name, $label);
     }
 
     public function add_select($name, $label = '', $options = null)

@@ -50,7 +50,7 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
         $this->builder = new matrix_form_builder($mform);
         $builder = $this->builder;
 
-        $this->question->options = (isset($this->question->options)) ? $this->question->options : (object) array();
+        $this->question->options = $this->question->options ?? (object)array();
 
         $this->add_multiple();
         $this->add_grading();
@@ -162,7 +162,7 @@ class qtype_matrix_edit_form extends question_edit_form implements ArrayAccess
         $grading_errors = $grading->validation($data);
 
         $errors = array_merge($errors, $grading_errors);
-        return $errors ? $errors : true;
+        return $errors ?: true;
     }
 
     protected function col_count($data)
@@ -439,17 +439,17 @@ EOT;
     protected function param_grade_method()
     {
         $data = $this->_form->exportValues();
-        return isset($data[self::PARAM_GRADE_METHOD]) ? $data[self::PARAM_GRADE_METHOD] : qtype_matrix::defaut_grading()->get_name();
+        return $data[self::PARAM_GRADE_METHOD] ?? qtype_matrix::defaut_grading()->get_name();
     }
 
     /**
      * 
-     * @return Whether the question allows multiple answers
+     * @return bool Whether the question allows multiple answers
      */
     protected function param_multiple()
     {
         $data = $this->_form->exportValues();
-        return isset($data[self::PARAM_MULTIPLE]) ? $data[self::PARAM_MULTIPLE] : self::DEFAULT_MULTIPLE;
+        return $data[self::PARAM_MULTIPLE] ?? self::DEFAULT_MULTIPLE;
     }
 
     // implement ArrayAccess

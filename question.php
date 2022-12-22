@@ -57,7 +57,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
         if (is_string($row) && is_null($col)) {
             //$key = $row;
             $key = str_replace('cell', $col, $row);
-            list($row_id, $col_id) = explode('x', $key);
+            [$row_id, $col_id] = explode('x', $key);
         } else {
             $row_id = is_object($row) ? $row->id : $row;
             $col_id = is_object($col) ? $col->id : $col;
@@ -119,16 +119,16 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
         }
 
         $key = $this->key($row, $col, $response_multiple);
-        $value = isset($response[$key]) ? $response[$key] : false;
+        $value = $response[$key] ?? false;
         if ($value === false) {
             return false;
         }
 
         if ($response_multiple) {
             return !empty($value);
-        } else {
-            return $value == $col->id;
         }
+
+        return $value == $col->id;
     }
 
     /**
@@ -200,8 +200,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
         if (!is_object($cm)) {
             return true;
         }
-        $quiz = $DB->get_record('quiz', array('id' => $cm->instance));
-        return $quiz->shuffleanswers;
+        return $DB->get_record('quiz', array('id' => $cm->instance))->shuffleanswers;
     }
 
     /**
@@ -508,7 +507,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
         foreach ($this->order as $rowid) {
             $row = $this->rows[$rowid];
             foreach ($this->cols as $col) {
-                $result[self::key($row, $col)] = $this->weight($row, $col);
+                $result[$this->key($row, $col)] = $this->weight($row, $col);
             }
         }
         return $result;
