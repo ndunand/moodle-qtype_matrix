@@ -429,7 +429,7 @@ EOT;
      */
     protected function param_add_rows()
     {
-        return (optional_param(self::PARAM_ADD_ROWS, '', PARAM_TEXT)) ? true : false;
+        return (bool)optional_param(self::PARAM_ADD_ROWS, '', PARAM_TEXT);
     }
 
     /**

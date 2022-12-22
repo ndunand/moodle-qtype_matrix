@@ -154,7 +154,7 @@ class question_matrix_store
 
     public function save_matrix_row($row)
     {
-        $is_new = !isset($row->id) || empty($row->id);
+        $is_new = empty($row->id);
         if ($is_new) {
             return $this->insert_matrix_row($row);
         }
