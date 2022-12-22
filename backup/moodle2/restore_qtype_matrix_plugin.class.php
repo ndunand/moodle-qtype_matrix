@@ -21,8 +21,8 @@
  */
 class restore_qtype_matrix_plugin extends restore_qtype_plugin {
 
-    private $matrixcols = [];
-    private $matrixrows = [];
+    private static $matrixcols = [];
+    private static $matrixrows = [];
 
     /**
      * Return the contents of this qtype to be processed by the links decoder
@@ -82,7 +82,7 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
         global $DB;
         $data = (object) $data;
 
-        $this->matrixcols[$data->id] = $data->id; // Todo: this will not work -> process_col is not always called!
+        self::$matrixcols[$data->id] = $data->id; // Todo: this will not work -> process_col is not always called!
         if (!$this->is_question_created()) {
             return;
         }
@@ -91,7 +91,7 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
         $data->matrixid = $this->get_new_parentid('matrix');
         $newitemid = $DB->insert_record('question_matrix_cols', $data);
         $this->set_mapping('col', $oldid, $newitemid);
-        $this->matrixcols[$oldid] = $newitemid;  // Todo: this will not work -> process_col is not always called!
+        self::$matrixcols[$oldid] = $newitemid;  // Todo: this will not work -> process_col is not always called!
     }
 
     /**
@@ -104,7 +104,7 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
     public function process_row($data): void {
         global $DB;
         $data = (object) $data;
-        $this->matrixrows[$data->id] = $data->id;  // Todo: this will not work -> process_row is not always called!
+        self::$matrixrows[$data->id] = $data->id;  // Todo: this will not work -> process_row is not always called!
         if (!$this->is_question_created()) {
             return;
         }
@@ -114,7 +114,7 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
         $data->matrixid = $this->get_new_parentid('matrix');
         $newitemid = $DB->insert_record('question_matrix_rows', $data);
         $this->set_mapping('row', $oldid, $newitemid);
-        $this->matrixrows[$oldid] = $newitemid; // Todo: this will not work -> process_row is not always called!
+        self::$matrixrows[$oldid] = $newitemid; // Todo: this will not work -> process_row is not always called!
     }
 
     /**
@@ -168,8 +168,8 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
             } else if (substr($responsekey, 0, 4) == 'cell') {
                 $responsekeynocell = substr($responsekey, 4);
                 $responsekeyids = explode('_', $responsekeynocell);
-                $newrowid = $this->matrixrows[$responsekeyids[0]];  // Todo: this will not work!
-                $newcolid = $this->matrixcols[$responseval] ?? false; // Todo: this will not work!
+                $newrowid = self::$matrixrows[$responsekeyids[0]];  // Todo: this will not work!
+                $newcolid = self::$matrixcols[$responseval] ?? false; // Todo: this will not work!
                 if (count($responsekeyids) == 1) {
                     $recodedresponse['cell' . $newrowid] = $newcolid;
                 } else if (count($responsekeyids) == 2) {
@@ -193,7 +193,7 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
     protected function recode_choice_order(string $order): string {
         $neworder = [];
         foreach (explode(',', $order) as $id) {
-            if ($newid = $this->matrixrows[$id]) { // Todo: this will not work!
+            if ($newid = self::$matrixrows[$id]) { // Todo: this will not work!
                 $neworder[] = $newid;
             }
         }
