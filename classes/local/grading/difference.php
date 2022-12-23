@@ -21,9 +21,6 @@ use qtype_matrix\local\lang;
 use qtype_matrix\local\qtype_matrix_grading;
 use qtype_matrix_question;
 
-/**
- * 9 – (studentpoints – expertpoints) ^ 2
- */
 class difference extends qtype_matrix_grading implements grading {
 
     const TYPE = 'difference';
@@ -54,20 +51,43 @@ class difference extends qtype_matrix_grading implements grading {
     }
 
     public function grade_question(qtype_matrix_question $question, array $answers): float {
-        // Todo: implement this!
-        return 0.0;
+        $grades = [];
+        foreach ($question->rows as $row) {
+            $grades[] = $this->grade_row($question, $row, $answers);
+        }
+        return array_sum($grades);
     }
 
     /**
      * Grade a row
      *
      * @param qtype_matrix_question $question  The question to grade
-     * @param integer|object         $row       Row to grade
-     * @param array                  $responses User's responses
+     * @param integer|object        $row       Row to grade
+     * @param array                 $responses User's responses
      * @return float                            The row grade, either 0 or 1
      */
     public function grade_row(qtype_matrix_question $question, $row, array $responses): float {
-        // Todo: implement this!
-        return 0.0;
+        $ansid = 1;
+        $respid = 1;
+        $ansbool = false;
+        $resbool = false;
+        // Foreach through the elements and count the elements to the response and answer.
+        foreach ($question->cols as $col) {
+            $answer = $question->answer($row, $col);
+            if (!$ansbool && !$answer) {
+                $ansid++;
+            } else {
+                $ansbool = true;
+            }
+            $response = $question->response($responses, $row, $col);
+            if (!$resbool && !$response) {
+                $respid++;
+            } else {
+                $resbool = true;
+            }
+        }
+        // Todo: perhaps find a solution for not restless dividable col count. Could mess up point system.
+        // Apply  "(count/2)^2 – (studentpoints – expertpoints) ^ 2".
+        return pow(count($question->cols) / 2, 2) - pow($ansid - $respid, 2);
     }
 }
