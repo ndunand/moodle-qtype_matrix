@@ -99,40 +99,32 @@ class question_matrix_store {
         if (empty($questionid)) {
             return false;
         }
-        // Todo: use this -> $DB->delete_records_select('')
-        // Note: $DB->execute does not accept multiple SQL statements
+
         // Weights.
-        $sql = "DELETE FROM {question_matrix_weights} qmw
-                WHERE qmw.rowid IN
-                      (
+        $DB->delete_records_select('question_matrix_weights',
+            'rowid IN (
                       SELECT qmr.id FROM {question_matrix_rows} qmr
                       INNER JOIN {question_matrix} qm ON qmr.matrixid = qm.id
-                      WHERE qm.questionid = $questionid
-                      )"; // Todo: remove unsafe sql operation.
-        $DB->execute($sql);
+                      WHERE qm.questionid = :qid
+                      )',
+            ['qid' => $questionid]);
 
         // Rows.
-        $sql = "DELETE FROM {question_matrix_rows} qmr
-                WHERE qmr.matrixid IN
-                      (
+        $DB->delete_records_select('question_matrix_rows',
+            'matrixid IN (
                       SELECT qm.id FROM {question_matrix} qm
-                      WHERE qm.questionid = $questionid
-                      )"; // Todo: remove unsafe sql operation.
-        $DB->execute($sql);
+                      WHERE qm.questionid = :qid)',
+            ['qid' => $questionid]);
 
         // Cols.
-        $sql = "DELETE FROM {question_matrix_cols} qmc
-                WHERE qmc.matrixid IN
-                      (
+        $DB->delete_records_select('question_matrix_cols',
+            'matrixid IN (
                       SELECT qm.id FROM {question_matrix} qm
-                      WHERE qm.questionid = $questionid
-                      )"; // Todo: remove unsafe sql operation.
-        $DB->execute($sql);
+                      WHERE qm.questionid = :qid)',
+            ['qid' => $questionid]);
 
         // Matrix.
-        $sql = "DELETE FROM {question_matrix} WHERE questionid = $questionid";
-        // Todo: remove unsafe sql operation.
-        $DB->execute($sql);
+        $DB->delete_records('question_matrix', ['questionid' => $questionid]);
         return true;
     }
 

@@ -62,21 +62,14 @@ class qtype_matrix extends question_type {
      *
      * @param integer $questionid The question being deleted
      * @param integer $contextid
-     * @return boolean to indicate success of failure.
      * @throws dml_exception
      */
-    public function delete_question($questionid, $contextid = null): bool {
-        global $DB;
+    public function delete_question($questionid, $contextid = null) {
         if (empty($questionid)) {
-            return false;
+            return;
         }
-
-        $transaction = $DB->start_delegated_transaction();
         $this->delete_question_options($questionid);
         parent::delete_question($questionid, $contextid);
-        $transaction->allow_commit();
-
-        return true;
     }
 
     /**

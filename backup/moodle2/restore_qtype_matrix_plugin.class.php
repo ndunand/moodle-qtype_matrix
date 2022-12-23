@@ -21,9 +21,6 @@
  */
 class restore_qtype_matrix_plugin extends restore_qtype_plugin {
 
-    private static $matrixcols = [];
-    private static $matrixrows = [];
-
     /**
      * Return the contents of this qtype to be processed by the links decoder
      */
@@ -48,18 +45,17 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
      * @throws dml_exception
      */
     public function process_matrix($data): void {
-        if (!$this->is_question_created()) {
-            return;
-        }
         global $DB;
         $data = (object) $data;
         $oldid = $data->id;
 
         // Todo: check import of version moodle1 data.
 
-        $data->questionid = $this->get_new_parentid('question');
-        $newitemid = $DB->insert_record('question_matrix', $data);
-        $this->set_mapping('matrix', $oldid, $newitemid);
+        if ($this->is_question_created()) {
+            $data->questionid = $this->get_new_parentid('question');
+            $newitemid = $DB->insert_record('question_matrix', $data);
+            $this->set_mapping('qtype_matrix_matrix', $oldid, $newitemid);
+        }
     }
 
     /**
@@ -81,17 +77,25 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
     public function process_col($data): void {
         global $DB;
         $data = (object) $data;
-
-        self::$matrixcols[$data->id] = $data->id; // Todo: this will not work -> process_col is not always called!
-        if (!$this->is_question_created()) {
-            return;
-        }
-
         $oldid = $data->id;
-        $data->matrixid = $this->get_new_parentid('matrix');
-        $newitemid = $DB->insert_record('question_matrix_cols', $data);
-        $this->set_mapping('col', $oldid, $newitemid);
-        self::$matrixcols[$oldid] = $newitemid;  // Todo: this will not work -> process_col is not always called!
+
+        $newmatrixid = $this->get_new_parentid('matrix');
+        if ($this->is_question_created()) {
+            $data->matrixid = $newmatrixid;
+            $newitemid = $DB->insert_record('question_matrix_cols', $data);
+        } else {
+            $originalrecords = $DB->get_records('question_matrix_cols', array('matrixid' => $newmatrixid));
+            foreach ($originalrecords as $record) {
+                if ($data->shorttext == $record->shorttext) { // Todo: this looks dirty to me!
+                    $newitemid = $record->id;
+                }
+            }
+        }
+        if (!isset($newitemid)) {
+            throw new restore_step_exception('error_question_answers_missing_in_db');
+        } else {
+            $this->set_mapping('qtype_matrix_col', $oldid, $newitemid);
+        }
     }
 
     /**
@@ -104,17 +108,26 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
     public function process_row($data): void {
         global $DB;
         $data = (object) $data;
-        self::$matrixrows[$data->id] = $data->id;  // Todo: this will not work -> process_row is not always called!
-        if (!$this->is_question_created()) {
-            return;
-        }
-
         $oldid = $data->id;
 
-        $data->matrixid = $this->get_new_parentid('matrix');
-        $newitemid = $DB->insert_record('question_matrix_rows', $data);
-        $this->set_mapping('row', $oldid, $newitemid);
-        self::$matrixrows[$oldid] = $newitemid; // Todo: this will not work -> process_row is not always called!
+        $newmatrixid = $this->get_new_parentid('matrix');
+
+        if ($this->is_question_created()) {
+            $data->matrixid = $newmatrixid;
+            $newitemid = $DB->insert_record('question_matrix_rows', $data);
+        } else {
+            $originalrecords = $DB->get_records('question_matrix_rows', array('questionid' => $newmatrixid));
+            foreach ($originalrecords as $record) {
+                if ($data->shorttext == $record->shorttext) { // Todo: this looks dirty to me!
+                    $newitemid = $record->id;
+                }
+            }
+        }
+        if (!$newitemid) {
+            throw new restore_step_exception('error_question_answers_missing_in_db');
+        } else {
+            $this->set_mapping('qtype_matrix_row', $oldid, $newitemid);
+        }
     }
 
     /**
@@ -125,17 +138,15 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
      * @throws dml_exception
      */
     public function process_weight($data): void {
-        if (!$this->is_question_created()) {
-            return;
-        }
         global $DB;
         $data = (object) $data;
-        $oldid = $data->id;
+        $oldid = $data->id; // can this stay the same ?
+
         $key = $data->colid . 'x' . $data->rowid;
-        $data->colid = $this->get_mappingid('col', $data->colid);
-        $data->rowid = $this->get_mappingid('row', $data->rowid);
+        $data->colid = $this->get_mappingid('qtype_matrix_col', $data->colid);
+        $data->rowid = $this->get_mappingid('qtype_matrix_row', $data->rowid);
         $newitemid = $DB->insert_record('question_matrix_weights', $data);
-        $this->set_mapping('weight' . $key, $oldid, $newitemid);
+        $this->set_mapping('qtype_matrix_weight' . $key, $oldid, $newitemid);
     }
 
     /**
@@ -148,10 +159,10 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
         $result = [];
         $answer = unserialize($state->answer, ['allowed_classes' => false]);
         foreach ($answer as $rowid => $row) {
-            $newrowid = $this->get_mappingid('row', $rowid);
+            $newrowid = $this->get_mappingid('qtype_matrix_row', $rowid);
             $newrow = [];
             foreach ($row as $colid => $cell) {
-                $newcolid = $this->get_mappingid('col', $colid);
+                $newcolid = $this->get_mappingid('qtype_matrix_col', $colid);
                 $newrow[$newcolid] = $cell;
             }
             $result[$newrowid] = $newrow;
@@ -168,8 +179,8 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
             } else if (substr($responsekey, 0, 4) == 'cell') {
                 $responsekeynocell = substr($responsekey, 4);
                 $responsekeyids = explode('_', $responsekeynocell);
-                $newrowid = self::$matrixrows[$responsekeyids[0]];  // Todo: this will not work!
-                $newcolid = self::$matrixcols[$responseval] ?? false; // Todo: this will not work!
+                $newrowid = $this->get_mappingid('qtype_matrix_row', $responsekeyids[0]);
+                $newcolid = $this->get_mappingid('qtype_matrix_col', $responseval) ?? false;
                 if (count($responsekeyids) == 1) {
                     $recodedresponse['cell' . $newrowid] = $newcolid;
                 } else if (count($responsekeyids) == 2) {
@@ -181,6 +192,15 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
                 $recodedresponse[$responsekey] = $responseval;
             }
         }
+        global $DB;
+        $dbrec = $DB->get_record('backup_ids_temp', ['itemname' => 'qtype_matrix_row']);
+        var_dump($dbrec);
+        $dbrec = $DB->get_record('backup_ids_temp', ['itemname' => 'qtype_matrix_col']);
+        var_dump($dbrec);
+        echo "=============================================================================\n";
+        var_dump($response);
+        var_dump($recodedresponse);
+        echo "-----------------------------------------------------------------------------";
         return $recodedresponse;
     }
 
@@ -193,7 +213,7 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
     protected function recode_choice_order(string $order): string {
         $neworder = [];
         foreach (explode(',', $order) as $id) {
-            if ($newid = self::$matrixrows[$id]) { // Todo: this will not work!
+            if ($newid = $this->get_mappingid('qtype_matrix_row', $id)) {
                 $neworder[] = $newid;
             }
         }
