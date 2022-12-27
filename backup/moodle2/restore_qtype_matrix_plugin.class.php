@@ -84,7 +84,7 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
             $data->matrixid = $newmatrixid;
             $newitemid = $DB->insert_record('question_matrix_cols', $data);
         } else {
-            $originalrecords = $DB->get_records('question_matrix_cols', array('matrixid' => $newmatrixid));
+            $originalrecords = $DB->get_records('question_matrix_cols', ['matrixid' => $newmatrixid]);
             foreach ($originalrecords as $record) {
                 if ($data->shorttext == $record->shorttext) { // Todo: this looks dirty to me!
                     $newitemid = $record->id;
@@ -116,7 +116,7 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
             $data->matrixid = $newmatrixid;
             $newitemid = $DB->insert_record('question_matrix_rows', $data);
         } else {
-            $originalrecords = $DB->get_records('question_matrix_rows', array('questionid' => $newmatrixid));
+            $originalrecords = $DB->get_records('question_matrix_rows', ['matrixid' => $newmatrixid]);
             foreach ($originalrecords as $record) {
                 if ($data->shorttext == $record->shorttext) { // Todo: this looks dirty to me!
                     $newitemid = $record->id;
