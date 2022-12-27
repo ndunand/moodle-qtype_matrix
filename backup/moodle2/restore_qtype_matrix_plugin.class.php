@@ -140,7 +140,7 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
     public function process_weight($data): void {
         global $DB;
         $data = (object) $data;
-        $oldid = $data->id; // can this stay the same ?
+        $oldid = $data->id;
 
         $key = $data->colid . 'x' . $data->rowid;
         $data->colid = $this->get_mappingid('col', $data->colid);

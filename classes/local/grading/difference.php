@@ -86,8 +86,13 @@ class difference extends qtype_matrix_grading implements grading {
                 $resbool = true;
             }
         }
-        // Todo: perhaps find a solution for not restless dividable col count. Could mess up point system.
-        // Apply  "(count/2)^2 – (studentpoints – expertpoints) ^ 2".
-        return pow(count($question->cols) / 2, 2) - pow($ansid - $respid, 2);
+        $badleft = $ansid - 1;
+        $badright = count($question->cols) - $ansid;
+        if ($badleft >= $badright) {
+            $maxbadvalue = pow($badleft, 2);
+        } else {
+            $maxbadvalue = pow($badright, 2);
+        }
+        return $maxbadvalue - pow($ansid - $respid, 2);
     }
 }
