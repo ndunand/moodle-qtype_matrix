@@ -51,10 +51,10 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
 
         // Todo: check import of version moodle1 data.
 
-        if ($this->is_question_created()) {
+        if ($this->is_question_created() || !$this->get_mappingid('qtype_matrix_matrix', $oldid)) {
             $data->questionid = $this->get_new_parentid('question');
             $newitemid = $DB->insert_record('question_matrix', $data);
-            $this->set_mapping('qtype_matrix_matrix', $oldid, $newitemid);
+            $this->set_mapping('matrix', $oldid, $newitemid);
         }
     }
 
@@ -94,7 +94,7 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
         if (!isset($newitemid)) {
             throw new restore_step_exception('error_question_answers_missing_in_db');
         } else {
-            $this->set_mapping('qtype_matrix_col', $oldid, $newitemid);
+            $this->set_mapping('col', $oldid, $newitemid);
         }
     }
 
@@ -126,7 +126,7 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
         if (!$newitemid) {
             throw new restore_step_exception('error_question_answers_missing_in_db');
         } else {
-            $this->set_mapping('qtype_matrix_row', $oldid, $newitemid);
+            $this->set_mapping('row', $oldid, $newitemid);
         }
     }
 
@@ -143,10 +143,10 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
         $oldid = $data->id; // can this stay the same ?
 
         $key = $data->colid . 'x' . $data->rowid;
-        $data->colid = $this->get_mappingid('qtype_matrix_col', $data->colid);
-        $data->rowid = $this->get_mappingid('qtype_matrix_row', $data->rowid);
+        $data->colid = $this->get_mappingid('col', $data->colid);
+        $data->rowid = $this->get_mappingid('row', $data->rowid);
         $newitemid = $DB->insert_record('question_matrix_weights', $data);
-        $this->set_mapping('qtype_matrix_weight' . $key, $oldid, $newitemid);
+        $this->set_mapping('weight' . $key, $oldid, $newitemid);
     }
 
     /**
@@ -159,10 +159,10 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
         $result = [];
         $answer = unserialize($state->answer, ['allowed_classes' => false]);
         foreach ($answer as $rowid => $row) {
-            $newrowid = $this->get_mappingid('qtype_matrix_row', $rowid);
+            $newrowid = $this->get_mappingid('row', $rowid);
             $newrow = [];
             foreach ($row as $colid => $cell) {
-                $newcolid = $this->get_mappingid('qtype_matrix_col', $colid);
+                $newcolid = $this->get_mappingid('col', $colid);
                 $newrow[$newcolid] = $cell;
             }
             $result[$newrowid] = $newrow;
@@ -179,8 +179,8 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
             } else if (substr($responsekey, 0, 4) == 'cell') {
                 $responsekeynocell = substr($responsekey, 4);
                 $responsekeyids = explode('_', $responsekeynocell);
-                $newrowid = $this->get_mappingid('qtype_matrix_row', $responsekeyids[0]);
-                $newcolid = $this->get_mappingid('qtype_matrix_col', $responseval) ?? false;
+                $newrowid = $this->get_mappingid('row', $responsekeyids[0]);
+                $newcolid = $this->get_mappingid('col', $responseval) ?? false;
                 if (count($responsekeyids) == 1) {
                     $recodedresponse['cell' . $newrowid] = $newcolid;
                 } else if (count($responsekeyids) == 2) {
@@ -192,15 +192,6 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
                 $recodedresponse[$responsekey] = $responseval;
             }
         }
-        global $DB;
-        $dbrec = $DB->get_record('backup_ids_temp', ['itemname' => 'qtype_matrix_row']);
-        var_dump($dbrec);
-        $dbrec = $DB->get_record('backup_ids_temp', ['itemname' => 'qtype_matrix_col']);
-        var_dump($dbrec);
-        echo "=============================================================================\n";
-        var_dump($response);
-        var_dump($recodedresponse);
-        echo "-----------------------------------------------------------------------------";
         return $recodedresponse;
     }
 
@@ -213,7 +204,7 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
     protected function recode_choice_order(string $order): string {
         $neworder = [];
         foreach (explode(',', $order) as $id) {
-            if ($newid = $this->get_mappingid('qtype_matrix_row', $id)) {
+            if ($newid = $this->get_mappingid('row', $id)) {
                 $neworder[] = $newid;
             }
         }
