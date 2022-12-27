@@ -61,14 +61,14 @@ class backup_qtype_matrix_plugin extends backup_qtype_plugin {
         $matrixweights->add_child($matrixweight);
 
         // Set source to populate the data.
-        $matrix->set_source_table('question_matrix', ['questionid' => backup::VAR_PARENTID]);
-        $matrixcol->set_source_table('question_matrix_cols', ['matrixid' => backup::VAR_PARENTID]);
-        $matrixrow->set_source_table('question_matrix_rows', ['matrixid' => backup::VAR_PARENTID]);
+        $matrix->set_source_table('qtype_matrix', ['questionid' => backup::VAR_PARENTID]);
+        $matrixcol->set_source_table('qtype_matrix_cols', ['matrixid' => backup::VAR_PARENTID]);
+        $matrixrow->set_source_table('qtype_matrix_rows', ['matrixid' => backup::VAR_PARENTID]);
 
-        $sql = 'SELECT w.* FROM {question_matrix_weights} w,' .
-            ' {question_matrix_cols} c,' .
-            ' {question_matrix_rows} r,' .
-            ' {question_matrix} m WHERE m.id=:matrixid AND w.rowid=r.id AND w.colid=c.id AND c.matrixid=m.id AND r.matrixid=m.id';
+        $sql = 'SELECT w.* FROM {qtype_matrix_weights} w,' .
+            ' {qtype_matrix_cols} c,' .
+            ' {qtype_matrix_rows} r,' .
+            ' {qtype_matrix} m WHERE m.id=:matrixid AND w.rowid=r.id AND w.colid=c.id AND c.matrixid=m.id AND r.matrixid=m.id';
         $matrixweight->set_source_sql($sql, ['matrixid' => backup::VAR_PARENTID]);
         // Don't need to annotate ids nor files.
         return $plugin;

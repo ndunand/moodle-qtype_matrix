@@ -28,11 +28,11 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
         $result = [];
 
         $fields = ['shorttext', 'description'];
-        $result[] = new restore_decode_content('question_matrix_cols', $fields, 'question_matrix_cols');
+        $result[] = new restore_decode_content('qtype_matrix_cols', $fields, 'qtype_matrix_cols');
         $fields = ['shorttext', 'description', 'feedback'];
-        $result[] = new restore_decode_content('question_matrix_rows', $fields, 'question_matrix_rows');
+        $result[] = new restore_decode_content('qtype_matrix_rows', $fields, 'qtype_matrix_rows');
         $fields = ['rowid', 'colid', 'weight'];
-        $result[] = new restore_decode_content('question_matrix_weights', $fields, 'question_matrix_weights');
+        $result[] = new restore_decode_content('qtype_matrix_weights', $fields, 'qtype_matrix_weights');
 
         return $result;
     }
@@ -53,7 +53,7 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
 
         if ($this->is_question_created() || !$this->get_mappingid('qtype_matrix_matrix', $oldid)) {
             $data->questionid = $this->get_new_parentid('question');
-            $newitemid = $DB->insert_record('question_matrix', $data);
+            $newitemid = $DB->insert_record('qtype_matrix', $data);
             $this->set_mapping('matrix', $oldid, $newitemid);
         }
     }
@@ -82,9 +82,9 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
         $newmatrixid = $this->get_new_parentid('matrix');
         if ($this->is_question_created()) {
             $data->matrixid = $newmatrixid;
-            $newitemid = $DB->insert_record('question_matrix_cols', $data);
+            $newitemid = $DB->insert_record('qtype_matrix_cols', $data);
         } else {
-            $originalrecords = $DB->get_records('question_matrix_cols', ['matrixid' => $newmatrixid]);
+            $originalrecords = $DB->get_records('qtype_matrix_cols', ['matrixid' => $newmatrixid]);
             foreach ($originalrecords as $record) {
                 if ($data->shorttext == $record->shorttext) { // Todo: this looks dirty to me!
                     $newitemid = $record->id;
@@ -114,9 +114,9 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
 
         if ($this->is_question_created()) {
             $data->matrixid = $newmatrixid;
-            $newitemid = $DB->insert_record('question_matrix_rows', $data);
+            $newitemid = $DB->insert_record('qtype_matrix_rows', $data);
         } else {
-            $originalrecords = $DB->get_records('question_matrix_rows', ['matrixid' => $newmatrixid]);
+            $originalrecords = $DB->get_records('qtype_matrix_rows', ['matrixid' => $newmatrixid]);
             foreach ($originalrecords as $record) {
                 if ($data->shorttext == $record->shorttext) { // Todo: this looks dirty to me!
                     $newitemid = $record->id;
@@ -145,7 +145,7 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
         $key = $data->colid . 'x' . $data->rowid;
         $data->colid = $this->get_mappingid('col', $data->colid);
         $data->rowid = $this->get_mappingid('row', $data->rowid);
-        $newitemid = $DB->insert_record('question_matrix_weights', $data);
+        $newitemid = $DB->insert_record('qtype_matrix_weights', $data);
         $this->set_mapping('weight' . $key, $oldid, $newitemid);
     }
 

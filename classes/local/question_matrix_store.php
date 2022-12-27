@@ -22,10 +22,10 @@ use stdClass;
 class question_matrix_store {
 
     const COMPONENT = 'qtype_matrix';
-    const TABLE_QUESTION_MATRIX = 'question_matrix';
-    const TABLE_QUESTION_MATRIX_ROWS = 'question_matrix_rows';
-    const TABLE_QUESTION_MATRIX_COLS = 'question_matrix_cols';
-    const TABLE_QUESTION_MATRIX_WEIGHTS = 'question_matrix_weights';
+    const TABLE_QUESTION_MATRIX = 'qtype_matrix';
+    const TABLE_QUESTION_MATRIX_ROWS = 'qtype_matrix_rows';
+    const TABLE_QUESTION_MATRIX_COLS = 'qtype_matrix_cols';
+    const TABLE_QUESTION_MATRIX_WEIGHTS = 'qtype_matrix_weights';
 
     // Question.
 
@@ -101,30 +101,30 @@ class question_matrix_store {
         }
 
         // Weights.
-        $DB->delete_records_select('question_matrix_weights',
+        $DB->delete_records_select('qtype_matrix_weights',
             'rowid IN (
-                      SELECT qmr.id FROM {question_matrix_rows} qmr
-                      INNER JOIN {question_matrix} qm ON qmr.matrixid = qm.id
+                      SELECT qmr.id FROM {qtype_matrix_rows} qmr
+                      INNER JOIN {qtype_matrix} qm ON qmr.matrixid = qm.id
                       WHERE qm.questionid = :qid
                       )',
             ['qid' => $questionid]);
 
         // Rows.
-        $DB->delete_records_select('question_matrix_rows',
+        $DB->delete_records_select('qtype_matrix_rows',
             'matrixid IN (
-                      SELECT qm.id FROM {question_matrix} qm
+                      SELECT qm.id FROM {qtype_matrix} qm
                       WHERE qm.questionid = :qid)',
             ['qid' => $questionid]);
 
         // Cols.
-        $DB->delete_records_select('question_matrix_cols',
+        $DB->delete_records_select('qtype_matrix_cols',
             'matrixid IN (
-                      SELECT qm.id FROM {question_matrix} qm
+                      SELECT qm.id FROM {qtype_matrix} qm
                       WHERE qm.questionid = :qid)',
             ['qid' => $questionid]);
 
         // Matrix.
-        $DB->delete_records('question_matrix', ['questionid' => $questionid]);
+        $DB->delete_records('qtype_matrix', ['questionid' => $questionid]);
         return true;
     }
 
@@ -313,14 +313,14 @@ class question_matrix_store {
         global $DB;
         // Todo: check AND?
         $sql = "SELECT qmw.*
-                FROM {question_matrix_weights} qmw
+                FROM {qtype_matrix_weights} qmw
                 WHERE
-                    rowid IN (SELECT qmr.id FROM {question_matrix_rows} qmr
-                              INNER JOIN {question_matrix} qm ON qmr.matrixid = qm.id
+                    rowid IN (SELECT qmr.id FROM {qtype_matrix_rows} qmr
+                              INNER JOIN {qtype_matrix} qm ON qmr.matrixid = qm.id
                               WHERE qm.questionid = $questionid)
                     OR
-                    colid IN (SELECT qmc.id FROM {question_matrix_cols} qmc
-                              INNER JOIN {question_matrix} qm ON qmc.matrixid = qm.id
+                    colid IN (SELECT qmc.id FROM {qtype_matrix_cols} qmc
+                              INNER JOIN {qtype_matrix} qm ON qmc.matrixid = qm.id
                               WHERE qm.questionid = $questionid)
                "; // Todo: remove unsafe sql operation.
         return $DB->get_records_sql($sql);
@@ -333,11 +333,11 @@ class question_matrix_store {
      */
     public function delete_matrix_weights(int $questionid): bool {
         global $DB;
-        $sql = "DELETE FROM {question_matrix_weights} qmw
+        $sql = "DELETE FROM {qtype_matrix_weights} qmw
                 WHERE qmw.rowid IN
                 (
-                 SELECT qmr.id FROM {question_matrix_rows} AS qmr
-                 INNER JOIN {question_matrix} qm ON qmr.matrixid = qm.id
+                 SELECT qmr.id FROM {qtype_matrix_rows} AS qmr
+                 INNER JOIN {qtype_matrix} qm ON qmr.matrixid = qm.id
                  WHERE qm.questionid = $questionid
                 )"; // Todo: remove unsafe sql operation.
         return $DB->execute($sql);
