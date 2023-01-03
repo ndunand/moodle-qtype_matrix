@@ -19,6 +19,7 @@ namespace qtype_matrix\local;
 use coding_exception;
 use HTML_QuickForm_element;
 use MoodleQuickForm;
+use qtype_matrix\local\grading\difference;
 
 /**
  * Helper class to build the form.
@@ -213,5 +214,9 @@ class matrix_form_builder {
 
     public function register_no_submit_button(string $name): void {
         $this->_form->registerNoSubmitButton($name);
+    }
+
+    public function register_hook_multiple() {
+        $this->_form->hideIf('multiple', 'grademethod', 'eq', difference::get_name());
     }
 }

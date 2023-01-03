@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+use qtype_matrix\local\grading\difference;
 use qtype_matrix\local\lang;
 use qtype_matrix\local\matrix_form_builder;
 use qtype_matrix\local\qtype_matrix_grading;
@@ -96,6 +97,7 @@ class qtype_matrix_edit_form extends question_edit_form {
         if (setting::show_kprime_gui()) {
             $builder->add_selectyesno(self::PARAM_MULTIPLE, lang::multiple_allowed());
             $builder->set_default(self::PARAM_MULTIPLE, self::DEFAULT_MULTIPLE);
+            $builder->register_hook_multiple();
         } else {
             $this->_form->addElement('hidden', self::PARAM_MULTIPLE, self::DEFAULT_MULTIPLE);
             $this->_form->setType(self::PARAM_MULTIPLE, PARAM_RAW);
@@ -351,6 +353,9 @@ class qtype_matrix_edit_form extends question_edit_form {
      */
     protected function param_multiple() {
         $data = $this->_form->exportValues();
+        if ($this->param_grade_method() == difference::get_name()){
+            $data[self::PARAM_MULTIPLE] = false;
+        }
         return $data[self::PARAM_MULTIPLE] ?? self::DEFAULT_MULTIPLE;
     }
 
