@@ -89,19 +89,7 @@ class qtype_matrix_test_helper extends question_test_helper
      */
     public function make_matrix_question_weighted()
     {
-
-        question_bank::load_question_definition_classes('matrix');
-        $result = new qtype_matrix_question();
-        test_question_maker::initialise_a_question($result);
-        $result->name = 'Matrix question';
-        $result->questiontext = 'K prime graded question.';
-        $result->generalfeedback = 'First column is true.';
-        $result->penalty = 1;
-        $result->qtype = question_bank::get_qtype('matrix');
-
-        $result->rows = array();
-        $result->cols = array();
-        $result->weights = array();
+        $result = $this->init_matrix_question();
 
         for ($r = 0; $r < 4; $r++)
         {
@@ -115,7 +103,7 @@ class qtype_matrix_test_helper extends question_test_helper
             {
                 $col = (object) array();
                 $col->id = $c;
-                $col->shortext = "Column $c";
+                $col->shorttext = "Column $c";
                 $col->description = "Description $c";
                 $result->cols[$c] = $col;
 
@@ -135,18 +123,7 @@ class qtype_matrix_test_helper extends question_test_helper
      */
     protected function make_matrix_question()
     {
-        question_bank::load_question_definition_classes('matrix');
-        $result = new qtype_matrix_question();
-        test_question_maker::initialise_a_question($result);
-        $result->name = 'Matrix question';
-        $result->questiontext = 'K prime graded question.';
-        $result->generalfeedback = 'First column is true.';
-        $result->penalty = 1;
-        $result->qtype = question_bank::get_qtype('matrix');
-
-        $result->rows = array();
-        $result->cols = array();
-        $result->weights = array();
+        $result = $this->init_matrix_question();
 
         for ($r = 0; $r < 4; $r++)
         {
@@ -160,7 +137,7 @@ class qtype_matrix_test_helper extends question_test_helper
             {
                 $col = (object) array();
                 $col->id = $c;
-                $col->shortext = "Column $c";
+                $col->shorttext = "Column $c";
                 $col->description = "Description $c";
                 $result->cols[$c] = $col;
 
@@ -171,6 +148,27 @@ class qtype_matrix_test_helper extends question_test_helper
         $result->grademethod = 'kprime';
         $result->multiple = true;
 
+        return $result;
+    }
+
+    /**
+     * @return \qtype_matrix_question
+     * @throws \coding_exception
+     */
+    public function init_matrix_question(): qtype_matrix_question
+    {
+        question_bank::load_question_definition_classes('matrix');
+        $result = new qtype_matrix_question();
+        test_question_maker::initialise_a_question($result);
+        $result->name = 'Matrix question';
+        $result->questiontext = 'K prime graded question.';
+        $result->generalfeedback = 'First column is true.';
+        $result->penalty = 1;
+        $result->qtype = question_bank::get_qtype('matrix');
+
+        $result->rows = array();
+        $result->cols = array();
+        $result->weights = array();
         return $result;
     }
 

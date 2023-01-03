@@ -27,12 +27,12 @@ class question_matrix_store
     
     public function save_matrix($question)
     {
-        $is_new = !isset($question->id) || empty($question->id);
+        $is_new = empty($question->id);
         if ($is_new) {
             return $this->insert_matrix($question);
-        } else {
-            return $this->update_matrix($question);
         }
+
+        return $this->update_matrix($question);
     }
 
     /**
@@ -154,19 +154,19 @@ class question_matrix_store
 
     public function save_matrix_row($row)
     {
-        $is_new = !isset($row->id) || empty($row->id);
+        $is_new = empty($row->id);
         if ($is_new) {
             return $this->insert_matrix_row($row);
-        } else {
-            return $this->update_matrix_row($row);
         }
+
+        return $this->update_matrix_row($row);
     }
 
     public function insert_matrix_row($row)
     {
         global $DB;
 
-        $text = isset($row->shorttext) ? $row->shorttext : false;
+        $text = $row->shorttext ?? false;
         if (empty($text)) {
             return false;
         }
@@ -203,7 +203,7 @@ class question_matrix_store
     {
         global $DB;
 
-        if (!isset($row->id) || empty($row->id)) {
+        if (empty($row->id)) {
             return;
         }
 
@@ -235,19 +235,19 @@ class question_matrix_store
 
     public function save_matrix_col($col)
     {
-        $is_new = !isset($col->id) || empty($col->id);
+        $is_new = empty($col->id);
         if ($is_new) {
             return $this->insert_matrix_col($col);
-        } else {
-            return $this->update_matrix_col($col);
         }
+
+        return $this->update_matrix_col($col);
     }
 
     public function insert_matrix_col($col)
     {
         global $DB;
 
-        $text = isset($col->shorttext) ? $col->shorttext : false;
+        $text = $col->shorttext ?? false;
         if (empty($text)) {
             return false;
         }
@@ -285,7 +285,7 @@ class question_matrix_store
     {
         global $DB;
 
-        if (!isset($col->id) || empty($col->id)) {
+        if (empty($col->id)) {
             return;
         }
 

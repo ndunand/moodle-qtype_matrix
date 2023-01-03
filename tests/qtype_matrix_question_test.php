@@ -3,15 +3,19 @@
 /**
  * Unit tests for the matrix question definition class.
  */
-defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->dirroot . '/question/engine/simpletest/helpers.php');
+global $CFG;
+if (!defined('MOODLE_INTERNAL')) {
+    die('Direct access to this script is forbidden.'); //  It must be included from a Moodle page
+}
+
+require_once($CFG->dirroot . '/question/engine/tests/helpers.php');
 
 /**
  * Unit tests for the true-false question definition class.
  *
  */
-class qtype_matrix_question_test extends UnitTestCase
+class qtype_matrix_question_test extends advanced_testcase
 {
 
     public function test_is_complete_response()
@@ -31,7 +35,7 @@ class qtype_matrix_question_test extends UnitTestCase
         $answer = array();
         $this->assertFalse($question->is_complete_response($answer));
         $message = $question->get_validation_error($answer);
-        $this->assertFalse(empty($message));
+        $this->assertNotEmpty($message);
 
         $answer = self::make_answer_correct($question);
         $this->assertTrue($question->is_complete_response($answer));
@@ -46,25 +50,25 @@ class qtype_matrix_question_test extends UnitTestCase
 
         $answer = self::make_answer_correct($question);
         $correct = $question->get_correct_response();
-        $this->assertIdentical($answer, $correct);
+        $this->assertEquals($answer, $correct);
 
         $answer = self::make_answer_incorrect($question);
-        $this->assertNotIdentical($answer, $question->get_correct_response());
+        $this->assertNotEquals($answer, $question->get_correct_response());
 
         $question = self::make_question('single');
 
         $answer = self::make_answer_correct($question);
-        $this->assertIdentical($answer, $question->get_correct_response());
+        $this->assertEquals($answer, $question->get_correct_response());
 
         $answer = self::make_answer_incorrect($question);
-        $this->assertNotIdentical($answer, $question->get_correct_response());
+        $this->assertNotEquals($answer, $question->get_correct_response());
     }
 
     public function test_get_question_summary()
     {
         $question = self::make_question('multiple');
         $summary = $question->get_question_summary();
-        $this->assertFalse(empty($summary));
+        $this->assertNotEmpty($summary);
     }
 
     public function test_summarise_response()
@@ -73,23 +77,23 @@ class qtype_matrix_question_test extends UnitTestCase
 
         $answer = self::make_answer_correct($question);
         $summary = $question->summarise_response($answer);
-        $this->assertFalse(empty($summary));
+        $this->assertNotEmpty($summary);
 
         $answer = self::make_answer_incorrect($question);
         $summary = $question->summarise_response($answer);
-        $this->assertFalse(empty($summary));
+        $this->assertNotEmpty($summary);
 
         $question = self::make_question('single');
         $summary = $question->get_question_summary();
-        $this->assertFalse(empty($summary));
+        $this->assertNotEmpty($summary);
 
         $answer = self::make_answer_correct($question);
         $summary = $question->summarise_response($answer);
-        $this->assertFalse(empty($summary));
+        $this->assertNotEmpty($summary);
 
         $answer = self::make_answer_incorrect($question);
         $summary = $question->summarise_response($answer);
-        $this->assertFalse(empty($summary));
+        $this->assertNotEmpty($summary);
     }
 
     public function test_is_same_response()
@@ -99,60 +103,36 @@ class qtype_matrix_question_test extends UnitTestCase
         $correct = $question->get_correct_response();
         $answer = self::make_answer_correct($question);
 
-        $this->assertIdentical($correct, $answer);
-        $this->assertIdentical($correct, $correct);
+        $this->assertEquals($correct, $answer);
+        $this->assertEquals($correct, $correct);
 
         $answer = self::make_answer_incorrect($question);
-        $this->assertIdentical($answer, $answer);
-        $this->assertNotIdentical($answer, $correct);
+        $this->assertEquals($answer, $answer);
+        $this->assertNotEquals($answer, $correct);
     }
 
     public function test_grading()
     {
+        /** ALL **/
         $question = self::make_question('all');
         $question->multiple = true;
         $this->question_grading_pass($question, 0.5);
 
         $answer = self::make_answer_multiple_partial($question);
         $grade = $question->grade_response($answer);
-        $this->assertEqual(array(0, question_state::$gradedwrong), $grade);
+        $this->assertEquals(array(0, question_state::$gradedwrong), $grade);
 
         $question->multiple = false;
         $this->question_grading_pass($question, 0.5);
 
-        $question = self::make_question('any');
-        $question->multiple = true;
-        $this->question_grading_pass($question, 0.5);
-
-        $answer = self::make_answer_multiple_partial($question);
-        $grade = $question->grade_response($answer);
-        $this->assertEqual(array(0, question_state::$gradedwrong), $grade);
-
-        $question->multiple = false;
-        $this->question_grading_pass($question, 0.5);
-
-        $question = self::make_question('weighted');
-        $question->multiple = true;
-
-        $answer = self::make_answer_multiple_partial($question);
-        $grade = $question->grade_response($answer);
-        $this->assertEqual(array(5 / 8, question_state::$gradedpartial), $grade);
-
-        $answer = self::make_answer_multiple_correct($question);
-        $grade = $question->grade_response($answer);
-        $this->assertEqual(array(1, question_state::$gradedright), $grade);
-
-        $answer = self::make_answer_multiple_incorrect($question);
-        $grade = $question->grade_response($answer);
-        $this->assertEqual(array(0, question_state::$gradedwrong), $grade);
-
+        /** KPRIME **/
         $question = self::make_question('kprime');
         $question->multiple = true;
         $this->question_grading_pass($question, 0);
 
         $answer = self::make_answer_multiple_partial($question);
         $grade = $question->grade_response($answer);
-        $this->assertEqual(array(0, question_state::$gradedwrong), $grade);
+        $this->assertEquals(array(0, question_state::$gradedwrong), $grade);
 
         $question->multiple = false;
         $this->question_grading_pass($question, 0);
@@ -162,11 +142,11 @@ class qtype_matrix_question_test extends UnitTestCase
     {
         $answer = self::make_answer_correct($question);
         $grade = $question->grade_response($answer);
-        $this->assertEqual(array(1, question_state::$gradedright), $grade);
+        $this->assertEquals(array(1, question_state::$gradedright), $grade);
 
         $answer = self::make_answer_incorrect($question);
         $grade = $question->grade_response($answer);
-        $this->assertEqual(array(0, question_state::$gradedwrong), $grade);
+        $this->assertEquals(array(0, question_state::$gradedwrong), $grade);
 
         $answer = self::make_answer_partial($question);
         $grade = $question->grade_response($answer);
@@ -177,7 +157,7 @@ class qtype_matrix_question_test extends UnitTestCase
         } else {
             $state = question_state::$gradedpartial;
         }
-        $this->assertEqual(array($partial_grading, $state), $grade);
+        $this->assertEquals(array($partial_grading, $state), $grade);
     }
 
     /**

@@ -109,7 +109,7 @@ class qtype_matrix extends question_type
             $question->options->cols = $matrix->cols;
             $question->options->weights = $matrix->weights;
             $question->options->grademethod = $matrix->grademethod;
-            $question->options->shuffleanswers = isset($matrix->shuffleanswers) ? $matrix->shuffleanswers : true; // allow for old versions which don't have this field
+            $question->options->shuffleanswers = $matrix->shuffleanswers ?? true; // allow for old versions which don't have this field
             $question->options->use_dnd_ui = $matrix->use_dnd_ui;
             $question->options->multiple = $matrix->multiple;
             $question->options->renderer = $matrix->renderer;
@@ -436,7 +436,7 @@ class qtype_matrix extends question_type
      * @return bool|object
      */
     public function import_from_xml($data, $question, qformat_xml $format, $extra=null) {
-        if (!isset($data['@']['type']) || $data['@']['type'] != 'matrix') {
+        if (!isset($data['@']['type']) || $data['@']['type'] !== 'matrix') {
             return false;
         }
 
@@ -468,7 +468,7 @@ class qtype_matrix extends question_type
             array('#', 'multiple', 0, '#'),
             1));
 
-        if (intval($multiple) == 1) {
+        if ((int)$multiple == 1) {
             $question->multiple = true;
         }else{
             $question->multiple = false;
@@ -545,7 +545,7 @@ class qtype_matrix extends question_type
             foreach ($weights_of_rowsXML as $weights_of_rowXML){
                 $col_index = 0;
                 foreach ($weights_of_rowXML['#']['weight-of-col'] as $weight_of_colXML){
-                    if(floatval ($weight_of_colXML['#']) != 0){
+                    if((float)$weight_of_colXML['#'] != 0){
                         $key = qtype_matrix_grading::cell_name($row_index, $col_index, $question->multiple);
                         $question->{$key} =  $col_index;
                     }
