@@ -55,7 +55,7 @@ class difference extends qtype_matrix_grading implements grading {
         foreach ($question->rows as $row) {
             $grades[] = $this->grade_row($question, $row, $answers);
         }
-        return array_sum($grades);
+        return (array_sum($grades) / count($question->rows)) * floatval($question->defaultmark);
     }
 
     /**
@@ -93,6 +93,6 @@ class difference extends qtype_matrix_grading implements grading {
         } else {
             $maxbadvalue = pow($badright, 2);
         }
-        return $maxbadvalue - pow($ansid - $respid, 2);
+        return ($maxbadvalue - pow($ansid - $respid, 2)) / $maxbadvalue;
     }
 }

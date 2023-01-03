@@ -23,6 +23,7 @@ use qtype_matrix\local\setting;
 use qtype_with_combined_feedback_renderer;
 use question_attempt;
 use question_display_options;
+use question_state;
 
 /**
  * Generates the output for matrix questions.
@@ -81,8 +82,8 @@ class renderer extends qtype_with_combined_feedback_renderer {
                 } else {
                     $cell = self::radio($cellname, $col->id, $ischecked, $isreadonly);
                 }
-                if ($options->correctness) {
-                    $weight = $question->weight($row, $col);
+                $weight = $question->weight($row, $col);
+                if ($options->correctness && ($ischecked || question_state::graded_state_for_fraction($weight)->is_correct())) {
                     $cell .= $this->feedback_image($weight);
                 }
                 $rowdata[] = $cell;
