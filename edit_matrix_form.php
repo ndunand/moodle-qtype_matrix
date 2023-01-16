@@ -70,7 +70,7 @@ class qtype_matrix_edit_form extends question_edit_form {
         $this->builder = new matrix_form_builder($mform);
         $builder = $this->builder;
 
-        $this->question->options = (isset($this->question->options)) ? $this->question->options : (object) [];
+        $this->question->options = $this->question->options ?? (object) [];
 
         $this->add_multiple();
         $this->add_grading();
@@ -448,7 +448,7 @@ class qtype_matrix_edit_form extends question_edit_form {
      *
      * @param $fromform
      * @param $files
-     * @return array
+     * @return mixed
      * @throws coding_exception
      */
     public function validation($fromform, $files): array {
@@ -470,7 +470,7 @@ class qtype_matrix_edit_form extends question_edit_form {
         }
         $grading = qtype_matrix::grading($fromform[self::PARAM_GRADE_METHOD]);
         $gradingerrors = $grading->validation($fromform);
-        return array_merge($errors, $gradingerrors);
+        return array_merge($errors, $gradingerrors) ?: true;
     }
 
     protected function col_count(array $data): int {

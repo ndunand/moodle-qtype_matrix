@@ -87,9 +87,9 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
 
         if ($responsemultiple) {
             return !empty($value);
-        } else {
-            return $value == $col->id;
         }
+
+        return $value == $col->id;
     }
 
     /**
@@ -203,8 +203,8 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
         if (!is_object($cm)) {
             return true;
         }
-        $quiz = $DB->get_record('quiz', ['id' => $cm->instance]);
-        return $quiz->shuffleanswers;
+
+        return $DB->get_record('quiz', ['id' => $cm->instance])->shuffleanswers;
     }
 
     /**
@@ -411,7 +411,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      */
     public function summarise_response(array $response): string {
         $result = [];
-        foreach ($this->order as $rowid) {
+        foreach ($this->order ?? array_keys($this->rows) as $rowid) {
             $row = $this->rows[$rowid];
             foreach ($this->cols as $col) {
                 $key = $this->key($row, $col);
@@ -461,7 +461,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      */
     public function get_correct_response(): array {
         $result = [];
-        foreach ($this->order as $rowid) {
+        foreach ($this->order ?? array_keys($this->rows) as $rowid) {
             $row = $this->rows[$rowid];
             foreach ($this->cols as $col) {
                 $weight = $this->weight($row, $col);
@@ -506,7 +506,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
         foreach ($this->order as $rowid) {
             $row = $this->rows[$rowid];
             foreach ($this->cols as $col) {
-                $result[self::key($row, $col)] = $this->weight($row, $col);
+                $result[$this->key($row, $col)] = $this->weight($row, $col);
             }
         }
         return $result;

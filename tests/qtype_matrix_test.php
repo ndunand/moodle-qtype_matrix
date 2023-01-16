@@ -17,14 +17,18 @@
 /**
  * Unit tests for the matrix question definition class.
  */
-defined('MOODLE_INTERNAL') || die();
+
+global $CFG;
+if (!defined('MOODLE_INTERNAL')) {
+    die('Direct access to this script is forbidden.'); //  It must be included from a Moodle page
+}
 
 require_once($CFG->dirroot . '/question/type/matrix/questiontype.php');
 
 /**
  * Unit tests for the matrix question definition class.
  */
-class qtype_matrix_test extends UnitTestCase {
+class qtype_matrix_test extends advanced_testcase {
 
     protected $qtype;
 
@@ -43,10 +47,10 @@ class qtype_matrix_test extends UnitTestCase {
     public function test_cell_name(): void {
         $id = Qtype_matrix::defaut_grading()->cell_name(0, 0, true);
         $match = preg_match('/[a-zA-Z_][a-zA-Z0-9_]*/', $id);
-        $this->assertTrue($match === 1);
+        $this->assertSame(1, $match);
 
         $id = Qtype_matrix::defaut_grading()->cell_name(0, 0, false);
         $match = preg_match('/[a-zA-Z_][a-zA-Z0-9_]*/', $id);
-        $this->assertTrue($match === 1);
+        $this->assertSame(1, $match);
     }
 }
