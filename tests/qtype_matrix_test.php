@@ -14,15 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Unit tests for the matrix question definition class.
- */
+namespace qtype_matrix;
+
+use advanced_testcase;
+use qtype_matrix;
+
+defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
-if (!defined('MOODLE_INTERNAL')) {
-    die('Direct access to this script is forbidden.'); //  It must be included from a Moodle page
-}
-
 require_once($CFG->dirroot . '/question/type/matrix/questiontype.php');
 
 /**
@@ -40,16 +39,25 @@ class qtype_matrix_test extends advanced_testcase {
         $this->qtype = null;
     }
 
+    /**
+     * @covers ::get_expected_data
+     * @return void
+     */
+
     public function test_name(): void {
         $this->assertEqual($this->qtype->name(), 'matrix');
     }
 
+    /**
+     * @covers ::get_expected_data
+     * @return void
+     */
     public function test_cell_name(): void {
-        $id = Qtype_matrix::defaut_grading()->cell_name(0, 0, true);
+        $id = qtype_matrix::defaut_grading()->cell_name(0, 0, true);
         $match = preg_match('/[a-zA-Z_][a-zA-Z0-9_]*/', $id);
         $this->assertSame(1, $match);
 
-        $id = Qtype_matrix::defaut_grading()->cell_name(0, 0, false);
+        $id = qtype_matrix::defaut_grading()->cell_name(0, 0, false);
         $match = preg_match('/[a-zA-Z_][a-zA-Z0-9_]*/', $id);
         $this->assertSame(1, $match);
     }

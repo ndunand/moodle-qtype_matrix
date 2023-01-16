@@ -353,7 +353,7 @@ class qtype_matrix_edit_form extends question_edit_form {
      */
     protected function param_multiple() {
         $data = $this->_form->exportValues();
-        if ($this->param_grade_method() == difference::get_name()){
+        if ($this->param_grade_method() == difference::get_name()) {
             $data[self::PARAM_MULTIPLE] = false;
         }
         return $data[self::PARAM_MULTIPLE] ?? self::DEFAULT_MULTIPLE;
@@ -470,7 +470,7 @@ class qtype_matrix_edit_form extends question_edit_form {
         }
         $grading = qtype_matrix::grading($fromform[self::PARAM_GRADE_METHOD]);
         $gradingerrors = $grading->validation($fromform);
-        return array_merge($errors, $gradingerrors) ?: true;
+        return array_merge($errors, $gradingerrors) ? : true;
     }
 
     protected function col_count(array $data): int {

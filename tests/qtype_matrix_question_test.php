@@ -14,15 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Unit tests for the matrix question definition class.
- */
+namespace qtype_matrix;
+
+use advanced_testcase;
+use qtype_matrix_question;
+use question_definition;
+use question_state;
+use test_question_maker;
+
+defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
-if (!defined('MOODLE_INTERNAL')) {
-    die('Direct access to this script is forbidden.'); //  It must be included from a Moodle page
-}
-
 require_once($CFG->dirroot . '/question/engine/tests/helpers.php');
 
 /**
@@ -31,6 +33,10 @@ require_once($CFG->dirroot . '/question/engine/tests/helpers.php');
  */
 class qtype_matrix_question_test extends advanced_testcase {
 
+    /**
+     * @covers ::get_expected_data
+     * @return void
+     */
     public function test_is_complete_response(): void {
         $question = self::make_question('multiple');
 
@@ -61,7 +67,7 @@ class qtype_matrix_question_test extends advanced_testcase {
      * @param string $type
      * @return question_definition the requested question object.
      */
-    protected static function make_question(string $type = 'kprime'): question_definition {
+    protected static function make_question(string $type = 'kprime') {
         return test_question_maker::make_question('matrix', $type);
     }
 
@@ -70,7 +76,7 @@ class qtype_matrix_question_test extends advanced_testcase {
      * @param qtype_matrix_question $question
      * @return array
      */
-    protected static function make_answer_correct($question): array {
+    protected static function make_answer_correct(qtype_matrix_question $question): array {
         $result = [];
         foreach ($question->rows as $row) {
             $col = 0;
@@ -86,7 +92,7 @@ class qtype_matrix_question_test extends advanced_testcase {
      * @param qtype_matrix_question $question
      * @return array
      */
-    protected static function make_answer_incorrect($question): array {
+    protected static function make_answer_incorrect(qtype_matrix_question $question): array {
         $result = [];
         foreach ($question->rows as $row) {
             $col = 3;
@@ -97,6 +103,10 @@ class qtype_matrix_question_test extends advanced_testcase {
         return $result;
     }
 
+    /**
+     * @covers ::get_expected_data
+     * @return void
+     */
     public function test_get_correct_response(): void {
         $question = self::make_question('multiple');
 
@@ -116,12 +126,20 @@ class qtype_matrix_question_test extends advanced_testcase {
         $this->assertNotEquals($answer, $question->get_correct_response());
     }
 
+    /**
+     * @covers ::get_expected_data
+     * @return void
+     */
     public function test_get_question_summary(): void {
         $question = self::make_question('multiple');
         $summary = $question->get_question_summary();
         $this->assertNotEmpty($summary);
     }
 
+    /**
+     * @covers ::get_expected_data
+     * @return void
+     */
     public function test_summarise_response(): void {
         $question = self::make_question('multiple');
 
@@ -146,6 +164,10 @@ class qtype_matrix_question_test extends advanced_testcase {
         $this->assertNotEmpty($summary);
     }
 
+    /**
+     * @covers ::get_expected_data
+     * @return void
+     */
     public function test_is_same_response(): void {
         $question = self::make_question('multiple');
 
@@ -160,6 +182,10 @@ class qtype_matrix_question_test extends advanced_testcase {
         $this->assertNotEquals($answer, $correct);
     }
 
+    /**
+     * @covers ::get_expected_data
+     * @return void
+     */
     public function test_grading(): void {
         $question = self::make_question('all');
         $question->multiple = true;
@@ -211,7 +237,7 @@ class qtype_matrix_question_test extends advanced_testcase {
      * @param qtype_matrix_question $question
      * @return array
      */
-    protected static function make_answer_partial($question): array {
+    protected static function make_answer_partial(qtype_matrix_question $question): array {
         $result = [];
         foreach ($question->rows as $row) {
             $col = $row->id < 2 ? 0 : 3;
@@ -227,26 +253,26 @@ class qtype_matrix_question_test extends advanced_testcase {
      * @param qtype_matrix_question $question
      * @return array
      */
-    protected static function make_answer_multiple_partial($question): array {
+    protected static function make_answer_multiple_partial(qtype_matrix_question $question): array {
         $result = [];
         foreach ($question->rows as $row) {
             if ($row->id < 2) {
                 // All correct.
-                $key = $question->key($row, $col = 0);
+                $key = $question->key($row, 0);
                 $result[$key] = 'on';
-                $key = $question->key($row, $col = 1);
+                $key = $question->key($row, 1);
                 $result[$key] = 'on';
             } else if ($row->id == 2) {
                 // One correct one wrong.
-                $key = $question->key($row, $col = 1);
+                $key = $question->key($row, 1);
                 $result[$key] = 'on';
-                $key = $question->key($row, $col = 2);
+                $key = $question->key($row, 2);
                 $result[$key] = 'on';
             } else {
                 // All wrong.
-                $key = $question->key($row, $col = 2);
+                $key = $question->key($row, 2);
                 $result[$key] = 'on';
-                $key = $question->key($row, $col = 3);
+                $key = $question->key($row, 3);
                 $result[$key] = 'on';
             }
         }
@@ -259,12 +285,12 @@ class qtype_matrix_question_test extends advanced_testcase {
      * @param qtype_matrix_question $question
      * @return array
      */
-    protected static function make_answer_multiple_correct($question): array {
+    protected static function make_answer_multiple_correct(qtype_matrix_question $question): array {
         $result = [];
         foreach ($question->rows as $row) {
-            $key = $question->key($row, $col = 0);
+            $key = $question->key($row, 0);
             $result[$key] = 'on';
-            $key = $question->key($row, $col = 1);
+            $key = $question->key($row, 1);
             $result[$key] = 'on';
         }
 
@@ -276,17 +302,15 @@ class qtype_matrix_question_test extends advanced_testcase {
      * @param qtype_matrix_question $question
      * @return array
      */
-    protected static function make_answer_multiple_incorrect($question): array {
+    protected static function make_answer_multiple_incorrect(qtype_matrix_question $question): array {
         $result = [];
         foreach ($question->rows as $row) {
-            $key = $question->key($row, $col = 2);
+            $key = $question->key($row, 2);
             $result[$key] = 'on';
-            $key = $question->key($row, $col = 3);
+            $key = $question->key($row, 3);
             $result[$key] = 'on';
         }
-
         return $result;
     }
 
 }
-
