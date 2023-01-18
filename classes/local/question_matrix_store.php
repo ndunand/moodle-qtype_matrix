@@ -333,10 +333,10 @@ class question_matrix_store {
      */
     public function delete_matrix_weights(int $questionid): bool {
         global $DB;
-        $sql = "DELETE FROM {qtype_matrix_weights} qmw
-                WHERE qmw.rowid IN
+        $sql = "DELETE FROM {qtype_matrix_weights}
+                WHERE rowid IN
                 (
-                 SELECT qmr.id FROM {qtype_matrix_rows} AS qmr
+                 SELECT qmr.id FROM {qtype_matrix_rows} qmr
                  INNER JOIN {qtype_matrix} qm ON qmr.matrixid = qm.id
                  WHERE qm.questionid = $questionid
                 )"; // Todo: remove unsafe sql operation.

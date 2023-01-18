@@ -470,7 +470,7 @@ class qtype_matrix_edit_form extends question_edit_form {
         }
         $grading = qtype_matrix::grading($fromform[self::PARAM_GRADE_METHOD]);
         $gradingerrors = $grading->validation($fromform);
-        return array_merge($errors, $gradingerrors) ? : true;
+        return array_merge($errors, $gradingerrors);
     }
 
     protected function col_count(array $data): int {
