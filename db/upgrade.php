@@ -64,7 +64,7 @@ function xmldb_qtype_matrix_upgrade(int $oldversion): bool {
         upgrade_plugin_savepoint(true, 2015070100, 'qtype', 'matrix');
     }
 
-    if ($oldversion < 2022121601) {
+    if ($oldversion < 2023010300) {
         $table = new xmldb_table('question_matrix');
         // Rename the field use_dnd_ui to usedndui because direct working with this variable will be hard in php,
         // when the coding standard don't allow '_' in variable names.
@@ -72,7 +72,7 @@ function xmldb_qtype_matrix_upgrade(int $oldversion): bool {
         $dbman->rename_field($table, $newfield, 'usedndui');
         upgrade_plugin_savepoint(true, 2022121601, 'qtype', 'matrix');
     }
-    if ($oldversion < 2022121604) {
+    if ($oldversion < 2023010301) {
         // Rename tables and columns to match the coding guidelines.
         $table = new xmldb_table('question_matrix');
         $dbman->rename_table($table, 'qtype_matrix');
