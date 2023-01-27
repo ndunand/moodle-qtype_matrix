@@ -366,16 +366,19 @@ class qtype_matrix_edit_form extends question_edit_form {
             var current_id = window.mtrx_current;
             var new_id = '#' + id;
             if(current_id == false) {
+                console.log(current_id);
                 node = YY.one(new_id);
                 node.setStyle('display', 'block');
                 window.mtrx_current = new_id;
             } else if(current_id == new_id) {
+                console.log(current_id);
                 node = YY.one(window.mtrx_current);
-                node.hide();
+                node.setStyle('display', 'none');
                 window.mtrx_current = false;
             } else {
+                console.log(current_id);
                 node = YY.one(current_id);
-                node.hide();
+                node.setStyle('display', 'none');
                 node = YY.one(new_id);
                 node.setStyle('display', 'block');
                 window.mtrx_current = new_id;
