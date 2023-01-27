@@ -1,3 +1,17 @@
+/**
+* Warning
+*
+* The CSS file is generated from LESS, modifications done directly to the CSS
+* will be lost.
+*/
+.que.matrix {
+    /*tooltip*/
+}
+
+.que.matrix .question_text {
+    background-color: white;
+}
+
 .que.matrix table {
     display: inline-table;
 }
@@ -40,6 +54,7 @@
 .que.matrix .description {
     display: none;
     position: absolute;
+    background-color: #EEEEEE;
     border: 1px solid #848484;
     font-weight: normal;
     padding: 8px;
@@ -67,6 +82,7 @@
     display: block;
 }
 
+/** edit matrix **/
 .mform fieldset {
     overflow: visible;
 }
@@ -197,6 +213,10 @@
     padding-left: 20px;
 }
 
+/*
+mod_ND : BEGIN
+// TODO add .qtype_matrix_dndui selector where needed
+*/
 .que.matrix.qtype_matrix_dndui table.matrix th {
     border: none;
     padding: 3em 5em;
@@ -265,6 +285,7 @@
     border-bottom: 0.2em solid #000;
 }
 
+/* modifications nécessaires à l'affichage correct du mode édition avec le theme_unil */
 body#page-question-type-matrix #fgroup_id_matrix fieldset {
     margin-left: 0;
 }
@@ -284,3 +305,7 @@ body#page-question-type-matrix div#region-main {
     color: black;
     padding: 0px 5px 5px 5px;
 }
+
+/*
+mod_ND : END
+*/
