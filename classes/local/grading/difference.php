@@ -52,6 +52,9 @@ class difference extends qtype_matrix_grading implements grading {
 
     public function grade_question(qtype_matrix_question $question, array $answers): float {
         $grades = [];
+        if (count($question->rows) == 0) {
+            return 0.0;
+        }
         foreach ($question->rows as $row) {
             $grades[] = $this->grade_row($question, $row, $answers);
         }

@@ -66,7 +66,6 @@ class renderer extends qtype_with_combined_feedback_renderer {
         }
 
         foreach ($order as $rowid) {
-
             $row = $question->rows[$rowid];
             $rowdata = [];
             $rowdata[] = self::matrix_header($row);
@@ -103,7 +102,10 @@ class renderer extends qtype_with_combined_feedback_renderer {
         return $result;
     }
 
-    public static function matrix_header(object $header): string {
+    public static function matrix_header(?object $header): string {
+        if (empty($header)) {
+            return "";
+        }
         $text = $header->shorttext;
 
         $description = $header->description['text'];
