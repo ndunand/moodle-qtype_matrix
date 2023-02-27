@@ -89,6 +89,9 @@ class difference extends qtype_matrix_grading implements grading {
                 $resbool = true;
             }
         }
+        if (!$resbool) {
+            return 0.0;
+        }
         $badleft = $ansid - 1;
         $badright = count($question->cols) - $ansid;
         if ($badleft >= $badright) {
