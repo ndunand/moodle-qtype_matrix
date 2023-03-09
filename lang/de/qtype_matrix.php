@@ -23,9 +23,10 @@ if (!property_exists($CFG, 'qtype_matrix_show_non_kprime_gui') || $CFG->qtype_ma
     $string['pluginname_help'] = '<p>Matrix-Fragen bestehen aus einem Item-Stamm, z.B. eine Frage oder eine unvollständige Aussage, und mehreren zugehörigen Teilaussagen, z.B. korrespondierende Antworten und Vervollständigungen. Die Kandidaten müssen diese Teilaussagen als „richtig“ oder „falsch“ bewerten. Es können eigene oder zusätzliche Bewertungskategorien definiert werden.
 Kprim-Fragen bestehen aus einem Item-Stamm und vier zugehörigen Teilaussagen. Jede Teilaussage muss als „richtig“ oder „falsch“ bewertet werden.</p>';
     $string['grademethod_help'] = '<ul>
-<li><b>Kprim</b>: Bei der Auswahl „Kprim“ erhalten Kandidaten einen Punkt, wenn alle Teilaussagen richtig bewertet wurden, einen halben Punkt, wenn eine Teilaussage falsch und die restlichen richtig bewertet wurden und null Punkte sonst.
-<li><b>Kprim1/0</b>: Bei der Auswahl „Kprim“ erhalten Kandidaten einen Punkt, wenn alle Teilaussagen richtig bewertet wurden und null Punkte sonst. Die Bewertungsmethoden Kprim und Kprim1/0 sollten nur für Fragen mit genau vier Teilaussagen verwendet werden.
-<li><b>Teilpunkte</b>: Bei der Auswahl „Teilpunkte“ erhalten Kandidaten Teilpunkte für jede richtige Bewertung.
+<li><b>Kprim</b>: Bei der Auswahl „Kprim“ erhalten Kandidaten einen Punkt, wenn alle Teilaussagen richtig bewertet wurden, einen halben Punkt, wenn eine Teilaussage falsch und die restlichen richtig bewertet wurden und null Punkte sonst.</li>
+<li><b>Kprim1/0</b>: Bei der Auswahl „Kprim“ erhalten Kandidaten einen Punkt, wenn alle Teilaussagen richtig bewertet wurden und null Punkte sonst. Die Bewertungsmethoden Kprim und Kprim1/0 sollten nur für Fragen mit genau vier Teilaussagen verwendet werden.</li>
+<li><b>Teilpunkte</b>: Bei der Auswahl „Teilpunkte“ erhalten Kandidaten Teilpunkte für jede richtige Bewertung.</li>
+<li><b>Differenz</b>: Lernende erhalten einen Punkt abhängig davon, wie weit ihre gewählte Antwort von einem vorab definierten Wert (korrekte Antwort) abweicht. Die Formel für den Abweichungswert lautet: maximal erreichbarer Abweichungswert – (Lernendenantwort – korrekte Antwort)^2. Der Abweichungswert wird dann in einen anteiligen Punktewert zwischen 0 und 1 transformiert, wobei 1 für eine vollständig richtige Antwort steht.</li>
 </ul>';
 } else {
     $string['pluginname'] = 'Kprim';
@@ -34,9 +35,10 @@ Kprim-Fragen bestehen aus einem Item-Stamm und vier zugehörigen Teilaussagen. J
     $string['pluginnameediting'] = 'Kprim-Frage bearbeiten';
     $string['pluginname_help'] = '<p>Kprim-Fragen bestehen aus einem Item-Stamm und vier zugehörigen Teilaussagen. Jede Teilaussage muss als „richtig“ oder „falsch“ bewertet werden.</p>';
     $string['grademethod_help'] = '<ul>
-<li><b>Kprim</b>: Bei der Auswahl „Kprim“ erhalten Kandidaten einen Punkt, wenn alle Teilaussagen richtig bewertet wurden, einen halben Punkt, wenn eine Teilaussage falsch und die restlichen richtig bewertet wurden und null Punkte sonst.
-<li><b>Kprim1/0</b>: Bei der Auswahl „Kprim“ erhalten Kandidaten einen Punkt, wenn alle Teilaussagen richtig bewertet wurden und null Punkte sonst.
-<li><b>Teilpunkte</b>: Bei der Auswahl „Teilpunkte“ erhalten Kandidaten Teilpunkte für jede richtige Bewertung.
+<li><b>Kprim</b>: Bei der Auswahl „Kprim“ erhalten Kandidaten einen Punkt, wenn alle Teilaussagen richtig bewertet wurden, einen halben Punkt, wenn eine Teilaussage falsch und die restlichen richtig bewertet wurden und null Punkte sonst.</li>
+<li><b>Kprim1/0</b>: Bei der Auswahl „Kprim“ erhalten Kandidaten einen Punkt, wenn alle Teilaussagen richtig bewertet wurden und null Punkte sonst.</li>
+<li><b>Teilpunkte</b>: Bei der Auswahl „Teilpunkte“ erhalten Kandidaten Teilpunkte für jede richtige Bewertung.</li>
+<li><b>Differenz</b>: Lernende erhalten einen Punkt abhängig davon, wie weit ihre gewählte Antwort von einem vorab definierten Wert (korrekte Antwort) abweicht. Die Formel für den Abweichungswert lautet: maximal erreichbarer Abweichungswert – (Lernendenantwort – korrekte Antwort)^2. Der Abweichungswert wird dann in einen anteiligen Punktewert zwischen 0 und 1 transformiert, wobei 1 für eine vollständig richtige Antwort steht.</li>
 </ul>';
 }
 

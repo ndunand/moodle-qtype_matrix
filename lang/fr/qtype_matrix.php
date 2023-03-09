@@ -23,9 +23,10 @@ if (!property_exists($CFG, 'qtype_matrix_show_non_kprime_gui') || $CFG->qtype_ma
     $string['pluginname_help'] = '<p>Les questions matricielles se composent d\'un énoncé tel qu\'une question ou un énoncé incomplet, et d\'énoncés à réponses multiples, tels que les réponses correspondantes ou les compléments. Les étudiants notent ces énoncés comme "vrais" ou "faux". Il est également possible de définir des évaluations personnalisées pour les énoncés de réponse.
     Les questions de Kprime se composent d\'un énoncé et de quatre propositions de réponse correspondantes. Pour chaque énoncé de réponse, les étudiants doivent décider s\'il est vrai ou faux.</p>';
     $string['grademethod_help'] = '<ul>
-<li><b>Kprime</b>: L\'élève reçoit un point si toutes les réponses sont correctes, un demi-point si une réponse est fausse et que le reste des réponses sont correctes, et zéro point sinon.
-<li><b>Kprime1/0</b>: L\'étudiant reçoit un point si toutes les réponses sont correctes, et zéro point dans le cas contraire. Les méthodes de notation Kprime et Kprime1/0 ne doivent être utilisées que pour les questions comportant exactement quatre propositions de réponse.
-<li><b>Subpoints</b>: L\'élève reçoit des sous-points pour chaque réponse correcte.
+<li><b>Kprime</b>: L\'élève reçoit un point si toutes les réponses sont correctes, un demi-point si une réponse est fausse et que le reste des réponses sont correctes, et zéro point sinon.</li>
+<li><b>Kprime1/0</b>: L\'étudiant reçoit un point si toutes les réponses sont correctes, et zéro point dans le cas contraire. Les méthodes de notation Kprime et Kprime1/0 ne doivent être utilisées que pour les questions comportant exactement quatre propositions de réponse.</li>
+<li><b>Subpoints</b>: L\'élève reçoit des sous-points pour chaque réponse correcte.</li>
+<li><b>Différence</b>: L\'étudiant reçoit un point en fonction de l\'écart entre la réponse qu\'il a choisie et une valeur prédéfinie (réponse correcte). La formule pour les scores d\'écart est la suivante : valeur de l\'écart maximal atteignable - (réponse de l\'étudiant - réponse correcte)^2. Le score d\'écart est ensuite transformé en un score de crédit partiel compris entre 0 et 1, où 1 correspond à une réponse correcte.</li>
 </ul>';
 } else {
     $string['pluginname'] = 'Kprime';
@@ -34,9 +35,10 @@ if (!property_exists($CFG, 'qtype_matrix_show_non_kprime_gui') || $CFG->qtype_ma
     $string['pluginnameediting'] = 'Modifier une question sur Kprime';
     $string['pluginname_help'] = '<p>Les questions de Kprime sont composées d\'un énoncé et de quatre propositions de réponse correspondantes. Pour chaque proposition de réponse, les élèves doivent décider si elle est correcte ou incorrecte.</p>';
     $string['grademethod_help'] = '<ul>
-<li><b>Kprime</b>: L\'élève reçoit un point si toutes les réponses sont correctes, un demi-point si une réponse est fausse et que le reste des réponses sont correctes, et zéro point sinon.
-<li><b>Kprime1/0</b>: L\'élève reçoit un point si toutes les réponses sont correctes, et zéro point dans le cas contraire.
-<li><b>Subpoints</b>: L\'élève reçoit des sous-points pour chaque réponse correcte.
+<li><b>Kprime</b>: L\'élève reçoit un point si toutes les réponses sont correctes, un demi-point si une réponse est fausse et que le reste des réponses sont correctes, et zéro point sinon.</li>
+<li><b>Kprime1/0</b>: L\'élève reçoit un point si toutes les réponses sont correctes, et zéro point dans le cas contraire.</li>
+<li><b>Subpoints</b>: L\'élève reçoit des sous-points pour chaque réponse correcte.</li>
+<li><b>Différence</b>: L\'étudiant reçoit un point en fonction de l\'écart entre la réponse qu\'il a choisie et une valeur prédéfinie (réponse correcte). La formule pour les scores d\'écart est la suivante : valeur de l\'écart maximal atteignable - (réponse de l\'étudiant - réponse correcte)^2. Le score d\'écart est ensuite transformé en un score de crédit partiel compris entre 0 et 1, où 1 correspond à une réponse correcte.</li>
 </ul>';
 }
 

@@ -23,9 +23,10 @@ if (!property_exists($CFG, 'qtype_matrix_show_non_kprime_gui') || $CFG->qtype_ma
     $string['pluginname_help'] = '<p>Matrix questions consist of an item stem such as a question or incomplete statement, and multiple answer statements, such as corresponding answers or completions. Students rate these statements as “true” or “false”. Alternatively, custom ratings for the answer statements may be defined.
 Kprime questions consist of an item stem and four corresponding answer statements. For each answer statement students have to decide whether it is right or wrong.</p>';
     $string['grademethod_help'] = '<ul>
-<li><b>Kprime</b>: The student receives one point, if all responses are correct, half a point if one response is wrong and the rest of responses are correct, and zero points otherwise.
-<li><b>Kprime1/0</b>: The student receives one point, if all responses are correct, and zero points otherwise. The scoring methods Kprime and Kprime1/0 should only be used for questions with exactly four answer statements.
-<li><b>Subpoints</b>: The student is awarded subpoints for each correct response.
+<li><b>Kprime</b>: The student receives one point, if all responses are correct, half a point if one response is wrong and the rest of responses are correct, and zero points otherwise.</li>
+<li><b>Kprime1/0</b>: The student receives one point, if all responses are correct, and zero points otherwise. The scoring methods Kprime and Kprime1/0 should only be used for questions with exactly four answer statements.</li>
+<li><b>Subpoints</b>: The student is awarded subpoints for each correct response.</li>
+<li><b>Difference</b>: The student receives a point depending on the deviation of their selected answer from a pre-specified value (correct answer). The formula for the deviation scores is: maximum attainable difference value – (student’s answer – correct answer)^2. The deviation score then is transformed to a partial credit score ranging between 0 and 1 where 1 stands for a correct answer.</li>
 </ul>';
 } else {
     $string['pluginname'] = 'Kprime';
@@ -34,9 +35,10 @@ Kprime questions consist of an item stem and four corresponding answer statement
     $string['pluginnameediting'] = 'Editing a Kprime question';
     $string['pluginname_help'] = '<p>Kprime questions consist of an item stem and four corresponding answer statements. For each answer statement students have to decide whether it is right or wrong.</p>';
     $string['grademethod_help'] = '<ul>
-<li><b>Kprime</b>: The student receives one point, if all responses are correct, half a point if one response is wrong and the rest of responses are correct, and zero points otherwise.
-<li><b>Kprime1/0</b>: The student receives one point, if all responses are correct, and zero points otherwise.
-<li><b>Subpoints</b>: The student is awarded subpoints for each correct response.
+<li><b>Kprime</b>: The student receives one point, if all responses are correct, half a point if one response is wrong and the rest of responses are correct, and zero points otherwise.</li>
+<li><b>Kprime1/0</b>: The student receives one point, if all responses are correct, and zero points otherwise.</li>
+<li><b>Subpoints</b>: The student is awarded subpoints for each correct response.</li>
+<li><b>Difference</b>: The student receives a point depending on the deviation of their selected answer from a pre-specified value (correct answer). The formula for the deviation scores is: maximum attainable difference value – (student’s answer – correct answer)^2. The deviation score then is transformed to a partial credit score ranging between 0 and 1 where 1 stands for a correct answer.</li>
 </ul>';
 }
 
