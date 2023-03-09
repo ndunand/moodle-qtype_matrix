@@ -404,6 +404,44 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
     }
 
     /**
+     * Get the number of selected options
+     *
+     * @param array $response responses, as returned by
+     *                        {@see question_attempt_step::get_qt_data()}.
+     * @return int the number of choices that were selected. in this response.
+     */
+    public function get_num_selected_choices(array $response): int {
+        $numselected = 0;
+        foreach ($response as $key => $value) {
+            if (!empty($value) && $key[0] != '_') {
+                $numselected += 1;
+            }
+        }
+        return $numselected;
+    }
+
+    /**
+     * Use by many of the behaviours to determine whether the student
+     * has provided enough of an answer for the question to be graded automatically,
+     * or whether it must be considered aborted.
+     *
+     * @param array $response responses, as returned by
+     *                        {@see question_attempt_step::get_qt_data()}.
+     * @return bool whether this response can be graded.
+     */
+    public function is_gradable_response(array $response): bool {
+        if ($this->grademethod == 'all' || $this->grademethod == 'difference') {
+            if ($this->get_num_selected_choices($response) > 0) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return $this->is_complete_response($response);
+        }
+    }
+
+    /**
      * Produce a plain text summary of a response.
      *
      * @param array $response A response, as might be passed to {@link grade_response()}.
