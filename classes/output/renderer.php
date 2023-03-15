@@ -65,6 +65,12 @@ class renderer extends qtype_with_combined_feedback_renderer {
             $table->head[] = '';
         }
 
+        if (count($question->rows) == 0) {
+            // Todo: this is somehow possible since a preview is not a real attempt and therefore it can update the
+            //       question and it will take away the rows and this will trigger an error her so we skip these.
+            return "expired question, this can happen in preview mode when question are edited and the preview attempt is still open.";
+        }
+
         foreach ($order as $rowid) {
             $row = $question->rows[$rowid];
             $rowdata = [];
