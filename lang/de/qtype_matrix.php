@@ -58,7 +58,7 @@ $string['false'] = 'Falsch';
 // Form.
 $string['multipleallowed'] = 'Mehrere Antworten pro Teilaussage erlauben?';
 
-$string['grademethod'] = 'Bewertung';
+$string['grademethod'] = 'Bewertungsmethode';
 
 $string['rowsheader'] = 'Matrix rows';
 $string['rowsheader_desc'] = '<p>Shorttext will be used when it\'s present, with the longer text as a tooltip.<br />Be mindful of how this will be displayed</p>
