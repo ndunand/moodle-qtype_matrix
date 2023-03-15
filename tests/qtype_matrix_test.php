@@ -45,7 +45,7 @@ class qtype_matrix_test extends advanced_testcase {
      */
 
     public function test_name(): void {
-        $this->assertEqual($this->qtype->name(), 'matrix');
+        $this->assertEquals($this->qtype->name(), 'matrix');
     }
 
     /**

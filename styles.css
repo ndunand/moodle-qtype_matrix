@@ -50,7 +50,7 @@
 .que.matrix .description {
     display: none;
     position: fixed;
-    background-color: #EEEEEE;
+    background-color: #eee;
     border: 1px solid #848484;
     font-weight: normal;
     padding: 8px;
@@ -144,7 +144,7 @@
     margin-bottom: 4px;
     padding: 2px;
     border: none;
-    color: #000000;
+    color: #000;
     font-weight: normal;
     cursor: pointer;
     min-width: 12px;
@@ -153,13 +153,13 @@
 
 .quedit.matrix .pbutton:active {
     background-color: #848484;
-    color: #000000;
+    color: #000;
 }
 
 .quedit.matrix .popup {
     display: none;
-    position: absolute !important;
-    background-color: #FFFFFF;
+    position: absolute;
+    background-color: #fff;
     min-width: 383px;
     padding: 0;
     margin-left: 0;
@@ -176,7 +176,7 @@
     padding-top: 6px;
     margin-top: 0;
     margin-bottom: 0;
-    border-color: #BBBBBB;
+    border-color: #bbb;
     border-width: 1px;
     border-style: solid;
     border-bottom-style: none;
@@ -184,7 +184,7 @@
 
 .quedit.matrix .popup .pbutton.close {
     float: right;
-    color: #000000;
+    color: #000;
     min-width: 16px;
     margin: 3px;
 }
@@ -197,7 +197,7 @@
 
 .button:active {
     background-color: #848484;
-    color: #000000;
+    color: #000;
 }
 
 #id_refresh_matrix {
@@ -299,7 +299,7 @@ body#page-question-type-matrix div#region-main {
     font-size: 22px;
     background-color: white;
     color: black;
-    padding: 0px 5px 5px 5px;
+    padding: 0 5px 5px 5px;
 }
 
 /*

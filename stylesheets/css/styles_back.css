@@ -49,7 +49,7 @@
     display: none;
     position: fixed !important;
 
-    background-color: #EEEEEE;
+    background-color: #eee;
     border: 1px solid #848484;
 
     font-weight: normal;
@@ -149,7 +149,7 @@
     border-left-style: none;
     background-color: #F5F5F5;
     */
-    color: #000000;
+    color: #000;
     font-weight: normal;
     cursor: pointer;
 
@@ -163,13 +163,13 @@
 
 .quedit.matrix .pbutton:active {
     background-color: #848484;
-    color: #000000;
+    color: #000;
 }
 
 .quedit.matrix .popup {
     display: none;
     position: absolute !important;
-    background-color: #FFFFFF;
+    background-color: #fff;
     min-width: 383px;
     padding: 0;
     margin-left: 0;
@@ -185,7 +185,7 @@
     padding-bottom: 8px;
     padding-top: 6px;
     margin-bottom: 0;
-    border-color: #BBBBBB;
+    border-color: #bbb;
     border-width: 1px;
     border-style: solid;
     border-bottom-style: none;
@@ -199,12 +199,12 @@
 
 .button:active {
     background-color: #848484;
-    color: #000000;
+    color: #000;
 }
 
 .quedit.matrix .popup .pbutton.close {
     float: right;
-    color: #000000;
+    color: #000;
     /*border-left-style: solid;*/
     min-width: 16px;
     margin: 3px;
