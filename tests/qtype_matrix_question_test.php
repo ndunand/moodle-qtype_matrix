@@ -145,11 +145,11 @@ class qtype_matrix_question_test extends advanced_testcase {
 
         $answer = self::make_answer_correct($question);
         $summary = $question->summarise_response($answer);
-        $this->assertNotEmpty($summary);
+        $this->assertNotEquals('', $summary);
 
         $answer = self::make_answer_incorrect($question);
         $summary = $question->summarise_response($answer);
-        $this->assertNotEmpty($summary);
+        $this->assertNotEquals('', $summary);
 
         $question = self::make_question('single');
         $summary = $question->get_question_summary();
@@ -157,11 +157,11 @@ class qtype_matrix_question_test extends advanced_testcase {
 
         $answer = self::make_answer_correct($question);
         $summary = $question->summarise_response($answer);
-        $this->assertNotEmpty($summary);
+        $this->assertNotEquals('', $summary);
 
         $answer = self::make_answer_incorrect($question);
         $summary = $question->summarise_response($answer);
-        $this->assertNotEmpty($summary);
+        $this->assertNotEquals('', $summary);
     }
 
     /**
