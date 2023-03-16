@@ -454,7 +454,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
             foreach ($this->cols as $col) {
                 $key = $this->key($row, $col);
                 $value = $response[$key] ?? false;
-                if ($value == $col->id) {
+                if ($value === $col->id || $value === 'on') {
                     $result[] = "$row->shorttext: $col->shorttext";
                 }
             }
