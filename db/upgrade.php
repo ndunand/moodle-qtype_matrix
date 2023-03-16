@@ -70,7 +70,7 @@ function xmldb_qtype_matrix_upgrade(int $oldversion): bool {
         // when the coding standard don't allow '_' in variable names.
         $newfield = $table->add_field('use_dnd_ui', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '0');
         $dbman->rename_field($table, $newfield, 'usedndui');
-        upgrade_plugin_savepoint(true, 2022121601, 'qtype', 'matrix');
+        upgrade_plugin_savepoint(true, 2023010300, 'qtype', 'matrix');
     }
     if ($oldversion < 2023010301) {
         // Rename tables and columns to match the coding guidelines.
@@ -85,7 +85,7 @@ function xmldb_qtype_matrix_upgrade(int $oldversion): bool {
 
         $table = new xmldb_table('question_matrix_weights');
         $dbman->rename_table($table, 'qtype_matrix_weights');
-        upgrade_plugin_savepoint(true, 2022121604, 'qtype', 'matrix');
+        upgrade_plugin_savepoint(true, 2023010301, 'qtype', 'matrix');
     }
     return true;
 }
