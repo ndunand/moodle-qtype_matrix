@@ -244,8 +244,8 @@ class qtype_matrix_edit_form extends question_edit_form {
 
         $matrixheader = $builder->create_header('matrixheader');
         $matrixgroup = $builder->create_group('matrix', null, $matrix, '', false);
-        $isheader = $this->_form->getElement('tagsheader');
-        if (isset($isheader)) {
+
+        if (isset($this->_form->_elementIndex['tagsheader'])) {
             $builder->insert_element_before($matrixheader, 'tagsheader');
             $refreshbutton = $builder->create_submit('refresh_matrix');
             $builder->register_no_submit_button('refresh_matrix');
