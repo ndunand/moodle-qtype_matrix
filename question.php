@@ -388,7 +388,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
         if ($count == 0) {
             return false;
         }
-        // We know that the count is unequal to 0 so we only need to check if its complete and if we have not a partial type
+        // We know that the count is unequal to 0, so we only need to check if its complete and if we have not a partial type.
         if ($count != count($this->rows) && !$this->is_question_partial_gradable()) {
             return false;
         }
