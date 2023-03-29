@@ -377,14 +377,26 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
         if ($this->multiple) {
             return true;
         }
-
+        $count = 0;
         foreach ($this->rows as $row) {
             $key = $this->key($row, 0);
-            if (!isset($response[$key])) {
-                return false;
+            if (isset($response[$key])) {
+                $count++;
             }
         }
+        // Always return false when not at least one row is answered, since this is not considered partial.
+        if ($count == 0) {
+            return false;
+        }
+        // We know that the count is unequal to 0 so we only need to check if its complete and if we have not a partial type
+        if ($count != count($this->rows) && !$this->is_question_partial_gradable()) {
+            return false;
+        }
         return true;
+    }
+
+    public function is_question_partial_gradable(): bool {
+        return $this->grademethod == 'all' || $this->grademethod == 'difference';
     }
 
     /**
@@ -430,7 +442,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      * @return bool whether this response can be graded.
      */
     public function is_gradable_response(array $response): bool {
-        if ($this->grademethod == 'all' || $this->grademethod == 'difference') {
+        if ($this->is_question_partial_gradable()) {
             if ($this->get_num_selected_choices($response) > 0) {
                 return true;
             } else {
