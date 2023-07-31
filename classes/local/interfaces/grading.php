@@ -14,18 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL') || die;
+namespace qtype_matrix\local\interfaces;
+interface grading {
+    public static function create_grade(): grading;
 
-if ($ADMIN->fulltree) {
+    public static function get_name(): string;
 
-    $settings->add(new admin_setting_configcheckbox('qtype_matrix/show_non_kprime_gui',
-        new lang_string('show_non_kprime_gui', 'qtype_matrix'),
-        new lang_string('show_non_kprime_gui', 'qtype_matrix'), '0',
-        '1', '0'));
-
-    $settings->add(new admin_setting_configcheckbox('qtype_matrix/allow_dnd_ui',
-        new lang_string('allow_dnd_ui', 'qtype_matrix'),
-        new lang_string('allow_dnd_ui_descr', 'qtype_matrix'), '0',
-        '1', '0'));
-
+    public static function get_title(): string;
 }

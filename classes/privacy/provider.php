@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Privacy Subsystem implementation for mod_choicegroup.
+ * Privacy Subsystem implementation for qtype_matrix.
  *
  * @package    qtype_matrix
  * @copyright  2018 Nicolas Dunand
@@ -24,9 +24,9 @@
 
 namespace qtype_matrix\privacy;
 
-defined('MOODLE_INTERNAL') || die();
+use core_privacy\local\metadata\null_provider;
 
-class provider implements \core_privacy\local\metadata\null_provider {
+class provider implements null_provider {
 
     /**
      * Get the language string identifier with the component's language
@@ -34,7 +34,7 @@ class provider implements \core_privacy\local\metadata\null_provider {
      *
      * @return  string
      */
-    public static function get_reason() : string {
+    public static function get_reason(): string {
         return 'privacy:metadata';
     }
 }

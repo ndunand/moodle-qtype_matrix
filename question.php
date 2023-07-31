@@ -1,18 +1,31 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * The question type class for the matrix question type.
  *
  */
-defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->dirroot . '/question/type/matrix/libs/lang.php');
+use qtype_matrix\local\lang;
+use qtype_matrix\local\qtype_matrix_grading;
 
 /**
  * Represents a matrix question.
  */
-class qtype_matrix_question extends question_graded_automatically_with_countback implements IteratorAggregate
-{
+class qtype_matrix_question extends question_graded_automatically_with_countback {
 
     const KEY_ROWS_ORDER = '_order';
 
@@ -22,109 +35,57 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
     public $grademethod;
     public $multiple;
     public $shuffleanswers;
-    public $use_dnd_ui;
+    public $usedndui;
 
     /**
      * Contains the keys of the rows array
      * Used to maintain order when shuffling answers
-     * 
-     * @var array 
+     *
+     * @var array
      */
     protected $order = null;
 
     /**
-     *
-     * @return qtype_matrix_grading
-     */
-    public function grading()
-    {
-        return qtype_matrix::grading($this->grademethod);
-    }
-
-    /**
-     *
-     * @param mixed $row
-     * @param mixed $col 
-     * 
-     * or
-     * 
-     * @param object $key
-     * 
-     * @return float
-     */
-    public function weight($row = null, $col = null)
-    {
-        if (is_string($row) && is_null($col)) {
-            //$key = $row;
-            $key = str_replace('cell', $col, $row);
-            [$row_id, $col_id] = explode('x', $key);
-        } else {
-            $row_id = is_object($row) ? $row->id : $row;
-            $col_id = is_object($col) ? $col->id : $col;
-        }
-        return (float) $this->weights[$row_id][$col_id];
-    }
-
-    /**
-     *
-     * @param object $row
-     * @param object $col
-     * @param boolean|null $multiple
-     * @return string
-     */
-    public function key($row, $col, $multiple = null)
-    {
-        $row_id = is_object($row) ? $row->id : $row;
-        $col_id = is_object($col) ? $col->id : $col;
-        $multiple = (is_null($multiple)) ? $this->multiple : $multiple;
-
-        return qtype_matrix_grading::cell_name($row_id, $col_id, $multiple);
-    }
-
-    /**
      * The user's response of cell at $row, $col. That is if the cell is checked or not.
      * If the user didn't make an answer at all (no response) the method returns false.
-     * 
-     * @param array $response  object containing the raw answer data
-     * @param any $row          matrix row, either an id or an object
-     * @param any $col          matrix col, either an id or an object
-     * 
+     *
+     * @param array $response object containing the raw answer data
+     * @param mixed $row      matrix row, either an id or an object
+     * @param mixed $col      matrix col, either an id or an object
+     *
      * @return boolean True if the cell($row, $col) was checked by the user. False otherwise.
      */
-    public function response($response, $row, $col)
-    {
-        /**
-         * A student may response with a question with the multiple answer turned on.
-         * Later the teacher may turn that flag off. The result is that the question
-         * and response formats won't match.
-         * 
-         * To fix that problem we don't use the question->multiple flag but instead we
-         * use the use the user's response to detect the correct value.
-         * 
-         * Note
-         * A part of the problems come from the fact that we use two representation formats
-         * depending on the multiple flags. The cause is the html matrix representation
-         * that requires two differents views (checkboxes or radio). This representation
-         * then leaks to memory.
-         * 
-         * A better strategy would be to use only one normalized representation in memory. 
-         * The same way we have only one representation in the DB. For that we 
-         * would need to transform the html form data after the post. 
-         * Not sure we can dot it.
-         */
-        $response_multiple = $this->multiple;
+    public function response(array $response, $row, $col): bool {
+        // A student may respond with a question with the multiple answer turned on.
+        // Later the teacher may turn that flag off. The result is that the question
+        // and response formats won't match.
+        //
+        // To fix that problem we don't use the question->multiple flag but instead we
+        // use the user's response to detect the correct value.
+        //
+        // Note
+        // A part of the problems come from the fact that we use two representation formats
+        // depending on the multiple flags. The cause is the html matrix representation
+        // that requires two differents views (checkboxes or radio). This representation
+        // then leaks to memory.
+        //
+        // A better strategy would be to use only one normalized representation in memory.
+        // The same way we have only one representation in the DB. For that we
+        // would need to transform the html form data after the post.
+        // Not sure if we can do it.
+        $responsemultiple = $this->multiple;
         foreach ($response as $key => $value) {
-            $response_multiple = (strpos($key, '_') !== false);
+            $responsemultiple = (strpos($key, '_') !== false);
             break;
         }
 
-        $key = $this->key($row, $col, $response_multiple);
+        $key = $this->key($row, $col, $responsemultiple);
         $value = $response[$key] ?? false;
         if ($value === false) {
             return false;
         }
 
-        if ($response_multiple) {
+        if ($responsemultiple) {
             return !empty($value);
         }
 
@@ -132,16 +93,47 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
     }
 
     /**
+     *
+     * @param mixed        $row
+     * @param mixed        $col
+     * @param boolean|null $multiple
+     * @return string
+     */
+    public function key($row, $col, bool $multiple = null): string {
+        $rowid = is_object($row) ? $row->id : $row;
+        $colid = is_object($col) ? $col->id : $col;
+        $multiple = (is_null($multiple)) ? $this->multiple : $multiple;
+        return qtype_matrix_grading::cell_name($rowid, $colid, $multiple);
+    }
+
+    /**
      * Returns the expected answer for the cell at $row, $col.
-     * 
+     *
      * @param integer|object $row
      * @param integer|object $col
-     * 
+     *
      * @return boolean  True if cell($row, $col) is correct, false otherwise.
      */
-    public function answer($row = null, $col = null)
-    {
+    public function answer($row = null, $col = null): bool {
         return $this->weight($row, $col) > 0;
+    }
+
+    /**
+     *
+     * @param mixed $row
+     * @param mixed $col
+     * @return float
+     */
+    public function weight($row = null, $col = null): float {
+        // Todo: What the heck is this? It is used in two ways? Better Split it up then!
+        if (is_string($row) && is_null($col)) {
+            $key = str_replace('cell', $col, $row);
+            [$rowid, $colid] = explode('x', $key);
+        } else {
+            $rowid = is_object($row) ? $row->id : $row;
+            $colid = is_object($col) ? $col->id : $col;
+        }
+        return (float) $this->weights[$rowid][$colid];
     }
 
     /**
@@ -155,24 +147,25 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      * Any information about how the question has been set up for this attempt
      * should be stored in the $step, by calling $step->set_qt_var(...).
      *
-     * @param question_attempt_step $step 
-     *          The first step of the {@link question_attempt} being started. 
+     *
+     * @param question_attempt_step $step
+     *          The first step of the {@link question_attempt} being started.
      *          Can be used to store state.
-     * @param int $variant 
-     *          Which variant of this question to start. Will be between 
+     * @param int                   $variant
+     *          Which variant of this question to start. Will be between
      *          1 and {@link get_num_variants()} inclusive.
+     * @return void
+     * @throws coding_exception
+     * @throws dml_exception
      */
-    function start_attempt(question_attempt_step $step, $variant)
-    {
+    public function start_attempt(question_attempt_step $step, $variant): void {
         global $PAGE;
-        // mod_ND : BEGIN
-        if ($this->use_dnd_ui && !$PAGE->requires->is_head_done()) {
+        if ($this->usedndui && !$PAGE->requires->is_head_done()) {
             $PAGE->requires->jquery();
             $PAGE->requires->jquery_plugin('ui');
             $PAGE->requires->jquery_plugin('ui-css');
-            $PAGE->requires->js('/question/type/matrix/js/dnd.js');
+            $PAGE->requires->js_call_amd('qtype_matrix/dnd', 'init');
         }
-        // mod_ND : END
         $this->order = array_keys($this->rows);
         if ($this->shuffle_answers()) {
             shuffle($this->order);
@@ -181,34 +174,10 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
     }
 
     /**
-     * Question shuffle can be disabled at the Quiz level. If false then the
-     * question parts are not shuffled. If true then the question's shuffle parameter
-     * decide wheter the question's parts are actually shuffled.
-     * 
-     * If the question is executed outside of a Quiz (for example in preview)
-     * returns true. 
-     * 
-     * @global object $DB       Database object
-     * @global object $PAGE     Page object
-     * @return boolean          True if shuffling is authorized. False otherwise.
+     * @return bool True if rows should be shuffled. False otherwise.
+     * @throws dml_exception
      */
-    function shuffle_authorized()
-    {
-        global $DB, $PAGE;
-
-        $cm = $PAGE->cm;
-        if (!is_object($cm)) {
-            return true;
-        }
-        return $DB->get_record('quiz', array('id' => $cm->instance))->shuffleanswers;
-    }
-
-    /**
-     * 
-     * @return boolean True if rows should be shuffled. False otherwise.
-     */
-    function shuffle_answers()
-    {
+    public function shuffle_answers(): bool {
         if (!$this->shuffle_authorized()) {
             return false;
         }
@@ -216,67 +185,37 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
     }
 
     /**
-     * Write persistent data to a step for further retrieval
-     * 
-     * @param question_attempt_step $step Storage
+     * Question shuffle can be disabled at the Quiz level. If false then the
+     * question parts are not shuffled. If true then the question's shuffle parameter
+     * decide wheter the question's parts are actually shuffled.
+     *
+     * If the question is executed outside of a Quiz (for example in preview)
+     * returns true.
+     *
+     * @return boolean          True if shuffling is authorized. False otherwise.
+     * @throws dml_exception
+     * @global object $DB   Database object
+     * @global object $PAGE Page object
      */
-    protected function write_data(question_attempt_step $step)
-    {
-        $step->set_qt_var(self::KEY_ROWS_ORDER, implode(',', $this->order));
+    public function shuffle_authorized(): bool {
+        global $DB, $PAGE;
+        $cm = $PAGE->cm;
+        if (!is_object($cm)) {
+            return true;
+        }
+
+        return $DB->get_record('quiz', ['id' => $cm->instance])->shuffleanswers;
     }
 
     /**
-     * Load persistent data from a step.
-     * 
-     * @param question_attempt_step $step Storage
+     * Write persistent data to a step for further retrieval
+     *
+     * @param question_attempt_step $step
+     * @return void
+     * @throws coding_exception
      */
-    protected function load_data(question_attempt_step $step)
-    {
-        $order = $step->get_qt_var(self::KEY_ROWS_ORDER);
-        if ($order !== null) {
-            $this->order = explode(',', $order);
-        } else {
-            /**
-             * The order doesn't exist in the database. 
-             * This can happen because the question is old and doesn't have the shuffling possibility yet.
-             */
-            $this->order = array_keys($this->rows);
-            if ($this->shuffle_answers()) {
-                shuffle($this->order);
-            }
-            $this->write_order($step);
-        }
-
-        /**
-         * Rows can be deleted between attempts. We need therefore to remove
-         * those that were stored in the step but are not present anymore.
-         */
-        $rows_removed = array();
-        foreach ($this->order as $row_key) {
-            if (!isset($this->rows[$row_key])) {
-                $rows_removed[] = $row_key;
-            }
-        }
-        $this->order = array_diff($this->order, $rows_removed);
-
-
-        /**
-         * Rows can be added between attempts. We need therefore to add those
-         * rows that were not stored in the step.
-         */
-        $rows_added = array();
-        $rows_keys = array_keys($this->rows);
-        foreach ($rows_keys as $row_key) {
-            if (!in_array($row_key, $this->order)) {
-                $rows_added[] = $row_key;
-            }
-        }
-        if ($this->shuffle_answers()) {
-            shuffle($rows_added);
-        }
-        foreach ($rows_added as $row_key) {
-            $this->order[] = $row_key;
-        }
+    protected function write_data(question_attempt_step $step): void {
+        $step->set_qt_var(self::KEY_ROWS_ORDER, implode(',', $this->order));
     }
 
     /**
@@ -289,59 +228,140 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      * originally. All the information required to do this should be in the
      * $step object, which is the first step of the question_attempt being loaded.
      *
+     *
      * @param question_attempt_step $step The first step of the {@link question_attempt}
-     *      being loaded.
+     *                                    being loaded.
+     * @return void
+     * @throws dml_exception
+     * @throws coding_exception
      */
-    function apply_attempt_state(question_attempt_step $step)
-    {
-        // mod_ND : BEGIN
-        if ($this->use_dnd_ui) {
+    public function apply_attempt_state(question_attempt_step $step): void {
+        if ($this->usedndui) {
             global $PAGE;
             $PAGE->requires->jquery();
             $PAGE->requires->jquery_plugin('ui');
             $PAGE->requires->jquery_plugin('ui-css');
-            $PAGE->requires->js('/question/type/matrix/js/dnd.js');
+            $PAGE->requires->js_call_amd('qtype_matrix/dnd', 'init');
         }
-        // mod_ND : END
         $this->load_data($step);
     }
 
-    public function get_order(question_attempt $qa)
-    {
+    /**
+     * Load persistent data from a step.
+     *
+     * @param question_attempt_step $step Storage
+     * @return void
+     * @throws dml_exception
+     * @throws coding_exception
+     */
+    protected function load_data(question_attempt_step $step): void {
+        $order = $step->get_qt_var(self::KEY_ROWS_ORDER);
+        if ($order !== null) {
+            $this->order = explode(',', $order);
+        } else {
+            // The order doesn't exist in the database.
+            // This can happen because the question is old and doesn't have the shuffling possibility yet.
+            $this->order = array_keys($this->rows);
+            if ($this->shuffle_answers()) {
+                shuffle($this->order);
+            }
+            $this->write_data($step); // Todo: Does this solves https://github.com/ndunand/moodle-qtype_matrix/issues/31 ?
+        }
+
+        // Rows can be deleted between attempts. We need therefore to remove
+        // those that were stored in the step but are not present anymore.
+
+        $rowsremoved = [];
+        foreach ($this->order as $rowkey) {
+            if (!isset($this->rows[$rowkey])) {
+                $rowsremoved[] = $rowkey;
+            }
+        }
+        $this->order = array_diff($this->order, $rowsremoved);
+
+        // Rows can be added between attempts. We need therefore to add those
+        // rows that were not stored in the step.
+
+        $rowsadded = [];
+        $rowskeys = array_keys($this->rows);
+        foreach ($rowskeys as $rowkey) {
+            if (!in_array($rowkey, $this->order)) {
+                $rowsadded[] = $rowkey;
+            }
+        }
+        if ($this->shuffle_answers()) {
+            shuffle($rowsadded);
+        }
+        foreach ($rowsadded as $rowkey) {
+            $this->order[] = $rowkey;
+        }
+    }
+
+    /**
+     * @param question_attempt $qa
+     * @return array
+     * @throws coding_exception
+     */
+    public function get_order(question_attempt $qa): array {
         $this->init_order($qa);
         return $this->order;
     }
 
-    protected function init_order(question_attempt $qa)
-    {
+    /**
+     * @param question_attempt $qa
+     * @return void
+     * @throws coding_exception
+     */
+    protected function init_order(question_attempt $qa): void {
         if ($this->order) {
             return;
         }
-
         $this->order = explode(',', $qa->get_step(0)->get_qt_var(self::KEY_ROWS_ORDER));
     }
 
     /**
      * Work out a final grade for this attempt, taking into account all the
      * tries the student made.
-     * 
-     * @param array $responses the response for each try. Each element of this
-     * array is a response array, as would be passed to {@link grade_response()}.
-     * There may be between 1 and $totaltries responses.
-     * 
-     * @param int $totaltries The maximum number of tries allowed.
-     * 
+     *
+     * @param array $responses  the response for each try. Each element of this
+     *                          array is a response array, as would be passed to {@link grade_response()}.
+     *                          There may be between 1 and $totaltries responses.
+     *
+     * @param int   $totaltries The maximum number of tries allowed.
+     *
      * @return numeric the fraction that should be awarded for this
      * sequence of response.
      */
-    public function compute_final_grade($responses, $totaltries)
-    {
-        $grade_value = 0;
-        foreach($responses as $response) {
+    public function compute_final_grade($responses, $totaltries): float {
+        $gradevalue = 0;
+        foreach ($responses as $response) {
             $x = $this->grade_response($response);
-            $grade_value += $x[0];
+            $gradevalue += $x[0];
         }
-        return $grade_value;
+        return $gradevalue;
+    }
+
+    /**
+     * Grade a response to the question, returning a fraction between
+     * get_min_fraction() and 1.0, and the corresponding {@link question_state}
+     * right, partial or wrong.
+     *
+     * @param array $response responses, as returned by
+     *                        {@link question_attempt_step::get_qt_data()}.
+     * @return array (number, integer) the fraction, and the state.
+     */
+    public function grade_response(array $response): array {
+        $grade = $this->grading()->grade_question($this, $response);
+        $state = question_state::graded_state_for_fraction($grade);
+        return [$grade, $state];
+    }
+
+    /**
+     *
+     * @return qtype_matrix_grading
+     */
+    public function grading(): qtype_matrix_grading {
+        return qtype_matrix::grading($this->grademethod);
     }
 
     /**
@@ -350,56 +370,104 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      * should move to the COMPLETE or INCOMPLETE state.
      *
      * @param array $response responses, as returned by
-     *      {@link question_attempt_step::get_qt_data()}.
+     *                        {@link question_attempt_step::get_qt_data()}.
      * @return bool whether this response is a complete answer to this question.
      */
-    public function is_complete_response(array $response)
-    {
+    public function is_complete_response(array $response): bool {
         if ($this->multiple) {
             return true;
         }
-
+        $count = 0;
         foreach ($this->rows as $row) {
             $key = $this->key($row, 0);
-            if (!isset($response[$key])) {
-                return false;
+            if (isset($response[$key])) {
+                $count++;
             }
         }
+        // Always return false when not at least one row is answered, since this is not considered partial.
+        if ($count == 0) {
+            return false;
+        }
+        // We know that the count is unequal to 0, so we only need to check if its complete and if we have not a partial type.
+        if ($count != count($this->rows) && !$this->is_question_partial_gradable()) {
+            return false;
+        }
         return true;
+    }
+
+    public function is_question_partial_gradable(): bool {
+        return $this->grademethod == 'all' || $this->grademethod == 'difference';
     }
 
     /**
      * In situations where is_gradable_response() returns false, this method
      * should generate a description of what the problem is.
+     *
      * @param array $response
      * @return string the message.
+     * @throws coding_exception
      */
-    public function get_validation_error(array $response)
-    {
-        $is_gradable = $this->is_gradable_response($response);
-        if ($is_gradable) {
+    public function get_validation_error(array $response): string {
+        $isgradable = $this->is_gradable_response($response);
+        if ($isgradable) {
             return '';
         }
         return lang::one_answer_per_row();
     }
 
     /**
+     * Get the number of selected options
+     *
+     * @param array $response responses, as returned by
+     *                        {@see question_attempt_step::get_qt_data()}.
+     * @return int the number of choices that were selected. in this response.
+     */
+    public function get_num_selected_choices(array $response): int {
+        $numselected = 0;
+        foreach ($response as $key => $value) {
+            if (!empty($value) && $key[0] != '_') {
+                $numselected += 1;
+            }
+        }
+        return $numselected;
+    }
+
+    /**
+     * Use by many of the behaviours to determine whether the student
+     * has provided enough of an answer for the question to be graded automatically,
+     * or whether it must be considered aborted.
+     *
+     * @param array $response responses, as returned by
+     *                        {@see question_attempt_step::get_qt_data()}.
+     * @return bool whether this response can be graded.
+     */
+    public function is_gradable_response(array $response): bool {
+        if ($this->is_question_partial_gradable()) {
+            if ($this->get_num_selected_choices($response) > 0) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return $this->is_complete_response($response);
+        }
+    }
+
+    /**
      * Produce a plain text summary of a response.
-     * 
-     * @param array response A response, as might be passed to {@link grade_response()}.
+     *
+     * @param array $response A response, as might be passed to {@link grade_response()}.
      * @return string a plain text summary of that response, that could be used in reports.
      */
-    public function summarise_response(array $response)
-    {
-        $result = array();
-
+    public function summarise_response(array $response): string {
+        $result = [];
         foreach ($this->order ?? array_keys($this->rows) as $rowid) {
             $row = $this->rows[$rowid];
             foreach ($this->cols as $col) {
                 $key = $this->key($row, $col);
                 $value = $response[$key] ?? false;
                 if ($value === $col->id || $value === 'on') {
-                    $result[] = "{$row->shorttext}: {$col->shorttext}";
+                    $result[] = "$row->shorttext: $col->shorttext";
                 }
             }
         }
@@ -412,22 +480,21 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      * of responses can safely be discarded.
      *
      * @param array $prevresponse the responses previously recorded for this question,
-     *      as returned by {@link question_attempt_step::get_qt_data()}
-     * @param array $newresponse the new responses, in the same format.
+     *                            as returned by {@link question_attempt_step::get_qt_data()}
+     * @param array $newresponse  the new responses, in the same format.
      * @return bool whether the two sets of responses are the same - that is
-     *      whether the new set of responses can safely be discarded.
+     *                            whether the new set of responses can safely be discarded.
      */
-    public function is_same_response(array $prevresponse, array $newresponse)
-    {
+    public function is_same_response(array $prevresponse, array $newresponse): bool {
         if (count($prevresponse) != count($newresponse)) {
             return false;
         }
-        foreach ($prevresponse as $key => $previous_value) {
+        foreach ($prevresponse as $key => $previousvalue) {
             if (!isset($newresponse[$key])) {
                 return false;
             }
-            $new_value = $newresponse[$key];
-            if ($new_value != $previous_value) {
+            $newvalue = $newresponse[$key];
+            if ($newvalue != $previousvalue) {
                 return false;
             }
         }
@@ -442,9 +509,8 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      *
      * @return array parameter name => value.
      */
-    public function get_correct_response()
-    {
-        $result = array();
+    public function get_correct_response(): array {
+        $result = [];
         foreach ($this->order ?? array_keys($this->rows) as $rowid) {
             $row = $this->rows[$rowid];
             foreach ($this->cols as $col) {
@@ -460,21 +526,6 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
     }
 
     /**
-     * Grade a response to the question, returning a fraction between
-     * get_min_fraction() and 1.0, and the corresponding {@link question_state}
-     * right, partial or wrong.
-     * @param array $response responses, as returned by
-     *      {@link question_attempt_step::get_qt_data()}.
-     * @return array (number, integer) the fraction, and the state.
-     */
-    public function grade_response(array $response)
-    {
-        $grade = $this->grading()->grade_question($this, $response);
-        $state = question_state::graded_state_for_fraction($grade);
-        return array($grade, $state);
-    }
-
-    /**
      * What data may be included in the form submission when a student submits
      * this question in its current state?
      *
@@ -485,9 +536,8 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      *      that should only be used in unavoidable, the constant question_attempt::USE_RAW_DATA
      *      meaning take all the raw submitted data belonging to this question.
      */
-    public function get_expected_data()
-    {
-        $result = array();
+    public function get_expected_data(): array {
+        $result = [];
         $cells = $this->cells();
         foreach ($cells as $key => $weight) {
             $result[$key] = $this->multiple ? PARAM_BOOL : PARAM_INT;
@@ -498,12 +548,11 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
     /**
      * Returns an array where keys are the weights' cell names and the values
      * are the weights
-     * 
+     *
      * @return array
      */
-    public function cells()
-    {
-        $result = array();
+    public function cells(): array {
+        $result = [];
         foreach ($this->order as $rowid) {
             $row = $this->rows[$rowid];
             foreach ($this->cols as $col) {
@@ -512,14 +561,4 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
         }
         return $result;
     }
-
-    /**
-     * Returns an array where keys are the weights' cell names and the values
-     * are the weights
-     */
-    public function getIterator()
-    {
-        return new ArrayIterator($this->cells());
-    }
-
 }
