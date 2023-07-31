@@ -64,7 +64,7 @@ function xmldb_qtype_matrix_upgrade(int $oldversion): bool {
         upgrade_plugin_savepoint(true, 2015070100, 'qtype', 'matrix');
     }
 
-    if ($oldversion < 2023010301) {
+    if ($oldversion < 2023010303) {
         // Rename tables and columns to match the coding guidelines.
         $table = new xmldb_table('question_matrix');
         $dbman->rename_table($table, 'qtype_matrix');
