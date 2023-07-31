@@ -84,7 +84,7 @@ function xmldb_qtype_matrix_upgrade(int $oldversion): bool {
         $newfield = $table->add_field('use_dnd_ui', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '0');
         $dbman->rename_field($table, $newfield, 'usedndui');
 
-        upgrade_plugin_savepoint(true, 2023010301, 'qtype', 'matrix');
+        upgrade_plugin_savepoint(true, 2023010303, 'qtype', 'matrix');
     }
     return true;
 }
