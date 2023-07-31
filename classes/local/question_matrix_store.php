@@ -58,7 +58,7 @@ class question_matrix_store {
             'questionid' => $matrix->questionid,
             'multiple' => $matrix->multiple,
             'grademethod' => $matrix->grademethod,
-            'use_dnd_ui' => $matrix->usedndui,
+            'usedndui' => $matrix->usedndui,
             'shuffleanswers' => $matrix->shuffleanswers,
             'renderer' => 'matrix'
         ];
@@ -81,7 +81,7 @@ class question_matrix_store {
             'questionid' => $matrix->questionid,
             'multiple' => $matrix->multiple,
             'grademethod' => $matrix->grademethod,
-            'use_dnd_ui' => $matrix->usedndui,
+            'usedndui' => $matrix->usedndui,
             'shuffleanswers' => $matrix->shuffleanswers,
             'renderer' => 'matrix'
         ];
