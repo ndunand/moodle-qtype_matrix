@@ -76,7 +76,7 @@ class qtype_matrix extends question_type {
      * @return boolean true if this question type sometimes requires manual grading.
      */
     public function is_manual_graded(): bool {
-        return true;
+        return false;
     }
 
     /**
