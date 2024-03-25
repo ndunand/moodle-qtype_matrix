@@ -97,7 +97,7 @@ class renderer extends qtype_with_combined_feedback_renderer {
             if ($options->correctness) {
                 $rowgrade = $question->grading()->grade_row($question, $row, $response);
                 $feedback = $row->feedback['text'];
-                $feedback = strip_tags($feedback) ? $feedback : '';
+                $feedback = strip_tags($feedback) ? format_text($feedback) : '';
                 $rowdata[] = $this->feedback_image($rowgrade) . $feedback;
             }
             $table->data[] = $rowdata;
