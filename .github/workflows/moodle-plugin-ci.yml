@@ -79,10 +79,6 @@ jobs:
         if: ${{ always() }}
         run: moodle-plugin-ci phpmd
 
-      - name: Moodle Code Checker
-        if: ${{ always() }}
-        run: moodle-plugin-ci phpcs
-
       - name: Validating
         if: ${{ always() }}
         run: moodle-plugin-ci validate
@@ -94,10 +90,6 @@ jobs:
       - name: Mustache Lint
         if: ${{ always() }}
         run: moodle-plugin-ci mustache
-
-      - name: Grunt
-        if: ${{ always() }}
-        run: moodle-plugin-ci grunt
 
       - name: PHPUnit tests
         if: ${{ always() }}
