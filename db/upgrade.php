@@ -89,21 +89,23 @@ function xmldb_qtype_matrix_upgrade(int $oldversion): bool
     }
 
     if ($oldversion < 2024070900) {
-        // Define fields to be added to qtype_matrix_options.
+        // Define table qtype_matrix_options to be created.
         $table = new xmldb_table('qtype_matrix_options');
-        $field1 = new xmldb_field('partialgrade1', XMLDB_TYPE_NUMBER, '10, 5', null, XMLDB_NOTNULL, null, 0.5);
-        $field2 = new xmldb_field('partialgrade2', XMLDB_TYPE_NUMBER, '10, 5', null, XMLDB_NOTNULL, null, 0.25);
-        $field3 = new xmldb_field('partialgrade3', XMLDB_TYPE_NUMBER, '10, 5', null, XMLDB_NOTNULL, null, 0.1);
 
-        // Add fields to table.
-        if (!$dbman->field_exists($table, $field1)) {
-            $dbman->add_field($table, $field1);
-        }
-        if (!$dbman->field_exists($table, $field2)) {
-            $dbman->add_field($table, $field2);
-        }
-        if (!$dbman->field_exists($table, $field3)) {
-            $dbman->add_field($table, $field3);
+        // Adding fields to table qtype_matrix_options.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('questionid', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, null);
+        $table->add_field('partialgrade1', XMLDB_TYPE_NUMBER, '10, 5', null, XMLDB_NOTNULL, null, '0.5');
+        $table->add_field('partialgrade2', XMLDB_TYPE_NUMBER, '10, 5', null, XMLDB_NOTNULL, null, '0.25');
+        $table->add_field('partialgrade3', XMLDB_TYPE_NUMBER, '10, 5', null, XMLDB_NOTNULL, null, '0.1');
+
+        // Adding keys to table qtype_matrix_options.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('questionidfk', XMLDB_KEY_FOREIGN, ['questionid'], 'question', ['id']);
+
+        // Conditionally launch create table for qtype_matrix_options.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
         }
 
         // Update savepoint reached.
