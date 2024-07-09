@@ -28,6 +28,7 @@ Kprime questions consist of an item stem and four corresponding answer statement
 <li><b>Kprime1/0</b>: The student receives one point, if all responses are correct, and zero points otherwise. The scoring methods Kprime and Kprime1/0 should only be used for questions with exactly four answer statements.</li>
 <li><b>Subpoints</b>: The student is awarded subpoints for each correct response.</li>
 <li><b>Difference</b>: The student receives a point depending on the deviation of their selected answer from a pre-specified value (correct answer). The formula for the deviation scores is: maximum attainable difference value – (student’s answer – correct answer)^2. The deviation score then is transformed to a partial credit score ranging between 0 and 1 where 1 stands for a correct answer.</li>
+<li><b>Vietnam MOET grading method</b>: The student’s score is determined based on custom criteria defined by the instructor.</li>
 </ul>';
 } else {
     $string['pluginname'] = 'Kprime';
@@ -40,6 +41,7 @@ Kprime questions consist of an item stem and four corresponding answer statement
 <li><b>Kprime1/0</b>: The student receives one point, if all responses are correct, and zero points otherwise.</li>
 <li><b>Subpoints</b>: The student is awarded subpoints for each correct response.</li>
 <li><b>Difference</b>: The student receives a point depending on the deviation of their selected answer from a pre-specified value (correct answer). The formula for the deviation scores is: maximum attainable difference value – (student’s answer – correct answer)^2. The deviation score then is transformed to a partial credit score ranging between 0 and 1 where 1 stands for a correct answer.</li>
+<li><b>Vietnam MOET grading method</b>: The student’s score is determined based on custom criteria defined by the instructor.</li>
 </ul>';
 }
 
@@ -95,3 +97,8 @@ $string['allow_dnd_ui'] = 'Allow usage of Drag&Drop UI';
 $string['allow_dnd_ui_descr'] = 'If allowed, the teachers will have the possibility to enable the Drag&Drop feature to any Matrix questions';
 $string['use_dnd_ui'] = 'Use drag &amp; drop ?';
 $string['privacy:metadata'] = 'The Kprime/Matrix Question Type plugin does not store any personal data.';
+
+$string['partialgrade1'] = 'Grade when 1 row is incorrect';
+$string['partialgrade2'] = 'Grade when 2 rows are incorrect';
+$string['partialgrade3'] = 'Grade when 3 rows are incorrect';
+$string['standard'] = 'Vietnam MOET grading method';

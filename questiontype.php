@@ -24,20 +24,23 @@ use qtype_matrix\local\question_matrix_store;
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->libdir . '/questionlib.php');
+require_once ($CFG->libdir . '/questionlib.php');
 
 /**
  * The matrix question class
  *
  * Pretty simple concept - a matrix with a number of different grading methods and options.
  */
-class qtype_matrix extends question_type {
+class qtype_matrix extends question_type
+{
 
-    public static function gradings(): array {
+    public static function gradings(): array
+    {
         return qtype_matrix_grading::gradings();
     }
 
-    public static function grading(string $type): qtype_matrix_grading {
+    public static function grading(string $type): qtype_matrix_grading
+    {
         return qtype_matrix_grading::create($type);
     }
 
@@ -48,7 +51,8 @@ class qtype_matrix extends question_type {
      * @return boolean to indicate success of failure.
      * @throws dml_exception
      */
-    public function delete_question_options(int $questionid): bool {
+    public function delete_question_options(int $questionid): bool
+    {
         if (empty($questionid)) {
             return false;
         }
@@ -64,7 +68,8 @@ class qtype_matrix extends question_type {
      * @param integer $contextid
      * @throws dml_exception
      */
-    public function delete_question($questionid, $contextid = null) {
+    public function delete_question($questionid, $contextid = null)
+    {
         if (empty($questionid)) {
             return;
         }
@@ -75,7 +80,8 @@ class qtype_matrix extends question_type {
     /**
      * @return boolean true if this question type sometimes requires manual grading.
      */
-    public function is_manual_graded(): bool {
+    public function is_manual_graded(): bool
+    {
         return false;
     }
 
@@ -85,7 +91,9 @@ class qtype_matrix extends question_type {
      * @return boolean
      * @throws dml_exception
      */
-    public function get_question_options($question): bool {
+    public function get_question_options($question): bool
+    {
+        global $DB;
         parent::get_question_options($question);
         $matrix = self::retrieve_matrix($question->id);
         if ($matrix) {
@@ -107,6 +115,20 @@ class qtype_matrix extends question_type {
             $question->options->usedndui = false;
             $question->options->multiple = true;
         }
+
+        $options = $DB->get_record('qtype_matrix_options', array('questionid' => $question->id));
+
+        if (!$options) {
+            $options = new stdClass();
+            $options->partialgrade1 = 0.5;
+            $options->partialgrade2 = 0.25;
+            $options->partialgrade3 = 0.1;
+        }
+
+        $question->partialgrade1 = $options->partialgrade1;
+        $question->partialgrade2 = $options->partialgrade2;
+        $question->partialgrade3 = $options->partialgrade3;
+
         return true;
     }
 
@@ -117,7 +139,8 @@ class qtype_matrix extends question_type {
      * @return mixed|stdClass|null
      * @throws dml_exception
      */
-    public static function retrieve_matrix(int $questionid) {
+    public static function retrieve_matrix(int $questionid)
+    {
         $store = new question_matrix_store();
 
         if (empty($questionid)) {
@@ -148,7 +171,8 @@ class qtype_matrix extends question_type {
         return $matrix;
     }
 
-    public static function defaut_grading(): qtype_matrix_grading {
+    public static function defaut_grading(): qtype_matrix_grading
+    {
         return qtype_matrix_grading::default_grading();
     }
 
@@ -161,7 +185,8 @@ class qtype_matrix extends question_type {
      * @throws dml_exception
      * @throws dml_transaction_exception
      */
-    public function save_question_options($question): object {
+    public function save_question_options($question): object
+    {
         global $DB;
         $store = new question_matrix_store();
 
@@ -289,6 +314,28 @@ class qtype_matrix extends question_type {
             }
         }
 
+        $context = $question->context;
+        $options = $DB->get_record('qtype_matrix_options', array('questionid' => $question->id));
+
+        // Nếu không tìm thấy bản ghi, tạo mới một đối tượng $options.
+        if (!$options) {
+            $options = new stdClass();
+            $options->questionid = $question->id;
+            $options->partialgrade1 = 0.5; // Giá trị mặc định
+            $options->partialgrade2 = 0.25; // Giá trị mặc định
+            $options->partialgrade3 = 0.1; // Giá trị mặc định
+            $options->id = $DB->insert_record('qtype_matrix_options', $options);
+        }
+
+        // Gán các giá trị từ form vào $options.
+        $options->partialgrade1 = $question->partialgrade1;
+        $options->partialgrade2 = $question->partialgrade2;
+        $options->partialgrade3 = $question->partialgrade3;
+
+        // Cập nhật bản ghi trong cơ sở dữ liệu.
+        $DB->update_record('qtype_matrix_options', $options);
+
+
         $transaction->allow_commit();
         return (object) [];
     }
@@ -317,7 +364,8 @@ class qtype_matrix extends question_type {
      * @param boolean $frommultiple Whether we extract from multiple representation or not
      * @result array                    The weights
      */
-    public function to_weigth_matrix(object $data, bool $frommultiple): array {
+    public function to_weigth_matrix(object $data, bool $frommultiple): array
+    {
         $result = [];
         $rowcount = 20;
         $colcount = 20;
@@ -355,7 +403,8 @@ class qtype_matrix extends question_type {
      * @param array $matrix Array of arrays
      * @return boolean True if the matrix contains only zeros. False otherwise
      */
-    public function is_matrix_empty(array $matrix): bool {
+    public function is_matrix_empty(array $matrix): bool
+    {
         foreach ($matrix as $row) {
             foreach ($row as $value) {
                 if ($value && $value > 0) {
@@ -374,7 +423,8 @@ class qtype_matrix extends question_type {
      * @param object             $question
      * @param string             $wizardnow is '' for first page.
      */
-    public function display_question_editing_page($mform, $question, $wizardnow): void {
+    public function display_question_editing_page($mform, $question, $wizardnow): void
+    {
         global $OUTPUT;
         $heading = $this->get_heading(empty($question->id));
 
@@ -386,11 +436,13 @@ class qtype_matrix extends question_type {
         $mform->display();
     }
 
-    public function name(): string {
+    public function name(): string
+    {
         return 'matrix';
     }
 
-    public function extra_question_fields(): array {
+    public function extra_question_fields(): array
+    {
         return ['qtype_matrix', 'usedndui', 'grademethod', 'multiple'];
     }
 
@@ -404,7 +456,8 @@ class qtype_matrix extends question_type {
      * @param null        $extra
      * @return bool|object
      */
-    public function import_from_xml($data, $question, qformat_xml $format, $extra = null) {
+    public function import_from_xml($data, $question, qformat_xml $format, $extra = null)
+    {
         if (!isset($data['@']['type']) || $data['@']['type'] != 'matrix') {
             return false;
         }
@@ -416,7 +469,8 @@ class qtype_matrix extends question_type {
 
         // Use_dnd_ui.
         $question->options->usedndui = $format->trans_single(
-            $format->getpath($data, ['#', 'use_dnd_ui', 0, '#'], 0));
+            $format->getpath($data, ['#', 'use_dnd_ui', 0, '#'], 0)
+        );
         // Todo: check if we translated this corrent!
 
         // Grademethod.
@@ -427,16 +481,22 @@ class qtype_matrix extends question_type {
         );
 
         // Shuffleanswers.
-        $question->options->shuffleanswers = $format->trans_single($format->getpath(
-            $data,
-            ['#', 'shuffleanswers', 0, '#'],
-            1));
+        $question->options->shuffleanswers = $format->trans_single(
+            $format->getpath(
+                $data,
+                ['#', 'shuffleanswers', 0, '#'],
+                1
+            )
+        );
 
         // Multiple.
-        $multiple = $format->trans_single($format->getpath(
-            $data,
-            ['#', 'multiple', 0, '#'],
-            1));
+        $multiple = $format->trans_single(
+            $format->getpath(
+                $data,
+                ['#', 'multiple', 0, '#'],
+                1
+            )
+        );
 
         if ($multiple == 1) {
             $question->multiple = true;
@@ -537,7 +597,8 @@ class qtype_matrix extends question_type {
      * @param null        $extra
      * @return string
      */
-    public function export_to_xml($question, qformat_xml $format, $extra = null): string {
+    public function export_to_xml($question, qformat_xml $format, $extra = null): string
+    {
         $output = '';
 
         // Use_dnd_ui.
@@ -605,7 +666,8 @@ class qtype_matrix extends question_type {
      * @param question_definition $question     the question_definition we are creating.
      * @param object              $questiondata the question data loaded from the database.
      */
-    protected function initialise_question_instance(question_definition $question, $questiondata): void {
+    protected function initialise_question_instance(question_definition $question, $questiondata): void
+    {
         parent::initialise_question_instance($question, $questiondata);
         $question->rows = $questiondata->options->rows;
         $question->cols = $questiondata->options->cols;

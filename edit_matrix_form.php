@@ -26,7 +26,7 @@ defined('MOODLE_INTERNAL') || die;
  * The question type class for the matrix question type.
  *
  */
-require_once($CFG->dirroot . '/question/type/edit_question_form.php');
+require_once ($CFG->dirroot . '/question/type/edit_question_form.php');
 
 /**
  * matrix editing form definition. For information about the Moodle forms library,
@@ -34,7 +34,8 @@ require_once($CFG->dirroot . '/question/type/edit_question_form.php');
  *
  * @see http://docs.moodle.org/en/Development:lib/formslib.php
  */
-class qtype_matrix_edit_form extends question_edit_form {
+class qtype_matrix_edit_form extends question_edit_form
+{
 
     const PARAM_COLS = 'cols_shorttext';
     const DEFAULT_COLS = 2;
@@ -56,7 +57,8 @@ class qtype_matrix_edit_form extends question_edit_form {
      */
     private $builder = null;
 
-    public function qtype(): string {
+    public function qtype(): string
+    {
         return 'matrix';
     }
 
@@ -66,7 +68,8 @@ class qtype_matrix_edit_form extends question_edit_form {
      * @throws coding_exception
      * @throws dml_exception
      */
-    public function definition_inner($mform): void {
+    public function definition_inner($mform): void
+    {
         $this->builder = new matrix_form_builder($mform);
         $builder = $this->builder;
 
@@ -80,17 +83,60 @@ class qtype_matrix_edit_form extends question_edit_form {
             $builder->set_default(self::PARAM_USE_DND_UI, self::DEFAULT_USE_DND_UI);
         }
 
-        $mform->addElement('advcheckbox', self::PARAM_SHUFFLE_ANSERS, lang::shuffle_answers(), null, null, [0,
-            1]);
+        $mform->addElement('text', 'partialgrade1', get_string('partialgrade1', 'qtype_matrix'));
+        $mform->setType('partialgrade1', PARAM_FLOAT);
+        $mform->setDefault('partialgrade1', 0.5);
+
+        $mform->addElement('text', 'partialgrade2', get_string('partialgrade2', 'qtype_matrix'));
+        $mform->setType('partialgrade2', PARAM_FLOAT);
+        $mform->setDefault('partialgrade2', 0.25);
+
+        $mform->addElement('text', 'partialgrade3', get_string('partialgrade3', 'qtype_matrix'));
+        $mform->setType('partialgrade3', PARAM_FLOAT);
+        $mform->setDefault('partialgrade3', 0.1);
+
+        $mform->addElement('advcheckbox', self::PARAM_SHUFFLE_ANSERS, lang::shuffle_answers(), null, null, [
+            0,
+            1
+        ]);
         $builder->add_help_button(self::PARAM_SHUFFLE_ANSERS);
         $builder->set_default(self::PARAM_SHUFFLE_ANSERS, self::DEFAULT_SHUFFLE_ANSWERS);
+
+        $mform->addElement('html', '<script type="text/javascript">
+    document.addEventListener("DOMContentLoaded", function() {
+    
+    var gradeMethodRadios = document.querySelectorAll("input[name=\'grademethod\']");
+    var addRowsButton = document.getElementById("id_add_rows");
+
+    function toggleAddRows() {
+        var customRadio = document.getElementById("id_grademethod_standard");
+        if (customRadio.checked) {
+            addRowsButton.disabled = true;
+            addRowsButton.style.display = "none";
+        } else {
+            addRowsButton.disabled = false;
+            addRowsButton.style.display = "inline-block";
+        }
+    }
+
+    // Event listeners for all grade method radio buttons
+    gradeMethodRadios.forEach(function(radio) {
+        radio.addEventListener("change", toggleAddRows);
+    });
+
+    // Initial check
+    toggleAddRows();
+    });
+</script>');
+
     }
 
     /**
      * @return void
      * @throws coding_exception
      */
-    public function add_multiple(): void {
+    public function add_multiple(): void
+    {
         // Multiple allowed.
         $builder = $this->builder;
 
@@ -108,7 +154,8 @@ class qtype_matrix_edit_form extends question_edit_form {
      * @return void
      * @throws coding_exception
      */
-    public function add_grading(): void {
+    public function add_grading(): void
+    {
         $builder = $this->builder;
 
         // Grading method.
@@ -119,16 +166,19 @@ class qtype_matrix_edit_form extends question_edit_form {
         $radioarray = [];
 
         foreach ($gradings as $grading) {
-            $radioarray[] = &$this->_form->createElement('radio',
+            $radioarray[] = &$this->_form->createElement(
+                'radio',
                 self::PARAM_GRADE_METHOD,
                 '',
                 $grading->get_title(),
                 $grading->get_name(),
-                '');
+                ''
+            );
         }
 
         $this->_form->addGroup($radioarray, self::PARAM_GRADE_METHOD, lang::grade_method(), [
-            '<br>'], false);
+            '<br>'
+        ], false);
         $this->_form->setDefault(self::PARAM_GRADE_METHOD, $defaultgradingname);
         $builder->add_help_button(self::PARAM_GRADE_METHOD);
     }
@@ -141,18 +191,36 @@ class qtype_matrix_edit_form extends question_edit_form {
      * @return void
      * @throws coding_exception
      */
-    public function definition_after_data(): void {
+    public function definition_after_data(): void
+    {
         $builder = $this->builder;
+
+        $mform = $this->_form;
+        $question = $this->question;
 
         $this->add_matrix();
         $builder->add_javascript($this->get_javascript());
+
+        // Display the current values if they exist
+        if (isset($question->partialgrade1)) {
+            $mform->setDefault('partialgrade1', $question->partialgrade1);
+        }
+
+        if (isset($question->partialgrade2)) {
+            $mform->setDefault('partialgrade2', $question->partialgrade2);
+        }
+
+        if (isset($question->partialgrade3)) {
+            $mform->setDefault('partialgrade3', $question->partialgrade3);
+        }
     }
 
     /**
      * @return void
      * @throws coding_exception
      */
-    public function add_matrix(): void {
+    public function add_matrix(): void
+    {
         $mform = $this->_form;
         $builder = $this->builder;
 
@@ -187,7 +255,8 @@ class qtype_matrix_edit_form extends question_edit_form {
         $matrix[] = $builder->create_static('<th>');
         if (setting::show_kprime_gui()) {
             $matrix[] = $builder->create_submit(self::PARAM_ADD_COLUMNS, '+', [
-                'class' => 'button-add']);
+                'class' => 'button-add'
+            ]);
             $builder->register_no_submit_button(self::PARAM_ADD_COLUMNS);
         }
         $matrix[] = $builder->create_static('</th>');
@@ -211,7 +280,7 @@ class qtype_matrix_edit_form extends question_edit_form {
             for ($col = 0; $col < $colscount; $col++) {
                 $matrix[] = $builder->create_static('<td>');
                 $cellcontent = $grading->create_cell_element($mform, $row, $col, $multiple);
-                $cellcontent = $cellcontent ? : $builder->create_static('');
+                $cellcontent = $cellcontent ?: $builder->create_static('');
                 $matrix[] = $cellcontent;
                 $matrix[] = $builder->create_static('</td>');
             }
@@ -276,7 +345,8 @@ class qtype_matrix_edit_form extends question_edit_form {
      * @return int The number of columns
      * @throws coding_exception
      */
-    protected function param_cols(): int {
+    protected function param_cols(): int
+    {
         $result = self::DEFAULT_COLS;
         // Todo: fix direct access to POST! Insecure, no filters in place.
         if (isset($_POST[self::PARAM_COLS])) {
@@ -302,7 +372,8 @@ class qtype_matrix_edit_form extends question_edit_form {
      * @return string columns to add
      * @throws coding_exception
      */
-    protected function param_add_columns(): string {
+    protected function param_add_columns(): string
+    {
         return optional_param(self::PARAM_ADD_COLUMNS, '', PARAM_TEXT);
     }
 
@@ -310,7 +381,8 @@ class qtype_matrix_edit_form extends question_edit_form {
      * @return int
      * @throws coding_exception
      */
-    protected function param_rows(): int {
+    protected function param_rows(): int
+    {
         $result = self::DEFAULT_ROWS;
         // Todo: fix direct access to POST! Insecure, no filters in place.
         if (isset($_POST[self::PARAM_ROWS])) {
@@ -332,7 +404,8 @@ class qtype_matrix_edit_form extends question_edit_form {
      * @return bool rows to add
      * @throws coding_exception
      */
-    protected function param_add_rows(): bool {
+    protected function param_add_rows(): bool
+    {
         return !empty(optional_param(self::PARAM_ADD_ROWS, '', PARAM_TEXT));
     }
 
@@ -341,7 +414,8 @@ class qtype_matrix_edit_form extends question_edit_form {
      *
      * @return array|string|string[] The grade method parameter
      */
-    protected function param_grade_method() {
+    protected function param_grade_method()
+    {
         $data = $this->_form->exportValues();
         return $data[self::PARAM_GRADE_METHOD] ?? qtype_matrix::defaut_grading()->get_name();
     }
@@ -351,7 +425,8 @@ class qtype_matrix_edit_form extends question_edit_form {
      *
      * @return mixed Whether the question allows multiple answers
      */
-    protected function param_multiple() {
+    protected function param_multiple()
+    {
         $data = $this->_form->exportValues();
         if ($this->param_grade_method() == difference::get_name()) {
             $data[self::PARAM_MULTIPLE] = false;
@@ -359,7 +434,8 @@ class qtype_matrix_edit_form extends question_edit_form {
         return $data[self::PARAM_MULTIPLE] ?? self::DEFAULT_MULTIPLE;
     }
 
-    public function get_javascript(): string {
+    public function get_javascript(): string
+    {
         return "var YY = null;
         window.mtrx_current = false;
         function mtrx_popup(id) {
@@ -394,7 +470,8 @@ class qtype_matrix_edit_form extends question_edit_form {
      * @param $question object
      * @return void
      */
-    public function set_data($question): void {
+    public function set_data($question): void
+    {
         $isnew = empty($question->id);
         if (!$isnew) {
             $options = $question->options;
@@ -454,7 +531,8 @@ class qtype_matrix_edit_form extends question_edit_form {
      * @return mixed
      * @throws coding_exception
      */
-    public function validation($fromform, $files): array {
+    public function validation($fromform, $files): array
+    {
         $errors = parent::validation($fromform, $files);
         if (setting::show_kprime_gui()) {
             if ($this->col_count($fromform) == 0) {
@@ -476,11 +554,13 @@ class qtype_matrix_edit_form extends question_edit_form {
         return array_merge($errors, $gradingerrors);
     }
 
-    protected function col_count(array $data): int {
+    protected function col_count(array $data): int
+    {
         return count($data['cols_shorttext']);
     }
 
-    protected function row_count(array $data): int {
+    protected function row_count(array $data): int
+    {
         return count($data['rows_shorttext']);
     }
 }

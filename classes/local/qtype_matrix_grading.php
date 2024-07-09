@@ -24,7 +24,8 @@ use qtype_matrix_question;
  *
  * @abstract
  */
-abstract class qtype_matrix_grading {
+abstract class qtype_matrix_grading
+{
 
     /**
      * @return array
@@ -32,13 +33,14 @@ abstract class qtype_matrix_grading {
      * @uses \qtype_matrix\local\grading\kprime
      * @uses \qtype_matrix\local\grading\all
      */
-    public static function gradings(): array {
+    public static function gradings(): array
+    {
         static $result = false;
         if ($result !== false) {
             return $result;
         }
         $result = [];
-        $classlist = ['all', 'kany', 'kprime', 'difference'];
+        $classlist = ['all', 'kany', 'kprime', 'difference', 'standard'];
         $namespace = 'qtype_matrix\\local\\grading\\';
         foreach ($classlist as $class) {
             $classname = $namespace . $class;
@@ -47,7 +49,8 @@ abstract class qtype_matrix_grading {
         return $result;
     }
 
-    public static function default_grading(): qtype_matrix_grading {
+    public static function default_grading(): qtype_matrix_grading
+    {
         return self::create('kprime');
     }
 
@@ -56,7 +59,8 @@ abstract class qtype_matrix_grading {
      * @param string $type
      * @return qtype_matrix_grading
      */
-    public static function create(string $type): qtype_matrix_grading {
+    public static function create(string $type): qtype_matrix_grading
+    {
         static $result = [];
         if (isset($result[$type])) {
             return $result[$type];
@@ -71,11 +75,13 @@ abstract class qtype_matrix_grading {
      * @return string
      * @throws coding_exception
      */
-    public static function get_title(): string {
+    public static function get_title(): string
+    {
         return lang::get(self::get_name());
     }
 
-    public static function get_name(): string {
+    public static function get_name(): string
+    {
         return get_called_class();
     }
 
@@ -88,7 +94,8 @@ abstract class qtype_matrix_grading {
      * @param bool            $multiple whether the question allows multiple answers
      * @return object
      */
-    public function create_cell_element(MoodleQuickForm $form, int $row, int $col, bool $multiple): object {
+    public function create_cell_element(MoodleQuickForm $form, int $row, int $col, bool $multiple): object
+    {
         $cellname = $this->cell_name($row, $col, $multiple);
         if ($multiple) {
             return $form->createElement('checkbox', $cellname, 'label');
@@ -107,7 +114,8 @@ abstract class qtype_matrix_grading {
      *
      * @return string
      */
-    public static function cell_name(int $row, int $col, bool $multiple): string {
+    public static function cell_name(int $row, int $col, bool $multiple): string
+    {
         return $multiple ? "cell{$row}_$col" : "cell$row";
     }
 
@@ -118,7 +126,8 @@ abstract class qtype_matrix_grading {
      * @param array                 $answers
      * @return float
      */
-    public function grade_question(qtype_matrix_question $question, array $answers): float {
+    public function grade_question(qtype_matrix_question $question, array $answers): float
+    {
         $grades = [];
         foreach ($question->rows as $row) {
             $grades[] = $this->grade_row($question, $row, $answers);
@@ -136,7 +145,8 @@ abstract class qtype_matrix_grading {
      * @param array                 $responses
      * @return float
      */
-    public function grade_row(qtype_matrix_question $question, $row, array $responses): float {
+    public function grade_row(qtype_matrix_question $question, $row, array $responses): float
+    {
         return 0.0;
     }
 
@@ -146,15 +156,18 @@ abstract class qtype_matrix_grading {
      * @param array $data the raw form data
      * @return array of errors
      */
-    public function validation(array $data): array {
+    public function validation(array $data): array
+    {
         return [];
     }
 
-    protected function col_count(array $data): int {
+    protected function col_count(array $data): int
+    {
         return count($data['cols_shorttext']);
     }
 
-    protected function row_count(array $data): int {
+    protected function row_count(array $data): int
+    {
         return count($data['rows_shorttext']);
     }
 }
