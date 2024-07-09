@@ -43,7 +43,8 @@
  * @throws downgrade_exception
  * @throws upgrade_exception
  */
-function xmldb_qtype_matrix_upgrade(int $oldversion): bool {
+function xmldb_qtype_matrix_upgrade(int $oldversion): bool
+{
     global $DB;
     $dbman = $DB->get_manager();
     if ($oldversion < 2014040800) {
@@ -86,5 +87,28 @@ function xmldb_qtype_matrix_upgrade(int $oldversion): bool {
 
         upgrade_plugin_savepoint(true, 2023010303, 'qtype', 'matrix');
     }
+
+    if ($oldversion < 2024070900) {
+        // Define fields to be added to qtype_matrix_options.
+        $table = new xmldb_table('qtype_matrix_options');
+        $field1 = new xmldb_field('partialgrade1', XMLDB_TYPE_NUMBER, '10, 5', null, XMLDB_NOTNULL, null, 0.5);
+        $field2 = new xmldb_field('partialgrade2', XMLDB_TYPE_NUMBER, '10, 5', null, XMLDB_NOTNULL, null, 0.25);
+        $field3 = new xmldb_field('partialgrade3', XMLDB_TYPE_NUMBER, '10, 5', null, XMLDB_NOTNULL, null, 0.1);
+
+        // Add fields to table.
+        if (!$dbman->field_exists($table, $field1)) {
+            $dbman->add_field($table, $field1);
+        }
+        if (!$dbman->field_exists($table, $field2)) {
+            $dbman->add_field($table, $field2);
+        }
+        if (!$dbman->field_exists($table, $field3)) {
+            $dbman->add_field($table, $field3);
+        }
+
+        // Update savepoint reached.
+        upgrade_plugin_savepoint(true, 2024070900, 'qtype', 'matrix');
+    }
+
     return true;
 }
