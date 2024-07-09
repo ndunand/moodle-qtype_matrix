@@ -104,30 +104,49 @@ class qtype_matrix_edit_form extends question_edit_form
 
         $mform->addElement('html', '<script type="text/javascript">
     document.addEventListener("DOMContentLoaded", function() {
-    
-    var gradeMethodRadios = document.querySelectorAll("input[name=\'grademethod\']");
-    var addRowsButton = document.getElementById("id_add_rows");
+        // Get all the grade method radio buttons
+        var gradeMethodRadios = document.querySelectorAll("input[name=\'grademethod\']");
+        var addRowsButton = document.getElementById("id_add_rows");
 
-    function toggleAddRows() {
-        var customRadio = document.getElementById("id_grademethod_standard");
-        if (customRadio.checked) {
-            addRowsButton.disabled = true;
-            addRowsButton.style.display = "none";
-        } else {
-            addRowsButton.disabled = false;
-            addRowsButton.style.display = "inline-block";
+        // Get the partial grade divs
+        var partialGradeDivs = [
+            document.getElementById("fitem_id_partialgrade1"),
+            document.getElementById("fitem_id_partialgrade2"),
+            document.getElementById("fitem_id_partialgrade3")
+        ];
+
+        // Function to toggle the add_rows button and partial grade divs
+        function toggleAddRows() {
+            var standardRadio = document.getElementById("id_grademethod_standard");
+            if (standardRadio.checked) {
+                addRowsButton.disabled = true;
+                addRowsButton.style.display = "none";
+                partialGradeDivs.forEach(function(div) {
+                    if (div) {
+                        div.style.display = "flex"; 
+                    }
+                });
+            } else {
+                addRowsButton.disabled = false;
+                addRowsButton.style.display = "inline-block";
+                partialGradeDivs.forEach(function(div) {
+                    if (div) {
+                        div.style.display = "none";
+                    }
+                });
+            }
         }
-    }
 
-    // Event listeners for all grade method radio buttons
-    gradeMethodRadios.forEach(function(radio) {
-        radio.addEventListener("change", toggleAddRows);
-    });
+        // Event listeners for all grade method radio buttons
+        gradeMethodRadios.forEach(function(radio) {
+            radio.addEventListener("change", toggleAddRows);
+        });
 
-    // Initial check
-    toggleAddRows();
+        // Initial check
+        toggleAddRows();
     });
 </script>');
+
 
     }
 
