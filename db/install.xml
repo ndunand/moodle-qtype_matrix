@@ -95,11 +95,11 @@
                      <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" />
                      <FIELD NAME="questionid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" 
                             COMMENT="FK to question table" />
-                     <FIELD NAME="partialgrade1" TYPE="number" LENGTH="10, 5" NOTNULL="true" SEQUENCE="false" 
+                     <FIELD NAME="partialgrade1" TYPE="float" LENGTH="10" NOTNULL="true" SEQUENCE="false" DECIMALS="5"
                             COMMENT="Partial grade 1" DEFAULT="0.5" />
-                     <FIELD NAME="partialgrade2" TYPE="number" LENGTH="10, 5" NOTNULL="true" SEQUENCE="false" 
+                     <FIELD NAME="partialgrade2" TYPE="float" LENGTH="10" NOTNULL="true" SEQUENCE="false" DECIMALS="5"
                             COMMENT="Partial grade 2" DEFAULT="0.25" />
-                     <FIELD NAME="partialgrade3" TYPE="number" LENGTH="10, 5" NOTNULL="true" SEQUENCE="false" 
+                     <FIELD NAME="partialgrade3" TYPE="float" LENGTH="10" NOTNULL="true" SEQUENCE="false" DECIMALS="5"
                             COMMENT="Partial grade 3" DEFAULT="0.1" />
               </FIELDS>
               <KEYS>
