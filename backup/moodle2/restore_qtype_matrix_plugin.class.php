@@ -51,7 +51,7 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
 
         // Todo: check import of version moodle1 data.
 
-        if ($this->is_question_created() || !$this->get_mappingid('qtype_matrix_matrix', $oldid)) {
+        if ($this->is_question_created()) {
             $data->questionid = $this->get_new_parentid('question');
             $newitemid = $DB->insert_record('qtype_matrix', $data);
             $this->set_mapping('matrix', $oldid, $newitemid);
@@ -80,6 +80,10 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
         $oldid = $data->id;
 
         $newmatrixid = $this->get_new_parentid('matrix');
+        if (!$newmatrixid) {
+            return;
+        }
+
         if ($this->is_question_created()) {
             $data->matrixid = $newmatrixid;
             $newitemid = $DB->insert_record('qtype_matrix_cols', $data);
@@ -111,6 +115,9 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
         $oldid = $data->id;
 
         $newmatrixid = $this->get_new_parentid('matrix');
+        if (!$newmatrixid) {
+            return;
+        }
 
         if ($this->is_question_created()) {
             $data->matrixid = $newmatrixid;
