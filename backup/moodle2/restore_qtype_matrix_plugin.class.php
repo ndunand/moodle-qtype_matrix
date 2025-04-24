@@ -243,4 +243,152 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
         return $result;
     }
 
+    /**
+     * Returns the paths to be handled by the plugin at question level
+     */
+    protected function define_question_plugin_structure(): array {
+        $result = [];
+
+        $elename = 'matrix';
+        $elepath = $this->get_pathfor('/matrix'); // We used get_recommended_name() so this works.
+        $result[] = new restore_path_element($elename, $elepath);
+
+        $elename = 'col';
+        $elepath = $this->get_pathfor('/matrix/cols/col'); // We used get_recommended_name() so this works.
+        $result[] = new restore_path_element($elename, $elepath);
+
+        $elename = 'row';
+        $elepath = $this->get_pathfor('/matrix/rows/row'); // We used get_recommended_name() so this works.
+        $result[] = new restore_path_element($elename, $elepath);
+
+        $elename = 'weight';
+        $elepath = $this->get_pathfor('/matrix/weights/weight'); // We used get_recommended_name() so this works.
+        $result[] = new restore_path_element($elename, $elepath);
+
+        return $result;
+    }
+
+     /**
+     * Converts the backup data structure to the question data structure.
+     * This is needed for question identity hash generation to work correctly.
+     *
+     * @param array $backupdata Data from the backup
+     * @return stdClass The converted question data
+     */
+    public static function convert_backup_to_questiondata(array $backupdata): stdClass {
+        $questiondata = parent::convert_backup_to_questiondata($backupdata);
+        
+        // Add the matrix-specific options.
+        if (isset($backupdata['plugin_qtype_matrix_question']['matrix'][0])) {
+            $matrix = $backupdata['plugin_qtype_matrix_question']['matrix'][0];
+            
+            // Add the matrix options to the question data.
+            $questiondata->options = new stdClass();
+            
+            // Process rows to correct format
+            $rowids = [];
+            $questiondata->options->rows = [];
+            if (isset($matrix['rows']['row'])) {
+                foreach ($matrix['rows']['row'] as $row) {
+                    $description = $row['description'] ?? '';
+                    $row['description'] = [
+                        'text' => $description,
+                        'format' => FORMAT_HTML
+                    ];
+
+                    $feedback = $row['feedback'] ?? '';
+                    $row['feedback'] = [
+                        'text' => $feedback,
+                        'format' => FORMAT_HTML
+                    ];
+
+                    $row['matrixid'] = $matrix['id'];
+
+                    $questiondata->options->rows[$row['id']] = (object) $row;
+                    $rowids[] = $row['id'];
+                }
+            }
+
+            // Process cols to correct format
+            $columnids = [];
+            $questiondata->options->cols = [];
+            if (isset($matrix['cols']['col'])) {
+                foreach ($matrix['cols']['col'] as $column) {
+                    $description = $column['description'] ?? '';
+                    $column['description'] = [
+                        'text' => $description,
+                        'format' => FORMAT_HTML
+                    ];
+
+                    $column['matrixid'] = $matrix['id'];
+
+                    $questiondata->options->cols[$column['id']] = (object) $column;
+                    $columnids[] = $column['id'];
+                }
+            }
+            
+           /**
+            * Return the weights in the format of rowid -> colid -> value
+            */
+            $weights = [];
+
+            // prepare weights with 0 values as they are not present when their value is empty
+            foreach ($rowids as $rowid) {
+                foreach ($columnids as $columnid) {
+                    $weights[$rowid][$columnid] = 0;
+                }
+            }
+
+            if (isset($matrix['weights']['weight'])) {
+                foreach ($matrix['weights']['weight'] as $weight) {
+                    $weight = (object) $weight;
+                    $weights[$weight->rowid][$weight->colid] = $weight->weight;
+                }
+            }
+            $questiondata->options->weights = $weights;
+        }
+        
+        return $questiondata;
+    }
+
+    /**
+     * Remove any data that shouldn't be included in the question identity hash.
+     * This includes any data added by get_question_options() that isn't in the backup.
+     *
+     * @param stdClass $questiondata The question data to clean
+     * @param array $excludefields Array of fields to exclude (optional)
+     * @return stdClass The cleaned question data
+     */
+    public static function remove_excluded_question_data(stdClass $questiondata, array $excludefields = []): stdClass {
+        // If there are any temporary or calculated values in the options, remove them here
+        if (isset($questiondata->options)) { 
+            if (isset($questiondata->options->renderer)) {
+                unset($questiondata->options->renderer);
+            }
+
+            if (isset($questiondata->options->grademethod)) {
+                unset($questiondata->options->grademethod);
+            }
+
+            if (isset($questiondata->options->multiple)) {
+                unset($questiondata->options->multiple);
+            }
+
+            if (isset($questiondata->options->answers)) {
+                unset($questiondata->options->answers);
+            }
+
+            if (isset($questiondata->options->shuffleanswers)) {
+                unset($questiondata->options->shuffleanswers);
+            }
+
+            if (isset($questiondata->options->usedndui)) {
+                unset($questiondata->options->usedndui);
+            }
+        }
+        
+        // Let the parent handle standard excluded fields
+        return parent::remove_excluded_question_data($questiondata, $excludefields);;
+    }
+
 }
