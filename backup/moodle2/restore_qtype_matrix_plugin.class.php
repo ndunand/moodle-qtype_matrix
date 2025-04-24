@@ -243,31 +243,6 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
         return $result;
     }
 
-    /**
-     * Returns the paths to be handled by the plugin at question level
-     */
-    protected function define_question_plugin_structure(): array {
-        $result = [];
-
-        $elename = 'matrix';
-        $elepath = $this->get_pathfor('/matrix'); // We used get_recommended_name() so this works.
-        $result[] = new restore_path_element($elename, $elepath);
-
-        $elename = 'col';
-        $elepath = $this->get_pathfor('/matrix/cols/col'); // We used get_recommended_name() so this works.
-        $result[] = new restore_path_element($elename, $elepath);
-
-        $elename = 'row';
-        $elepath = $this->get_pathfor('/matrix/rows/row'); // We used get_recommended_name() so this works.
-        $result[] = new restore_path_element($elename, $elepath);
-
-        $elename = 'weight';
-        $elepath = $this->get_pathfor('/matrix/weights/weight'); // We used get_recommended_name() so this works.
-        $result[] = new restore_path_element($elename, $elepath);
-
-        return $result;
-    }
-
      /**
      * Converts the backup data structure to the question data structure.
      * This is needed for question identity hash generation to work correctly.
