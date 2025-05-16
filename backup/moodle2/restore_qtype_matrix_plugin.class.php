@@ -56,6 +56,9 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
             $newitemid = $DB->insert_record('qtype_matrix', $data);
             $this->set_mapping('matrix', $oldid, $newitemid);
         }
+        else {
+            $this->set_mapping('matrix', $oldid, null);
+        }
     }
 
     /**
@@ -79,6 +82,7 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
         $data = (object) $data;
         $oldid = $data->id;
 
+        $oldmatrixid = $this->get_old_parentid('matrix');
         $newmatrixid = $this->get_new_parentid('matrix');
         if (!$newmatrixid) {
             return;
@@ -96,6 +100,10 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
             }
         }
         if (!isset($newitemid)) {
+            $info = new stdClass();
+            $info->filequestionid = $oldmatrixid;
+            $info->dbquestionid = $newmatrixid;
+            $info->answer = $data->shorttext;
             throw new restore_step_exception('error_question_answers_missing_in_db');
         } else {
             $this->set_mapping('col', $oldid, $newitemid);
@@ -114,6 +122,7 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
         $data = (object) $data;
         $oldid = $data->id;
 
+        $oldmatrixid = $this->get_old_parentid('matrix');
         $newmatrixid = $this->get_new_parentid('matrix');
         if (!$newmatrixid) {
             return;
@@ -131,6 +140,10 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
             }
         }
         if (!$newitemid) {
+            $info = new stdClass();
+            $info->filequestionid = $oldmatrixid;
+            $info->dbquestionid = $newmatrixid;
+            $info->answer = $data->shorttext;
             throw new restore_step_exception('error_question_answers_missing_in_db');
         } else {
             $this->set_mapping('row', $oldid, $newitemid);
@@ -259,6 +272,14 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
             
             // Add the matrix options to the question data.
             $questiondata->options = new stdClass();
+
+            $questiondata->options->usedndui = $matrix['usedndui'] ?? "0";
+            $questiondata->options->grademethod = $matrix['grademethod'] ?? 'kprime';
+            $questiondata->options->multiple = boolval($matrix['multiple']);
+            
+            $questiondata->options->answers = $matrix['answers'] ?? [];
+            $questiondata->options->renderer = $matrix['renderer'] ?? 'matrix';
+            $questiondata->options->shuffleanswers = boolval($matrix['shuffleanswers']);
             
             // Process rows to correct format
             $rowids = [];
@@ -266,6 +287,8 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
             if (isset($matrix['rows']['row'])) {
                 foreach ($matrix['rows']['row'] as $row) {
                     $description = $row['description'] ?? '';
+
+                    $row['matrixid'] = $matrix['id'];
                     $row['description'] = [
                         'text' => $description,
                         'format' => FORMAT_HTML
@@ -277,8 +300,6 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
                         'format' => FORMAT_HTML
                     ];
 
-                    $row['matrixid'] = $matrix['id'];
-
                     $questiondata->options->rows[$row['id']] = (object) $row;
                     $rowids[] = $row['id'];
                 }
@@ -289,13 +310,13 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
             $questiondata->options->cols = [];
             if (isset($matrix['cols']['col'])) {
                 foreach ($matrix['cols']['col'] as $column) {
+                    $column['matrixid'] = $matrix['id'];
+
                     $description = $column['description'] ?? '';
                     $column['description'] = [
                         'text' => $description,
                         'format' => FORMAT_HTML
                     ];
-
-                    $column['matrixid'] = $matrix['id'];
 
                     $questiondata->options->cols[$column['id']] = (object) $column;
                     $columnids[] = $column['id'];
@@ -321,49 +342,32 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
                 }
             }
             $questiondata->options->weights = $weights;
+        } else {
+            $questiondata->options->rows = [];
+            $questiondata->options->cols = [];
+            $questiondata->options->weights = [[]];
+            $questiondata->options->grademethod = 'kprime';
+            $questiondata->options->shuffleanswers = true;
+            $questiondata->options->usedndui = false;
+            $questiondata->options->multiple = true;
         }
         
         return $questiondata;
     }
 
     /**
-     * Remove any data that shouldn't be included in the question identity hash.
-     * This includes any data added by get_question_options() that isn't in the backup.
+     * Remove excluded fields from the questiondata structure. We use this function to remove the
+     * id and questionid fields for the weights, because they cannot be removed via the default
+     * mechanism due to the two-dimensional array. Once this is done, we call the parent function
+     * to remove the necessary fields.
      *
-     * @param stdClass $questiondata The question data to clean
-     * @param array $excludefields Array of fields to exclude (optional)
-     * @return stdClass The cleaned question data
+     * @param stdClass $questiondata
+     * @param array $excludefields Paths to the fields to exclude.
+     * @return stdClass The $questiondata with excluded fields removed.
      */
     public static function remove_excluded_question_data(stdClass $questiondata, array $excludefields = []): stdClass {
-        // If there are any temporary or calculated values in the options, remove them here
-        if (isset($questiondata->options)) { 
-            if (isset($questiondata->options->renderer)) {
-                unset($questiondata->options->renderer);
-            }
+        unset($questiondata->hints);
 
-            if (isset($questiondata->options->grademethod)) {
-                unset($questiondata->options->grademethod);
-            }
-
-            if (isset($questiondata->options->multiple)) {
-                unset($questiondata->options->multiple);
-            }
-
-            if (isset($questiondata->options->answers)) {
-                unset($questiondata->options->answers);
-            }
-
-            if (isset($questiondata->options->shuffleanswers)) {
-                unset($questiondata->options->shuffleanswers);
-            }
-
-            if (isset($questiondata->options->usedndui)) {
-                unset($questiondata->options->usedndui);
-            }
-        }
-        
-        // Let the parent handle standard excluded fields
-        return parent::remove_excluded_question_data($questiondata, $excludefields);;
+        return parent::remove_excluded_question_data($questiondata, $excludefields);
     }
-
 }
