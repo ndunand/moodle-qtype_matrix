@@ -477,10 +477,10 @@ class qtype_matrix_edit_form extends question_edit_form {
     }
 
     protected function col_count(array $data): int {
-        return count($data['cols_shorttext']);
+        return count(array_filter($data['cols_shorttext']));
     }
 
     protected function row_count(array $data): int {
-        return count($data['rows_shorttext']);
+        return count(array_filter($data['rows_shorttext']));
     }
 }
