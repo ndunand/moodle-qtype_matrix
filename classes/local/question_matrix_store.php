@@ -318,7 +318,7 @@ class question_matrix_store {
                     rowid IN (SELECT qmr.id FROM {qtype_matrix_rows} qmr
                               INNER JOIN {qtype_matrix} qm ON qmr.matrixid = qm.id
                               WHERE qm.questionid = $questionid)
-                    OR
+                    AND
                     colid IN (SELECT qmc.id FROM {qtype_matrix_cols} qmc
                               INNER JOIN {qtype_matrix} qm ON qmc.matrixid = qm.id
                               WHERE qm.questionid = $questionid)
