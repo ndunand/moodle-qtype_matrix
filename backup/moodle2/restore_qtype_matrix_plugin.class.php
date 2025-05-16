@@ -56,6 +56,9 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
             $newitemid = $DB->insert_record('qtype_matrix', $data);
             $this->set_mapping('matrix', $oldid, $newitemid);
         }
+        else {
+            $this->set_mapping('matrix', $oldid, null);
+        }
     }
 
     /**
@@ -79,6 +82,7 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
         $data = (object) $data;
         $oldid = $data->id;
 
+        $oldmatrixid = $this->get_old_parentid('matrix');
         $newmatrixid = $this->get_new_parentid('matrix');
         if (!$newmatrixid) {
             return;
@@ -96,6 +100,10 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
             }
         }
         if (!isset($newitemid)) {
+            $info = new stdClass();
+            $info->filequestionid = $oldmatrixid;
+            $info->dbquestionid = $newmatrixid;
+            $info->answer = $data->shorttext;
             throw new restore_step_exception('error_question_answers_missing_in_db');
         } else {
             $this->set_mapping('col', $oldid, $newitemid);
@@ -114,6 +122,7 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
         $data = (object) $data;
         $oldid = $data->id;
 
+        $oldmatrixid = $this->get_old_parentid('matrix');
         $newmatrixid = $this->get_new_parentid('matrix');
         if (!$newmatrixid) {
             return;
@@ -131,6 +140,10 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
             }
         }
         if (!$newitemid) {
+            $info = new stdClass();
+            $info->filequestionid = $oldmatrixid;
+            $info->dbquestionid = $newmatrixid;
+            $info->answer = $data->shorttext;
             throw new restore_step_exception('error_question_answers_missing_in_db');
         } else {
             $this->set_mapping('row', $oldid, $newitemid);
@@ -243,4 +256,118 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
         return $result;
     }
 
+     /**
+     * Converts the backup data structure to the question data structure.
+     * This is needed for question identity hash generation to work correctly.
+     *
+     * @param array $backupdata Data from the backup
+     * @return stdClass The converted question data
+     */
+    public static function convert_backup_to_questiondata(array $backupdata): stdClass {
+        $questiondata = parent::convert_backup_to_questiondata($backupdata);
+        
+        // Add the matrix-specific options.
+        if (isset($backupdata['plugin_qtype_matrix_question']['matrix'][0])) {
+            $matrix = $backupdata['plugin_qtype_matrix_question']['matrix'][0];
+            
+            // Add the matrix options to the question data.
+            $questiondata->options = new stdClass();
+
+            $questiondata->options->usedndui = $matrix['usedndui'] ?? "0";
+            $questiondata->options->grademethod = $matrix['grademethod'] ?? 'kprime';
+            $questiondata->options->multiple = boolval($matrix['multiple']);
+            
+            $questiondata->options->answers = $matrix['answers'] ?? [];
+            $questiondata->options->renderer = $matrix['renderer'] ?? 'matrix';
+            $questiondata->options->shuffleanswers = boolval($matrix['shuffleanswers']);
+            
+            // Process rows to correct format
+            $rowids = [];
+            $questiondata->options->rows = [];
+            if (isset($matrix['rows']['row'])) {
+                foreach ($matrix['rows']['row'] as $row) {
+                    $description = $row['description'] ?? '';
+
+                    $row['matrixid'] = $matrix['id'];
+                    $row['description'] = [
+                        'text' => $description,
+                        'format' => FORMAT_HTML
+                    ];
+
+                    $feedback = $row['feedback'] ?? '';
+                    $row['feedback'] = [
+                        'text' => $feedback,
+                        'format' => FORMAT_HTML
+                    ];
+
+                    $questiondata->options->rows[$row['id']] = (object) $row;
+                    $rowids[] = $row['id'];
+                }
+            }
+
+            // Process cols to correct format
+            $columnids = [];
+            $questiondata->options->cols = [];
+            if (isset($matrix['cols']['col'])) {
+                foreach ($matrix['cols']['col'] as $column) {
+                    $column['matrixid'] = $matrix['id'];
+
+                    $description = $column['description'] ?? '';
+                    $column['description'] = [
+                        'text' => $description,
+                        'format' => FORMAT_HTML
+                    ];
+
+                    $questiondata->options->cols[$column['id']] = (object) $column;
+                    $columnids[] = $column['id'];
+                }
+            }
+            
+           /**
+            * Return the weights in the format of rowid -> colid -> value
+            */
+            $weights = [];
+
+            // prepare weights with 0 values as they are not present when their value is empty
+            foreach ($rowids as $rowid) {
+                foreach ($columnids as $columnid) {
+                    $weights[$rowid][$columnid] = 0;
+                }
+            }
+
+            if (isset($matrix['weights']['weight'])) {
+                foreach ($matrix['weights']['weight'] as $weight) {
+                    $weight = (object) $weight;
+                    $weights[$weight->rowid][$weight->colid] = $weight->weight;
+                }
+            }
+            $questiondata->options->weights = $weights;
+        } else {
+            $questiondata->options->rows = [];
+            $questiondata->options->cols = [];
+            $questiondata->options->weights = [[]];
+            $questiondata->options->grademethod = 'kprime';
+            $questiondata->options->shuffleanswers = true;
+            $questiondata->options->usedndui = false;
+            $questiondata->options->multiple = true;
+        }
+        
+        return $questiondata;
+    }
+
+    /**
+     * Remove excluded fields from the questiondata structure. We use this function to remove the
+     * id and questionid fields for the weights, because they cannot be removed via the default
+     * mechanism due to the two-dimensional array. Once this is done, we call the parent function
+     * to remove the necessary fields.
+     *
+     * @param stdClass $questiondata
+     * @param array $excludefields Paths to the fields to exclude.
+     * @return stdClass The $questiondata with excluded fields removed.
+     */
+    public static function remove_excluded_question_data(stdClass $questiondata, array $excludefields = []): stdClass {
+        unset($questiondata->hints);
+
+        return parent::remove_excluded_question_data($questiondata, $excludefields);
+    }
 }
