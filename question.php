@@ -204,7 +204,8 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
             return true;
         }
 
-        return $DB->get_record('quiz', ['id' => $cm->instance])->shuffleanswers;
+        $quiz = $DB->get_record('quiz', ['id' => $cm->instance]);
+        return $quiz ? (bool)$quiz->shuffleanswers : false;
     }
 
     /**
