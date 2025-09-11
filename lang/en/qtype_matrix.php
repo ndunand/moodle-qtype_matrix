@@ -98,7 +98,7 @@ $string['allow_dnd_ui_descr'] = 'If allowed, the teachers will have the possibil
 $string['use_dnd_ui'] = 'Use drag &amp; drop ?';
 $string['privacy:metadata'] = 'The Kprime/Matrix Question Type plugin does not store any personal data.';
 
-$string['partialgrade1'] = 'Grade when 1 row is incorrect';
-$string['partialgrade2'] = 'Grade when 2 rows are incorrect';
-$string['partialgrade3'] = 'Grade when 3 rows are incorrect';
+$string['partialgrade1'] = 'Grade when 3 rows are correct';
+$string['partialgrade2'] = 'Grade when 2 rows are correct';
+$string['partialgrade3'] = 'Grade when 1 row is correct';
 $string['standard'] = 'Vietnam MOET grading method';

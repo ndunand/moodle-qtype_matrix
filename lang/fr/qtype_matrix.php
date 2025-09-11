@@ -94,3 +94,8 @@ $string['allow_dnd_ui'] = 'Permettre l\'utilisation du glisser-déposer';
 $string['allow_dnd_ui_descr'] = 'Si activé, les enseignants auront la possibilité d\'activer le glisser-déposer pour la réponse aux questions';
 $string['use_dnd_ui'] = 'Utiliser le glisser-déposer ?';
 $string['privacy:metadata'] = 'Le plugin Kprime/Matrix Question Type ne stocke aucune donnée personnelle.';
+
+$string['partialgrade1'] = 'Note lorsque 3 lignes sont correctes';
+$string['partialgrade2'] = 'Note lorsque 2 lignes sont correctes';
+$string['partialgrade3'] = 'Note lorsque 1 ligne est correcte';
+$string['standard'] = 'Vietnam MOET grading method';
