@@ -321,16 +321,16 @@ class qtype_matrix extends question_type
         if (!$options) {
             $options = new stdClass();
             $options->questionid = $question->id;
-            $options->partialgrade1 = 0.5; // Giá trị mặc định
-            $options->partialgrade2 = 0.25; // Giá trị mặc định
-            $options->partialgrade3 = 0.1; // Giá trị mặc định
+            $options->partialgrade1 = 0.5;
+            $options->partialgrade2 = 0.25;
+            $options->partialgrade3 = 0.1;
             $options->id = $DB->insert_record('qtype_matrix_options', $options);
         }
 
         // Gán các giá trị từ form vào $options.
-        $options->partialgrade1 = $question->partialgrade1;
-        $options->partialgrade2 = $question->partialgrade2;
-        $options->partialgrade3 = $question->partialgrade3;
+        $options->partialgrade1 = $question->partialgrade1 ?? 0.5;
+        $options->partialgrade2 = $question->partialgrade2 ?? 0.25;
+        $options->partialgrade3 = $question->partialgrade3 ?? 0.1;
 
         // Cập nhật bản ghi trong cơ sở dữ liệu.
         $DB->update_record('qtype_matrix_options', $options);
@@ -504,6 +504,11 @@ class qtype_matrix extends question_type
             $question->multiple = false;
         }
 
+        $question->partialgrade1 = $format->getpath($data, ['#', 'partialgrade1', 0, '#'], 0.5);
+        $question->partialgrade2 = $format->getpath($data, ['#', 'partialgrade2', 0, '#'], 0.25);
+        $question->partialgrade3 = $format->getpath($data, ['#', 'partialgrade3', 0, '#'], 0.1);
+
+
         // Renderer.
         $question->options->renderer = $format->getpath($data, ['#', 'renderer', 0, '#'], 'matrix');
 
@@ -654,6 +659,11 @@ class qtype_matrix extends question_type
             $multiple = 0;
         }
         $output .= '    <multiple>' . $multiple . "</multiple>\n";
+        if (isset($question->partialgrade1)) {
+            $output .= '    <partialgrade1>' . $question->partialgrade1 . "</partialgrade1>\n";
+            $output .= '    <partialgrade2>' . $question->partialgrade2 . "</partialgrade2>\n";
+            $output .= '    <partialgrade3>' . $question->partialgrade3 . "</partialgrade3>\n";
+        }
         // Renderer.
         $output .= '    <renderer>' . $question->options->renderer . "</renderer>\n";
 

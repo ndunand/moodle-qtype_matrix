@@ -94,3 +94,8 @@ $string['allow_dnd_ui'] = 'Erlaube Drag&Drop in der UI';
 $string['allow_dnd_ui_descr'] = 'Wenn erlaubt, haben die Lehrer die Möglichkeit, die Drag&Drop-Funktion für alle Matrix-Fragen zu aktivieren';
 $string['use_dnd_ui'] = 'Drag &amp; Drop verwenden ?';
 $string['privacy:metadata'] = 'The Kprime/Matrix Question Type plugin does not store any personal data.';
+
+$string['partialgrade1'] = 'Bewertung, wenn 3 Zeilen richtig sind';
+$string['partialgrade2'] = 'Bewertung, wenn 2 Zeilen richtig sind';
+$string['partialgrade3'] = 'Bewertung, wenn 1 Zeile richtig ist';
+$string['standard'] = 'Vietnam MOET grading method';
