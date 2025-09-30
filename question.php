@@ -203,6 +203,11 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
         if (!is_object($cm)) {
             return true;
         }
+        // There is no API for activities to detect whether they use questions or may shuffle them
+        // So we just allow shuffling for any other activity than quiz
+        if ($cm->modname != 'quiz') {
+            return true;
+        }
 
         return $DB->get_record('quiz', ['id' => $cm->instance])->shuffleanswers ?? $this->shuffleanswers;
     }
