@@ -8,27 +8,27 @@
     /*tooltip*/
 }
 
-.que.matrix table {
+.que.matrix .matrix table {
     display: inline-table;
 }
 
-.que.matrix,
-.que.matrix td,
-.que.matrix th {
+.que.matrix .matrix,
+.que.matrix .matrix td,
+.que.matrix .matrix th {
     border-style: none;
     border-bottom-style: solid;
     border-width: 1px;
     border-color: #848484;
 }
 
-.que.matrix td,
-.que.matrix th {
+.que.matrix .matrix td,
+.que.matrix .matrix th {
     text-align: left;
     padding: 5px;
     min-width: 50px;
 }
 
-.que.matrix th {
+.que.matrix .matrix th {
     border-width: 3px;
 }
 
@@ -36,18 +36,18 @@
     background-color: transparent;
 }
 
-.que.matrix .lastcol p {
+.que.matrix .matrix .lastcol p {
     display: inline;
     margin: 0;
     margin-left: 5px;
 }
 
-.que.matrix th,
-.que.matrix td {
+.que.matrix .matrix th,
+.que.matrix .matrix td {
     position: relative;
 }
 
-.que.matrix .description {
+.que.matrix .matrix .description {
     display: none;
     position: fixed;
     background-color: #eee;
@@ -57,24 +57,24 @@
     z-index: 1000;
 }
 
-.que.matrix .description p {
+.que.matrix .matrix .description p {
     margin: 0;
 }
 
-.que.matrix th .description {
+.que.matrix .matrix th .description {
     margin-top: 6px;
 }
 
-.que.matrix th:hover .description {
+.que.matrix .matrix th:hover .description {
     display: block;
 }
 
-.que.matrix td .description {
+.que.matrix .matrix td .description {
     margin-left: 8px;
     margin-top: -8px;
 }
 
-.que.matrix td:hover .description {
+.que.matrix .matrix td:hover .description {
     display: block;
 }
 
