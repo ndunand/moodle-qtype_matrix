@@ -200,6 +200,9 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
     public function shuffle_authorized(): bool {
         global $DB, $PAGE;
         $cm = $PAGE->cm;
+        if (!is_object($cm)) {
+            return true;
+        }
 
         return $DB->get_record('quiz', ['id' => $cm->instance])->shuffleanswers ?? $this->shuffleanswers;
     }
