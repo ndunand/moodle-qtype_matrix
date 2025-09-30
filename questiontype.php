@@ -76,7 +76,7 @@ class qtype_matrix extends question_type {
      * @return boolean true if this question type sometimes requires manual grading.
      */
     public function is_manual_graded(): bool {
-        return true;
+        return false;
     }
 
     /**
@@ -194,7 +194,7 @@ class qtype_matrix extends question_type {
         $rowids = [];
         foreach ($question->rows_shorttext as $i => $short) {
             $rowid = $question->rowid[$i];
-            $isnew = !$rowid;
+            //$isnew = !$rowid;
             $row = (object) [
                 'id' => $rowid,
                 'matrixid' => $matrixid,
@@ -202,6 +202,7 @@ class qtype_matrix extends question_type {
                 'description' => $question->rows_description[$i],
                 'feedback' => $question->rows_feedback[$i]
             ];
+
             $delete = empty($row->shorttext);
 
             if ($delete && $isnew) {
@@ -223,20 +224,22 @@ class qtype_matrix extends question_type {
         $colids = [];
         foreach ($question->cols_shorttext as $i => $short) {
             $colid = $question->colid[$i];
-            $isnew = !$colid;
+            //$isnew = !$colid;
             $col = (object) [
                 'id' => $colid,
                 'matrixid' => $matrixid,
                 'shorttext' => $question->cols_shorttext[$i],
                 'description' => $question->cols_description[$i]
             ];
+
             $delete = empty($col->shorttext);
+
             if ($delete && $isnew) {
                 // Noop?
                 continue;
             } else if ($delete) {
                 $store->delete_matrix_col($col);
-            } else if (!$colid || $makecopy) {
+            } else if ($isnew || $makecopy) {
                 $store->insert_matrix_col($col);
                 $colids[] = $col->id;
             } else {
@@ -613,5 +616,44 @@ class qtype_matrix extends question_type {
         $question->grademethod = $questiondata->options->grademethod;
         $question->shuffleanswers = $questiondata->options->shuffleanswers;
         $question->multiple = $questiondata->options->multiple;
+    }
+
+    /**
+     * (non-PHPdoc).
+     * @see question_type::get_possible_responses()
+     * @param object $questiondata
+     * @return array
+     */
+    public function get_possible_responses($questiondata) {
+        $question = $this->make_question($questiondata);
+        $weights = $question->weights;
+        $parts = [];
+
+        foreach ($question->rows as $rowid => $row) {
+
+            $choices = [];
+            foreach ($question->cols as $columnid => $column) {
+                $correctreponse = '';
+                $partialcredit = 0;
+                /*
+                 * Calculate the partial credit
+                 * For Analysis of responses needs and due to non-linear math the fraction is set to 1
+                 * for Kprime, Kprime1/0 and Difference scoring method. This way we are able to determine correct responses
+                 */
+                if ($weights[$rowid][$columnid] > 0) {
+                    $partialcredit = $question->grademethod == 'all' ? (1 / count($question->rows)) : 1;
+                    $correctreponse = ' (' . get_string('correctresponse', 'qtype_kprime') . ')';
+                }
+
+                $choices[$columnid] = new question_possible_response(
+                    question_utils::to_plain_text($row->shorttext, $row->description['format']) .
+                    ': ' . question_utils::to_plain_text($column->shorttext . $correctreponse, $column->description['format']), $partialcredit);
+            }
+
+            $choices[null] = question_possible_response::no_response();
+            $parts[$rowid] = $choices;
+        }
+
+        return $parts;
     }
 }
