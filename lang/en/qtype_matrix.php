@@ -82,7 +82,7 @@ $string['refresh_matrix'] = 'Refresh response matrix';
 
 $string['matrixheader'] = 'Response matrix';
 
-$string['mustdefine1by1'] = 'You must define at least a 1 x 1 matrix; with either short or long answer defined for each row and column';
+$string['mustdefine1by1'] = 'You must define at least one answer statement and two responses';
 $string['mustaddupto100'] = 'The sum of all non negative weights in each row must be 100%';
 $string['weightednomultiple'] = 'It doesn\'t make sense to choose weighted grading with multiple answers not allowed';
 $string['oneanswerperrow'] = 'You must provide an answer for each row';

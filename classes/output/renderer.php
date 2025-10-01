@@ -105,6 +105,13 @@ class renderer extends qtype_with_combined_feedback_renderer {
         $questiontext = $question->format_questiontext($qa);
         $result = html_writer::tag('div', $questiontext, ['class' => 'question_text']);
         $result .= html_writer::table($table);
+
+        if ($qa->get_state() == question_state::$invalid) {
+            $result .= html_writer::nonempty_tag('div',
+                $question->get_validation_error($qa->get_last_qt_data()),
+                ['class' => 'validationerror']);
+        }
+
         return $result;
     }
 

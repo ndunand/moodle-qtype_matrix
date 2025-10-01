@@ -203,8 +203,13 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
         if (!is_object($cm)) {
             return true;
         }
+        // There is no API for activities to detect whether they use questions or may shuffle them
+        // So we just allow shuffling for any other activity than quiz
+        if ($cm->modname != 'quiz') {
+            return true;
+        }
 
-        return $DB->get_record('quiz', ['id' => $cm->instance])->shuffleanswers;
+        return $DB->get_record('quiz', ['id' => $cm->instance])->shuffleanswers ?? $this->shuffleanswers;
     }
 
     /**
@@ -384,12 +389,13 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
                 $count++;
             }
         }
+
         // Always return false when not at least one row is answered, since this is not considered partial.
         if ($count == 0) {
             return false;
         }
         // We know that the count is unequal to 0, so we only need to check if its complete and if we have not a partial type.
-        if ($count != count($this->rows) && !$this->is_question_partial_gradable()) {
+        if ($count != count($this->rows)) {
             return false;
         }
         return true;
@@ -407,12 +413,11 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      * @return string the message.
      * @throws coding_exception
      */
-    public function get_validation_error(array $response): string {
-        $isgradable = $this->is_gradable_response($response);
-        if ($isgradable) {
-            return '';
+    public function get_validation_error(array $response): ?string {
+        if (!$this->is_complete_response($response)) {
+            return lang::one_answer_per_row();
         }
-        return lang::one_answer_per_row();
+        return null;
     }
 
     /**
@@ -449,7 +454,15 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
                 return false;
             }
         } else {
-            return $this->is_complete_response($response);
+            foreach ($this->rows as $row) {
+                foreach ($this->cols as $col) {
+                    $key = $this->key($row, $col);
+                    if (!empty($response[$key])) {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
     }
 
@@ -560,5 +573,95 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
             }
         }
         return $result;
+    }
+
+    /**
+     * Returns the name field name for input cells in the questiondisplay.
+     * The column parameter is ignored for now since we don't use multiple answers.
+     * @param int $key
+     * @return string
+     */
+    public function field($key) {
+        return 'cell' . $key;
+    }
+
+    /**
+     * Categorise the student's response according to the categories defined by get_possible_responses.
+     * @param array $response a response, as might be passed to  grade_response().
+     * @return array subpartid => question_classified_response objects.
+     *      returns an empty array if no analysis is possible.
+     */
+    public function classify_response(array $response) {
+        // See which column numbers have been selected.
+        $selectedcolumns = $this->get_selected_columns($response);
+
+        return $this->multiple ? $this->classify_multi_response($selectedcolumns) : $this->classify_simple_response($selectedcolumns);
+    }
+
+    protected function classify_multi_response($selectedcolumns) {
+        $parts = [];
+        foreach ($this->rows as $rowid => $row) {
+            $subparts = [];
+            foreach ($this->cols as $colid => $col) {
+                if (isset($selectedcolumns['cell'.$rowid.'_'.$colid])) {
+                    $partialcredit = 0;
+                    if ($this->weights[$rowid][$colid] > 0) {
+                        $partialcredit = $this->grademethod == 'all' ? (1 / count($this->rows)) : 1;
+                    }
+                    $subparts[$colid] = new question_classified_response($colid, $col->shorttext, $partialcredit);
+                }
+            }
+
+            if (empty($subparts)) {
+                $parts[$rowid] = question_classified_response::no_response();
+            } else {
+                $parts[$rowid] = $subparts;
+            }
+        }
+        return $parts;
+    }
+
+    protected function classify_simple_response($selectedcolumns) {
+        $parts = [];
+        foreach ($this->rows as $rowid => $row) {
+
+            if (empty($selectedcolumns[$rowid])) {
+                $parts[$rowid] = question_classified_response::no_response();
+                continue;
+            }
+
+            // Find the chosen column by columnnumber.
+            $column = null;
+            foreach ($this->cols as $colid => $col) {
+                if ($colid == $selectedcolumns[$rowid]) {
+                    $column = $col;
+                    break;
+                }
+            }
+
+            $partialcredit = 0;
+
+            if ($this->weights[$rowid][$column->id] > 0) {
+                $partialcredit = $this->grademethod == 'all' ? (1 / count($this->rows)) : 1;
+            }
+
+            $parts[$rowid] = new question_classified_response($column->id, $column->shorttext, $partialcredit);
+        }
+
+        return $parts;
+    }
+
+    protected function get_selected_columns(array $response): array {
+        $selectedcolumns = [];
+        foreach ($this->order as $rowid) {
+            foreach ($this->cols as $colid => $col) {
+                $field = $this->multiple ? $this->key($rowid, $colid, true) : $this->field($rowid);
+                if (property_exists((object) $response, $field) && $response[$field]) {
+                    $selectedcolumns[$this->multiple ? $field : $rowid] = $this->multiple ? $colid : $response[$field];
+                }
+            }
+        }
+
+        return $selectedcolumns;
     }
 }

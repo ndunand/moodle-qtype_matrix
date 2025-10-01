@@ -457,18 +457,18 @@ class qtype_matrix_edit_form extends question_edit_form {
     public function validation($fromform, $files): array {
         $errors = parent::validation($fromform, $files);
         if (setting::show_kprime_gui()) {
-            if ($this->col_count($fromform) == 0) {
-                $errors['cols_shorttext[0]'] = lang::must_define_1_by_1();
+            if ($this->col_count($fromform) < 2) {
+                $errors['refresh_matrix'] = lang::must_define_1_by_1();
             }
             if ($this->row_count($fromform) == 0) {
-                $errors['rows_shorttext[0]'] = lang::must_define_1_by_1();
+                $errors['refresh_matrix'] = lang::must_define_1_by_1();
             }
         } else {
             if ($this->col_count($fromform) != 2) {
-                $errors['cols_shorttext[0]'] = lang::must_define_1_by_1();
+                $errors['refresh_matrix'] = lang::must_define_1_by_1();
             }
             if ($this->row_count($fromform) != 4) {
-                $errors['rows_shorttext[0]'] = lang::must_define_1_by_1();
+                $errors['refresh_matrix'] = lang::must_define_1_by_1();
             }
         }
         $grading = qtype_matrix::grading($fromform[self::PARAM_GRADE_METHOD]);
