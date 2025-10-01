@@ -642,7 +642,7 @@ class qtype_matrix extends question_type {
                  */
                 if ($weights[$rowid][$columnid] > 0) {
                     $partialcredit = $question->grademethod == 'all' ? (1 / count($question->rows)) : 1;
-                    $correctreponse = ' (' . get_string('correctresponse', 'qtype_kprime') . ')';
+                    $correctreponse = ' (' . get_string('correctresponse', 'qtype_matrix') . ')';
                 }
 
                 $choices[$columnid] = new question_possible_response(
