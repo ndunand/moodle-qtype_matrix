@@ -153,6 +153,33 @@ class qtype_matrix extends question_type {
     }
 
     /**
+     * Normalise a value coming from an editor element (array or string) to string.
+     *
+     * @param mixed $value
+     * @return string
+     */
+    protected static function text_from_editor($value): string {
+        if (is_array($value)) {
+            return isset($value['text']) ? (string)$value['text'] : '';
+        }
+        return (string)$value;
+    }
+
+    /**
+     * Ensure $question->rows_shorttext is an array of strings (no editor arrays).
+     *
+     * @param object $question
+     * @return void
+     */
+    protected static function normalise_rows_shorttext($question): void {
+        if (!empty($question->rows_shorttext) && is_array($question->rows_shorttext)) {
+            foreach ($question->rows_shorttext as $k => $v) {
+                $question->rows_shorttext[$k] = self::text_from_editor($v);
+            }
+        }
+    }
+
+    /**
      * Saves question-type specific options.
      * This is called by {@link save_question()} to save the question-type specific data.
      *
@@ -164,6 +191,9 @@ class qtype_matrix extends question_type {
     public function save_question_options($question): object {
         global $DB;
         $store = new question_matrix_store();
+
+        // Ensure rows_shorttext are plain strings (if coming from an HTML editor).
+        self::normalise_rows_shorttext($question);
 
         $transaction = $DB->start_delegated_transaction();
 
@@ -198,7 +228,7 @@ class qtype_matrix extends question_type {
             $row = (object) [
                 'id' => $rowid,
                 'matrixid' => $matrixid,
-                'shorttext' => $question->rows_shorttext[$i],
+                'shorttext' => $question->rows_shorttext[$i], // already normalised to string
                 'description' => $question->rows_description[$i],
                 'feedback' => $question->rows_feedback[$i]
             ];
@@ -460,7 +490,14 @@ class qtype_matrix extends question_type {
         $rowsxml = $data['#']['row'];
 
         foreach ($rowsxml as $rowxml) {
-            $question->rows_shorttext[$index] = $format->getpath($rowxml, ['#', 'shorttext', 0, '#'], '');
+            // Support both legacy: <shorttext>text</shorttext>
+            // and new: <shorttext format="..."><text>html</text></shorttext>
+            $shorttexthtml = $format->getpath($rowxml, ['#', 'shorttext', 0, '#', 'text', 0, '#'], null);
+            if ($shorttexthtml === null) {
+                // Legacy path (no <text> child).
+                $shorttexthtml = $format->getpath($rowxml, ['#', 'shorttext', 0, '#'], '');
+            }
+            $question->rows_shorttext[$index] = (string)$shorttexthtml;
 
             $question->rows_description[$index] = [
                 'text' => $format->getpath($rowxml, ['#', 'description', 0, '#', 'text', 0, '#'], ''),
@@ -550,7 +587,10 @@ class qtype_matrix extends question_type {
         foreach ($question->options->rows as $rowid => $row) {
             $output .= "<!--row: " . $rowid . "-->\n";
             $output .= "    <row>\n";
-            $output .= "        <shorttext>" . $row->shorttext . "</shorttext>\n";
+            // Shorttext may contain HTML; write using standard Moodle XML pattern with format and <text>.
+            $output .= "        <shorttext " . $format->format(FORMAT_HTML) . ">\n";
+            $output .= $format->writetext($row->shorttext, 3);
+            $output .= "        </shorttext>\n";
             $output .= "        <description {$format->format($row->description['format'])}>\n";
             $output .= $format->writetext($row->description['text'], 3);
             $output .= "        </description>\n";
