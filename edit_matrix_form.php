@@ -47,7 +47,8 @@ class qtype_matrix_edit_form extends question_edit_form {
     const DEFAULT_MULTIPLE = false;
     const PARAM_USE_DND_UI = 'usedndui';
     const DEFAULT_USE_DND_UI = false;
-    const PARAM_SHUFFLE_ANSERS = 'shuffleanswers';
+    // Fixed constant name to be consistent everywhere.
+    const PARAM_SHUFFLE_ANSWERS = 'shuffleanswers';
     const DEFAULT_SHUFFLE_ANSWERS = true;
 
     /**
@@ -80,10 +81,9 @@ class qtype_matrix_edit_form extends question_edit_form {
             $builder->set_default(self::PARAM_USE_DND_UI, self::DEFAULT_USE_DND_UI);
         }
 
-        $mform->addElement('advcheckbox', self::PARAM_SHUFFLE_ANSERS, lang::shuffle_answers(), null, null, [0,
-            1]);
-        $builder->add_help_button(self::PARAM_SHUFFLE_ANSERS);
-        $builder->set_default(self::PARAM_SHUFFLE_ANSERS, self::DEFAULT_SHUFFLE_ANSWERS);
+        $mform->addElement('advcheckbox', self::PARAM_SHUFFLE_ANSWERS, lang::shuffle_answers(), null, null, [0, 1]);
+        $builder->add_help_button(self::PARAM_SHUFFLE_ANSWERS);
+        $builder->set_default(self::PARAM_SHUFFLE_ANSWERS, self::DEFAULT_SHUFFLE_ANSWERS);
     }
 
     /**
@@ -127,8 +127,7 @@ class qtype_matrix_edit_form extends question_edit_form {
                 '');
         }
 
-        $this->_form->addGroup($radioarray, self::PARAM_GRADE_METHOD, lang::grade_method(), [
-            '<br>'], false);
+        $this->_form->addGroup($radioarray, self::PARAM_GRADE_METHOD, lang::grade_method(), ['<br>'], false);
         $this->_form->setDefault(self::PARAM_GRADE_METHOD, $defaultgradingname);
         $builder->add_help_button(self::PARAM_GRADE_METHOD);
     }
@@ -186,13 +185,23 @@ class qtype_matrix_edit_form extends question_edit_form {
 
         $matrix[] = $builder->create_static('<th>');
         if (setting::show_kprime_gui()) {
-            $matrix[] = $builder->create_submit(self::PARAM_ADD_COLUMNS, '+', [
-                'class' => 'button-add']);
+            $matrix[] = $builder->create_submit(self::PARAM_ADD_COLUMNS, '+', ['class' => 'button-add']);
             $builder->register_no_submit_button(self::PARAM_ADD_COLUMNS);
         }
         $matrix[] = $builder->create_static('</th>');
 
         $matrix[] = $builder->create_static('</tr></thead><tbody>');
+
+        // Editor options for row item texts.
+        $editoroptions = [
+            'maxfiles' => 0,
+            'maxbytes' => 0,
+            'trusttext' => true,
+            'subdirs' => 0,
+        ];
+        if (!empty($this->context)) {
+            $editoroptions['context'] = $this->context;
+        }
 
         for ($row = 0; $row < $rowscount; $row++) {
             $matrix[] = $builder->create_static('<tr>');
@@ -200,7 +209,11 @@ class qtype_matrix_edit_form extends question_edit_form {
 
             $matrix[] = $builder->create_static('<div class="input-group">');
 
-            $matrix[] = $builder->create_text("rows_shorttext[$row]", false);
+            // Use Moodle HTML editor for the row item text.
+            $editorname = "rows_shorttext[$row]";
+            $matrix[] = $mform->createElement('editor', $editorname, '', [], $editoroptions);
+            $mform->setType($editorname, PARAM_RAW);
+
             $questionpopup = $builder->create_htmlpopup("rows_description[$row]", lang::row_long());
             $matrix = array_merge($matrix, $questionpopup);
             $matrix[] = $builder->create_hidden("rowid[$row]");
@@ -390,6 +403,30 @@ class qtype_matrix_edit_form extends question_edit_form {
     }
 
     /**
+     * Convert editor arrays to plain strings before saving, so that qtype save
+     * code receives what it expects and DB escaping does not get arrays.
+     *
+     * @return stdClass|null
+     */
+    public function get_data() {
+        $data = parent::get_data();
+        if (!$data) {
+            return $data;
+        }
+
+        if (isset($data->rows_shorttext) && is_array($data->rows_shorttext)) {
+            foreach ($data->rows_shorttext as $k => $v) {
+                if (is_array($v)) {
+                    // Flatten editor array to plain string.
+                    $data->rows_shorttext[$k] = $v['text'] ?? '';
+                }
+            }
+        }
+
+        return $data;
+    }
+
+    /**
      *
      * @param $question object
      * @return void
@@ -407,7 +444,11 @@ class qtype_matrix_edit_form extends question_edit_form {
             $question->rows_feedback = [];
             $question->rowid = [];
             foreach ($options->rows as $row) {
-                $question->rows_shorttext[] = $row->shorttext;
+                // Prepare data for the HTML editor.
+                $question->rows_shorttext[] = [
+                    'text' => $row->shorttext,
+                    'format' => FORMAT_HTML
+                ];
                 $question->rows_description[] = $row->description;
                 $question->rows_feedback[] = $row->feedback;
                 $question->rowid[] = $row->id;
@@ -481,6 +522,22 @@ class qtype_matrix_edit_form extends question_edit_form {
     }
 
     protected function row_count(array $data): int {
-        return count(array_filter($data['rows_shorttext']));
+        if (empty($data['rows_shorttext']) || !is_array($data['rows_shorttext'])) {
+            return 0;
+        }
+        $count = 0;
+        foreach ($data['rows_shorttext'] as $row) {
+            if (is_array($row)) {
+                $text = $row['text'] ?? '';
+                if (trim(strip_tags($text)) !== '') {
+                    $count++;
+                }
+            } else if (is_string($row)) {
+                if (trim($row) !== '') {
+                    $count++;
+                }
+            }
+        }
+        return $count;
     }
 }
