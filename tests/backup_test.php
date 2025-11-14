@@ -51,7 +51,7 @@ final class backup_test extends \advanced_testcase {
         $quizcontext = \context_module::instance($quiz->cmid);
 
         $cat = $questiongenerator->create_question_category(['contextid' => $quizcontext->id]);
-        $question = $questiongenerator->create_question('matrix', 'test_qtype_matrix', ['category' => $cat->id]);
+        $question = $questiongenerator->create_question('matrix', 'kprime', ['category' => $cat->id]);
 
         // Store some counts.
         $numquizzes = count(get_fast_modinfo($course)->instances['quiz']);
