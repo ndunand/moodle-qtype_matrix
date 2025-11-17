@@ -481,13 +481,16 @@ class qtype_matrix extends question_type
         );
 
         // Shuffleanswers.
-        $question->options->shuffleanswers = $format->trans_single(
+        $shuffleAnswers = $format->trans_single(
             $format->getpath(
                 $data,
                 ['#', 'shuffleanswers', 0, '#'],
                 1
             )
         );
+
+        $question -> shuffleanswers = $shuffleAnswers;
+
 
         // Multiple.
         $multiple = $format->trans_single(
