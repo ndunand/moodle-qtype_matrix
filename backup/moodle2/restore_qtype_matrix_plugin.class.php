@@ -370,4 +370,18 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
 
         return parent::remove_excluded_question_data($questiondata, $excludefields);
     }
+
+    #[\Override]
+    public function define_excluded_identity_hash_fields(): array {
+        return [
+            '/options/cols/id',
+            '/options/cols/matrixid',
+            '/options/rows/id',
+            '/options/rows/matrixid',
+            '/options/weights/id',
+            '/options/weights/rowid',
+            '/options/weights/colid',
+        ];
+    }
+
 }
