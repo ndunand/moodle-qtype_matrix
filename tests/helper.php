@@ -23,20 +23,118 @@
  */
 class qtype_matrix_test_helper extends question_test_helper {
 
-    public function get_test_questions(): array {
-        return ['kprime', 'all', 'any', 'none', 'weighted', 'multiple', 'single'];
+    public function get_test_questions():array {
+        return ['kprime', 'all', 'any', 'none', 'weighted', 'multiple', 'single', 'dnd', 'nodnd', 'shuffle', 'noshuffle'];
     }
 
-    public function get_matrix_question_form_data_kprime() {
+    public function get_matrix_question_form_data_kprime():stdClass {
         $question = self::make_matrix_question_kprime();
+        $form = self::transform_generated_question_to_form_data($question);
+
+        $form->status = \core_question\local\bank\question_version_status::QUESTION_STATUS_READY;
+
+        return $form;
+    }
+
+    public function get_matrix_question_form_data_all():stdClass {
+        $question = self::make_matrix_question_all();
+        $form = self::transform_generated_question_to_form_data($question);
+
+        $form->status = \core_question\local\bank\question_version_status::QUESTION_STATUS_READY;
+
+        return $form;
+    }
+
+    public function get_matrix_question_form_data_any():stdClass {
+        $question = self::make_matrix_question_any();
+        $form = self::transform_generated_question_to_form_data($question);
+
+        $form->status = \core_question\local\bank\question_version_status::QUESTION_STATUS_READY;
+
+        return $form;
+    }
+
+    public function get_matrix_question_form_data_none():stdClass {
+        $question = self::make_matrix_question_none();
+        $form = self::transform_generated_question_to_form_data($question);
+
+        $form->status = \core_question\local\bank\question_version_status::QUESTION_STATUS_READY;
+
+        return $form;
+    }
+
+    public function get_matrix_question_form_data_weighted():stdClass {
+        $question = self::make_matrix_question_weighted();
+        $form = self::transform_generated_question_to_form_data($question);
+
+        $form->status = \core_question\local\bank\question_version_status::QUESTION_STATUS_READY;
+
+        return $form;
+    }
+
+    public function get_matrix_question_form_data_multiple():stdClass {
+        $question = self::make_matrix_question_multiple();
+        $form = self::transform_generated_question_to_form_data($question);
+
+        $form->status = \core_question\local\bank\question_version_status::QUESTION_STATUS_READY;
+
+        return $form;
+    }
+
+    public function get_matrix_question_form_data_single():stdClass {
+        $question = self::make_matrix_question_single();
+        $form = self::transform_generated_question_to_form_data($question);
+
+        $form->status = \core_question\local\bank\question_version_status::QUESTION_STATUS_READY;
+
+        return $form;
+    }
+
+    public function get_matrix_question_form_data_dnd():stdClass {
+        $question = self::make_matrix_question_dnd();
+        $form = self::transform_generated_question_to_form_data($question);
+
+        $form->status = \core_question\local\bank\question_version_status::QUESTION_STATUS_READY;
+
+        return $form;
+    }
+
+    public function get_matrix_question_form_data_nodnd():stdClass {
+        $question = self::make_matrix_question_nodnd();
+        $form = self::transform_generated_question_to_form_data($question);
+
+        $form->status = \core_question\local\bank\question_version_status::QUESTION_STATUS_READY;
+
+        return $form;
+    }
+
+    public function get_matrix_question_form_data_shuffle():stdClass {
+        $question = self::make_matrix_question_shuffle();
+        $form = self::transform_generated_question_to_form_data($question);
+
+        $form->status = \core_question\local\bank\question_version_status::QUESTION_STATUS_READY;
+
+        return $form;
+    }
+
+    public function get_matrix_question_form_data_noshuffle():stdClass {
+        $question = self::make_matrix_question_noshuffle();
+        $form = self::transform_generated_question_to_form_data($question);
+
+        $form->status = \core_question\local\bank\question_version_status::QUESTION_STATUS_READY;
+
+        return $form;
+    }
+
+    private function transform_generated_question_to_form_data($question):stdClass {
         $form = new stdClass();
         $form->name = $question->name;
         $form->questiontext = [];
-        $form->questiontext['format'] = '1';
+        $form->questiontext['format'] = FORMAT_HTML;
         $form->questiontext['text'] = $question->questiontext;
 
         $form->generalfeedback = [];
-        $form->generalfeedback['format'] = '1';
+        $form->generalfeedback['format'] = FORMAT_HTML;
         $form->generalfeedback['text'] = $question->generalfeedback;
 
         $form->defaultmark = $question->defaultmark;
@@ -47,31 +145,27 @@ class qtype_matrix_test_helper extends question_test_helper {
         $form->usedndui = $question->usedndui;
         $form->shuffleanswers = $question->shuffleanswers;
 
+        $form->rowid = [];
+        $form->colid = [];
+
         foreach ($question->rows as $index => $row) {
-            $id = 'rows_shorttext['.$index.']';
-            $form->{$id} = [];
-            // TODO: Right format for shorttext?
-            $form->{$id}['format'] = '1';
-            $form->{$id}['text'] = $row->shorttext;
-            $id = 'rows_description['.$index.']';
-            $form->{$id} = [];
-            $form->{$id}['format'] = '1';
-            $form->{$id}['text'] = $row->description;
-            $id = 'rows_feedback['.$index.']';
-            $form->{$id} = [];
-            $form->{$id}['format'] = '1';
-            $form->{$id}['text'] = $row->feedback;
+            $form->rows_shorttext = $form->rows_shorttext ?? [];
+            $form->rows_shorttext[$index] = $row->shorttext;
+            $form->rows_description = $form->rows_description ?? [];
+            $form->rows_description[$index]['format'] = FORMAT_HTML;
+            $form->rows_description[$index]['text'] = $row->description;
+            $form->rows_feedback = $form->rows_feedback ?? [];
+            $form->rows_feedback[$index]['format'] = FORMAT_HTML;
+            $form->rows_feedback[$index]['text'] = $row->feedback;
+            $form->rowid[$index] = '';
         }
         foreach ($question->cols as $index => $col) {
-            $id = 'cols_shorttext['.$index.']';
-            $form->{$id} = [];
-            // TODO: Right format for shorttext?
-            $form->{$id}['format'] = '1';
-            $form->{$id}['text'] = $col->shorttext;
-            $id = 'cols_description['.$index.']';
-            $form->{$id} = [];
-            $form->{$id}['format'] = '1';
-            $form->{$id}['text'] = $col->description;
+            $form->cols_shorttext = $form->cols_shorttext ?? [];
+            $form->cols_shorttext[$index] = $col->shorttext;
+            $form->cols_description = $form->cols_description ?? [];
+            $form->cols_description[$index]['format'] = FORMAT_HTML;
+            $form->cols_description[$index]['text'] = $col->description;
+            $form->colid[$index] = '';
         }
         foreach ($question->rows as $ri => $row) {
             foreach ($question->cols as $ci => $col) {
@@ -79,10 +173,51 @@ class qtype_matrix_test_helper extends question_test_helper {
                 $form->{$key} = $question->weights[$ri][$ci];
             }
         }
-
-        $form->status = \core_question\local\bank\question_version_status::QUESTION_STATUS_READY;
-
         return $form;
+    }
+
+    /**
+     *
+     * @return qtype_matrix_question
+     * @throws coding_exception
+     */
+    public function make_matrix_question_noshuffle(): qtype_matrix_question {
+        $result = $this->make_matrix_question();
+        $result->shuffleanswers = false;
+        return $result;
+    }
+
+    /**
+     *
+     * @return qtype_matrix_question
+     * @throws coding_exception
+     */
+    public function make_matrix_question_shuffle(): qtype_matrix_question {
+        $result = $this->make_matrix_question();
+        $result->shuffleanswers = true;
+        return $result;
+    }
+
+    /**
+     *
+     * @return qtype_matrix_question
+     * @throws coding_exception
+     */
+    public function make_matrix_question_nodnd(): qtype_matrix_question {
+        $result = $this->make_matrix_question();
+        $result->usedndui = false;
+        return $result;
+    }
+
+    /**
+     *
+     * @return qtype_matrix_question
+     * @throws coding_exception
+     */
+    public function make_matrix_question_dnd(): qtype_matrix_question {
+        $result = $this->make_matrix_question();
+        $result->usedndui = true;
+        return $result;
     }
 
     /**
@@ -204,12 +339,9 @@ class qtype_matrix_test_helper extends question_test_helper {
 
         $question->grademethod = 'kprime';
         $question->multiple = true;
-        // TODO: Is this the default?
         $question->usedndui = true;
-        // TODO: Is this the default?
         $question->shuffleanswers = true;
         $matrix = $this->generate_matrix_question_matrix();
-        // TODO: Arrays are copied, objects are references, this could break when the objects are changed
         $question->rows = $matrix->rows;
         $question->cols = $matrix->cols;
         $question->weights = [];
