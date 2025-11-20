@@ -15,8 +15,13 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Test helpers for the truefalse question type.
+ * Test helpers for the matrix question type.
  */
+defined('MOODLE_INTERNAL') || die();
+
+global $CFG;
+
+require_once($CFG->dirroot.'/question/engine/tests/helpers.php');
 
 /**
  * Test helper class for the matrix question type.

@@ -16,6 +16,7 @@
 
 namespace qtype_matrix;
 
+use mod_quiz\backup\repeated_restore_test;
 use question_bank;
 
 defined('MOODLE_INTERNAL') || die();
@@ -82,5 +83,30 @@ final class backup_test extends \advanced_testcase {
 
         $this->assertSame('', $subquestions[2]->questiontext);
         $this->assertSame('NULL', $subquestions[2]->answertext);
+    }
+
+    /**
+     * @dataProvider get_matrix_test_questions
+     * @param string $testquestion - The question to check
+     */
+    public function test_core_repeated_restore($testquestion):void {
+        global $CFG;
+        $this->resetAfterTest();
+        require_once($CFG->dirroot . '/mod/quiz/tests/backup/repeated_restore_test.php');
+        $coreTest = new repeated_restore_test();
+        $coreTest->test_restore_quiz_with_duplicate_questions('matrix', $testquestion);
+    }
+
+    /**
+     * @return array
+     */
+    public static function get_matrix_test_questions(): array {
+        $generators = [];
+        require_once('helper.php');
+        $helper = new \qtype_matrix_test_helper();
+        foreach ($helper->get_test_questions() as $testquestion) {
+            $generators[$testquestion] = [$testquestion];
+        }
+        return $generators;
     }
 }
