@@ -279,7 +279,7 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
             
             $questiondata->options->answers = $matrix['answers'] ?? [];
             $questiondata->options->renderer = $matrix['renderer'] ?? 'matrix';
-            $questiondata->options->shuffleanswers = boolval($matrix['shuffleanswers']);
+            $questiondata->options->shuffleanswers = $matrix['shuffleanswers'] ?? "1";
             
             // Process rows to correct format
             $rowids = [];
