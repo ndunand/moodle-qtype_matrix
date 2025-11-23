@@ -86,5 +86,15 @@ function xmldb_qtype_matrix_upgrade(int $oldversion): bool {
 
         upgrade_plugin_savepoint(true, 2023010303, 'qtype', 'matrix');
     }
+    if ($oldversion < 2025093001) {
+        // Drop the unused renderer option field
+        $table = new xmldb_table('qtype_matrix');
+        $rendererfield = new xmldb_field('renderer');
+        if ($dbman->field_exists($table, $rendererfield)) {
+            $dbman->drop_field($table, $rendererfield);
+        }
+        upgrade_plugin_savepoint(true, 2025093001, 'qtype', 'matrix');
+
+    }
     return true;
 }

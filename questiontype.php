@@ -97,7 +97,6 @@ class qtype_matrix extends question_type {
             $question->options->shuffleanswers = $matrix->shuffleanswers ?? true;
             $question->options->usedndui = $matrix->usedndui;
             $question->options->multiple = $matrix->multiple;
-            $question->options->renderer = $matrix->renderer;
         } else {
             $question->options->rows = [];
             $question->options->cols = [];
@@ -447,9 +446,6 @@ class qtype_matrix extends question_type {
             $question->multiple = false;
         }
 
-        // Renderer.
-        $question->options->renderer = $format->getpath($data, ['#', 'renderer', 0, '#'], 'matrix');
-
         // Rows.
         $question->rows = [];
         $question->rows_shorttext = [];
@@ -596,8 +592,6 @@ class qtype_matrix extends question_type {
             $multiple = 0;
         }
         $output .= '    <multiple>' . $multiple . "</multiple>\n";
-        // Renderer.
-        $output .= '    <renderer>' . $question->options->renderer . "</renderer>\n";
 
         return $output;
     }

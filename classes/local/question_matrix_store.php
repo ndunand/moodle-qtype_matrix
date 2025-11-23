@@ -60,7 +60,6 @@ class question_matrix_store {
             'grademethod' => $matrix->grademethod,
             'usedndui' => $matrix->usedndui,
             'shuffleanswers' => $matrix->shuffleanswers,
-            'renderer' => 'matrix'
         ];
 
         $newid = $DB->insert_record(self::TABLE_QUESTION_MATRIX, $data);
@@ -83,7 +82,6 @@ class question_matrix_store {
             'grademethod' => $matrix->grademethod,
             'usedndui' => $matrix->usedndui,
             'shuffleanswers' => $matrix->shuffleanswers,
-            'renderer' => 'matrix'
         ];
         $DB->update_record(self::TABLE_QUESTION_MATRIX, $data);
         return $matrix;
