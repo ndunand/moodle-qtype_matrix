@@ -49,6 +49,8 @@ class moodle1_qtype_matrix_handler extends moodle1_qtype_handler {
         $this->xmlwriter->full_tag('id', $matrix['id']);
         $this->xmlwriter->full_tag('grademethod', $matrix['grademethod']);
         $this->xmlwriter->full_tag('multiple', $matrix['multiple']);
+        $this->xmlwriter->full_tag('shuffleanswers', $matrix['shuffleanswers']);
+        $this->xmlwriter->full_tag('usedndui', $matrix['usedndui']);
 
         $this->xmlwriter->begin_tag('cols');
         foreach ($matrix['cols']['col'] as $col) {
