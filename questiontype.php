@@ -167,7 +167,6 @@ class qtype_matrix extends question_type {
         $transaction = $DB->start_delegated_transaction();
 
         $questionid = $question->id;
-        $makecopy = (property_exists($question, 'makecopy') && $question->makecopy == '1');
 
         // The variable $questionid is not equal to matrix->id.
         $matrix = (object) $store->get_matrix_by_question_id($questionid);
@@ -180,7 +179,7 @@ class qtype_matrix extends question_type {
         $matrix->shuffleanswers = $question->shuffleanswers;
         $matrix->usedndui = isset($question->usedndui) ? ($question->usedndui) : (0);
 
-        if ($isnew || $makecopy) {
+        if ($isnew) {
             $store->insert_matrix($matrix);
         } else {
             $store->update_matrix($matrix);
@@ -209,7 +208,7 @@ class qtype_matrix extends question_type {
                 continue;
             } else if ($delete) {
                 $store->delete_matrix_row($row);
-            } else if ($isnew || $makecopy) {
+            } else if ($isnew) {
                 $store->insert_matrix_row($row);
                 $rowids[] = $row->id;
             } else {
@@ -238,7 +237,7 @@ class qtype_matrix extends question_type {
                 continue;
             } else if ($delete) {
                 $store->delete_matrix_col($col);
-            } else if ($isnew || $makecopy) {
+            } else if ($isnew) {
                 $store->insert_matrix_col($col);
                 $colids[] = $col->id;
             } else {
