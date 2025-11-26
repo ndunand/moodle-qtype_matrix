@@ -392,7 +392,7 @@ class qtype_matrix extends question_type {
     }
 
     public function extra_question_fields(): array {
-        return ['qtype_matrix', 'usedndui', 'grademethod', 'multiple'];
+        return ['qtype_matrix', 'grademethod', 'multiple', 'shuffleanswers', 'usedndui'];
     }
 
     /**
