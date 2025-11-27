@@ -104,7 +104,7 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
             $info->filequestionid = $oldmatrixid;
             $info->dbquestionid = $newmatrixid;
             $info->answer = $data->shorttext;
-            throw new restore_step_exception('error_question_answers_missing_in_db');
+            throw new restore_step_exception('error_question_answers_missing_in_db', $info);
         } else {
             $this->set_mapping('col', $oldid, $newitemid);
         }
@@ -144,7 +144,7 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
             $info->filequestionid = $oldmatrixid;
             $info->dbquestionid = $newmatrixid;
             $info->answer = $data->shorttext;
-            throw new restore_step_exception('error_question_answers_missing_in_db');
+            throw new restore_step_exception('error_question_answers_missing_in_db', $info);
         } else {
             $this->set_mapping('row', $oldid, $newitemid);
         }
