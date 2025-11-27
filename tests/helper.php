@@ -361,7 +361,7 @@ class qtype_matrix_test_helper extends question_test_helper {
         }
         $matrix->cols = [];
         for ($c = 0; $c < 4; $c++) {
-            $matrix->cols[$c] = $this->generate_matrix_row_or_column($c, true);
+            $matrix->cols[$c] = $this->generate_matrix_row_or_column($c, false);
         }
         return $matrix;
     }
