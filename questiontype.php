@@ -156,6 +156,7 @@ class qtype_matrix extends question_type {
         $transaction = $DB->start_delegated_transaction();
         parent::save_question_options($fromform);
         $store = new question_matrix_store();
+        $makecopy = $fromform->makecopy ?? false;
 
         $questionid = $fromform->id;
 
@@ -166,6 +167,10 @@ class qtype_matrix extends question_type {
         // Mapping for indexes to db ids.
         $rowids = [];
         foreach ($fromform->rows_shorttext as $i => $short) {
+            // Just to be on the safe side the old ids are removed when we make a question copy
+            if ($makecopy) {
+                $fromform->rowid[$i] = 0;
+            }
             $rowid = $fromform->rowid[$i];
             $row = (object) [
                 'id' => $rowid,
@@ -192,6 +197,10 @@ class qtype_matrix extends question_type {
         // Mapping for indexes to db ids.
         $colids = [];
         foreach ($fromform->cols_shorttext as $i => $short) {
+            // Just to be on the safe side the old ids are removed when we make a question copy
+            if ($makecopy) {
+                $fromform->colid[$i] = 0;
+            }
             $colid = $fromform->colid[$i];
             $col = (object) [
                 'id' => $colid,
