@@ -16,6 +16,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+use qtype_matrix\local\question_cleaner;
+
 global $CFG;
 require_once($CFG->dirroot . '/question/engine/bank.php');
 
@@ -273,9 +275,7 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
      */
     public static function convert_backup_to_questiondata(array $backupdata): stdClass {
         $questiondata = parent::convert_backup_to_questiondata($backupdata);
-        $questiondata->options->rows = [];
-        $questiondata->options->cols = [];
-        $questiondata->options->weights = [[]];
+        $questiondata = question_cleaner::clean_data($questiondata, true);
         // Add the matrix-specific options.
         if (isset($backupdata['plugin_qtype_matrix_question']['matrix'][0])) {
             $matrix = $backupdata['plugin_qtype_matrix_question']['matrix'][0];
@@ -283,6 +283,7 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
             // Process rows to correct format
             $rowids = [];
             if (isset($matrix['rows']['row'])) {
+                $rows = [];
                 foreach ($matrix['rows']['row'] as $row) {
                     $description = $row['description'] ?? '';
 
@@ -298,14 +299,16 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
                         'format' => FORMAT_HTML
                     ];
 
-                    $questiondata->options->rows[$row['id']] = (object) $row;
+                    $rows[$row['id']] = (object) $row;
                     $rowids[] = $row['id'];
                 }
+                $questiondata->options->rows = $rows;
             }
 
             // Process cols to correct format
             $columnids = [];
             if (isset($matrix['cols']['col'])) {
+                $columns = [];
                 foreach ($matrix['cols']['col'] as $column) {
                     $column['matrixid'] = $matrix['id'];
 
@@ -315,9 +318,10 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
                         'format' => FORMAT_HTML
                     ];
 
-                    $questiondata->options->cols[$column['id']] = (object) $column;
+                    $columns[$column['id']] = (object) $column;
                     $columnids[] = $column['id'];
                 }
+                $questiondata->options->cols = $columns;
             }
 
             /**
@@ -340,11 +344,6 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
             }
             $questiondata->options->weights = $weights;
         }
-
-        $questiondata->options->grademethod ??= 'kprime';
-        $questiondata->options->multiple ??= false;
-        $questiondata->options->shuffleanswers ??= true;
-        $questiondata->options->usedndui ??= '0';
 
         return $questiondata;
     }

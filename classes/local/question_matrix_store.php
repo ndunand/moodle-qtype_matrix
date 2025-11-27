@@ -40,7 +40,7 @@ class question_matrix_store {
         global $DB;
         $result = $DB->get_record(self::TABLE_QUESTION_MATRIX, ['questionid' => $questionid]);
         if ($result) {
-            $result->multiple = (bool) $result->multiple;
+            $result = question_cleaner::clean_data($result);
         }
         return $result;
     }

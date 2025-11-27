@@ -18,8 +18,8 @@
  * The question type class for the matrix question type.
  *
  */
-
 use qtype_matrix\local\qtype_matrix_grading;
+use qtype_matrix\local\question_cleaner;
 use qtype_matrix\local\question_matrix_store;
 
 defined('MOODLE_INTERNAL') || die();
@@ -88,10 +88,7 @@ class qtype_matrix extends question_type {
      */
     public function get_question_options($questiondata): bool {
         parent::get_question_options($questiondata);
-        $questiondata->options->grademethod ??= self::defaut_grading()->get_name();
-        $questiondata->options->multiple ??= true;
-        $questiondata->options->shuffleanswers ??= true;
-        $questiondata->options->usedndui ??= false;
+        $questiondata = question_cleaner::clean_data($questiondata, true);
 
         $matrix = self::retrieve_matrix($questiondata->id);
         $questiondata->options->rows = $matrix->rows ?? [];
@@ -401,20 +398,25 @@ class qtype_matrix extends question_type {
         );
 
         // Multiple.
-        $fromform->multiple = $format->trans_single($format->getpath(
+        $fromform->multiple = (bool) $format->trans_single($format->getpath(
             $data,
             ['#', 'multiple', 0, '#'],
-            '1'));
+            question_cleaner::DEFAULT_MULTIPLE)
+        );
 
         // Shuffleanswers.
-        $fromform->shuffleanswers = $format->trans_single($format->getpath(
+        $fromform->shuffleanswers = (bool) $format->trans_single($format->getpath(
             $data,
             ['#', 'shuffleanswers', 0, '#'],
-            '1'));
+            question_cleaner::DEFAULT_SHUFFLEANSWERS)
+        );
 
         // Use_dnd_ui.
-        $fromform->usedndui = $format->trans_single(
-            $format->getpath($data, ['#', 'use_dnd_ui', 0, '#'], 0));
+        $fromform->usedndui = (bool) $format->trans_single($format->getpath(
+            $data,
+            ['#', 'use_dnd_ui', 0, '#'],
+            question_cleaner::DEFAULT_USEDNDUI)
+        );
         // Todo: check if we translated this corrent!
         // TODO: Will we need a "old export" workaround for use_dnd_ui?
 

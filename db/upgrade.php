@@ -34,6 +34,8 @@
 // Please do not forget to use upgrade_set_timeout()
 // before any action that may take longer time to finish.
 
+use qtype_matrix\local\question_cleaner;
+
 /**
  * @param int $oldversion
  * @return bool
@@ -50,7 +52,7 @@ function xmldb_qtype_matrix_upgrade(int $oldversion): bool {
         // Define table matrix to be created.
         $table = new xmldb_table('question_matrix');
         // Adding fields to table matrix.
-        $newfield = $table->add_field('shuffleanswers', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '1');
+        $newfield = $table->add_field('shuffleanswers', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, (string) (int) question_cleaner::DEFAULT_SHUFFLEANSWERS);
         $dbman->add_field($table, $newfield);
         upgrade_plugin_savepoint(true, 2014040800, 'qtype', 'matrix');
     }
@@ -59,7 +61,7 @@ function xmldb_qtype_matrix_upgrade(int $oldversion): bool {
         // Define table matrix to be created.
         $table = new xmldb_table('question_matrix');
         // Adding fields to table matrix.
-        $newfield = $table->add_field('use_dnd_ui', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '0');
+        $newfield = $table->add_field('use_dnd_ui', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, (string) (int) question_cleaner::DEFAULT_USEDNDUI);
         $dbman->add_field($table, $newfield);
         upgrade_plugin_savepoint(true, 2015070100, 'qtype', 'matrix');
     }
@@ -81,7 +83,7 @@ function xmldb_qtype_matrix_upgrade(int $oldversion): bool {
         $table = new xmldb_table('qtype_matrix');
         // Rename the field use_dnd_ui to usedndui because direct working with this variable will be hard in php,
         // when the coding standard don't allow '_' in variable names.
-        $newfield = $table->add_field('use_dnd_ui', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '0');
+        $newfield = $table->add_field('use_dnd_ui', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, (string) (int) question_cleaner::DEFAULT_USEDNDUI);
         $dbman->rename_field($table, $newfield, 'usedndui');
 
         upgrade_plugin_savepoint(true, 2023010303, 'qtype', 'matrix');
