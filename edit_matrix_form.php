@@ -398,13 +398,10 @@ class qtype_matrix_edit_form extends question_edit_form {
         $isnew = empty($question->id);
         if (!$isnew) {
             $options = $question->options;
-            $question->multiple = $options->multiple ? '1' : '0';
-            $question->grademethod = $options->grademethod;
-            $question->shuffleanswers = $options->shuffleanswers ? '1' : '0';
-            $question->usedndui = $options->usedndui ? '1' : '0';
             $question->rows_shorttext = [];
             $question->rows_description = [];
             $question->rows_feedback = [];
+
             $question->rowid = [];
             foreach ($options->rows as $row) {
                 $question->rows_shorttext[] = $row->shorttext;

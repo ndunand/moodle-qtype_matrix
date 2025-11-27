@@ -344,8 +344,8 @@ class qtype_matrix_test_helper extends question_test_helper {
 
         $question->grademethod = 'kprime';
         $question->multiple = true;
-        $question->usedndui = true;
         $question->shuffleanswers = true;
+        $question->usedndui = true;
         $matrix = $this->generate_matrix_question_matrix();
         $question->rows = $matrix->rows;
         $question->cols = $matrix->cols;

@@ -14,6 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+defined('MOODLE_INTERNAL') || die();
+
+global $CFG;
+require_once($CFG->dirroot . '/question/engine/bank.php');
+
 /**
  * restore plugin class that provides the necessary information
  * needed to restore one match qtype plugin
@@ -52,8 +57,11 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
         // Todo: check import of version moodle1 data.
 
         if ($this->is_question_created()) {
-            $data->questionid = $this->get_new_parentid('question');
-            $newitemid = $DB->insert_record('qtype_matrix', $data);
+            $qtypeobj = question_bank::get_qtype($this->pluginname);
+            $data->{$qtypeobj->questionid_column_name()} = $this->get_new_parentid('question');
+            $extrafields = $qtypeobj->extra_question_fields();
+            $extrafieldstable = array_shift($extrafields);
+            $newitemid = $DB->insert_record($extrafieldstable, $data);
             $this->set_mapping('matrix', $oldid, $newitemid);
         }
         else {
@@ -256,7 +264,7 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
         return $result;
     }
 
-     /**
+    /**
      * Converts the backup data structure to the question data structure.
      * This is needed for question identity hash generation to work correctly.
      *
@@ -265,24 +273,15 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
      */
     public static function convert_backup_to_questiondata(array $backupdata): stdClass {
         $questiondata = parent::convert_backup_to_questiondata($backupdata);
-        
+        $questiondata->options->rows = [];
+        $questiondata->options->cols = [];
+        $questiondata->options->weights = [[]];
         // Add the matrix-specific options.
         if (isset($backupdata['plugin_qtype_matrix_question']['matrix'][0])) {
             $matrix = $backupdata['plugin_qtype_matrix_question']['matrix'][0];
-            
-            // Add the matrix options to the question data.
-            $questiondata->options = new stdClass();
 
-            $questiondata->options->usedndui = $matrix['usedndui'] ?? "0";
-            $questiondata->options->grademethod = $matrix['grademethod'] ?? 'kprime';
-            $questiondata->options->multiple = boolval($matrix['multiple']);
-            
-            $questiondata->options->answers = $matrix['answers'] ?? [];
-            $questiondata->options->shuffleanswers = $matrix['shuffleanswers'] ?? "1";
-            
             // Process rows to correct format
             $rowids = [];
-            $questiondata->options->rows = [];
             if (isset($matrix['rows']['row'])) {
                 foreach ($matrix['rows']['row'] as $row) {
                     $description = $row['description'] ?? '';
@@ -306,7 +305,6 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
 
             // Process cols to correct format
             $columnids = [];
-            $questiondata->options->cols = [];
             if (isset($matrix['cols']['col'])) {
                 foreach ($matrix['cols']['col'] as $column) {
                     $column['matrixid'] = $matrix['id'];
@@ -321,10 +319,10 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
                     $columnids[] = $column['id'];
                 }
             }
-            
-           /**
-            * Return the weights in the format of rowid -> colid -> value
-            */
+
+            /**
+             * Return the weights in the format of rowid -> colid -> value
+             */
             $weights = [];
 
             // prepare weights with 0 values as they are not present when their value is empty
@@ -341,16 +339,13 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
                 }
             }
             $questiondata->options->weights = $weights;
-        } else {
-            $questiondata->options->rows = [];
-            $questiondata->options->cols = [];
-            $questiondata->options->weights = [[]];
-            $questiondata->options->grademethod = 'kprime';
-            $questiondata->options->shuffleanswers = true;
-            $questiondata->options->usedndui = false;
-            $questiondata->options->multiple = true;
         }
-        
+
+        $questiondata->options->grademethod ??= 'kprime';
+        $questiondata->options->multiple ??= false;
+        $questiondata->options->shuffleanswers ??= true;
+        $questiondata->options->usedndui ??= '0';
+
         return $questiondata;
     }
 
