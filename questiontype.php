@@ -135,7 +135,7 @@ class qtype_matrix extends question_type {
         return $matrix;
     }
 
-    public static function defaut_grading(): qtype_matrix_grading {
+    public static function default_grading(): qtype_matrix_grading {
         return qtype_matrix_grading::default_grading();
     }
 
@@ -394,7 +394,7 @@ class qtype_matrix extends question_type {
         $fromform->grademethod = $format->getpath(
             $data,
             ['#', 'grademethod', 0, '#'],
-            self::defaut_grading()->get_name()
+            self::default_grading()->get_name()
         );
 
         // Multiple.
