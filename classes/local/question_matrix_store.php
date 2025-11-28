@@ -125,7 +125,16 @@ class question_matrix_store {
         return true;
     }
 
-    // Row.
+
+    public function rows_exist(int $matrixid): bool {
+        global $DB;
+        return $DB->record_exists(self::TABLE_QUESTION_MATRIX_ROWS, ['matrixid' => $matrixid]);
+    }
+
+    public function cols_exist(int $matrixid): bool {
+        global $DB;
+        return $DB->record_exists(self::TABLE_QUESTION_MATRIX_COLS, ['matrixid' => $matrixid]);
+    }
 
     /**
      * @param int $matrixid
@@ -156,27 +165,22 @@ class question_matrix_store {
      * cant type this function result false|object should not be ok.
      *
      * @param object $row
-     * @return false|object
+     * @return int the new rowid
      * @throws dml_exception
      */
-    public function insert_matrix_row(object $row) {
+    public function insert_matrix_row(object $row):int {
         global $DB;
 
         $text = $row->shorttext ?? false;
         if (empty($text)) {
-            return false;
+            return 0;
         }
 
-        $data = (object) [
-            'matrixid' => $row->matrixid,
-            'shorttext' => $row->shorttext,
-            'description' => $row->description['text'],
-            'feedback' => $row->feedback['text']
-        ];
-        $newid = $DB->insert_record(self::TABLE_QUESTION_MATRIX_ROWS, $data);
-        $data->id = $newid;
-        $row->id = $newid;
-        return $data;
+        $newid = $DB->insert_record(self::TABLE_QUESTION_MATRIX_ROWS, $row);
+        if ($newid === false) {
+            $newid = 0;
+        }
+        return $newid;
     }
 
     /**
@@ -184,33 +188,25 @@ class question_matrix_store {
      * @return object
      * @throws dml_exception
      */
-    public function update_matrix_row(object $row): object {
+    public function update_matrix_row(object $row):bool {
         global $DB;
         // TODO: Add a possibility to delete if (empty($short)).
-        $data = (object) [
-            'id' => $row->id,
-            'matrixid' => $row->matrixid,
-            'shorttext' => $row->shorttext,
-            'description' => $row->description['text'],
-            'feedback' => $row->feedback['text']
-        ];
-        $DB->update_record(self::TABLE_QUESTION_MATRIX_ROWS, $data);
-        return $data;
+        return $DB->update_record(self::TABLE_QUESTION_MATRIX_ROWS, $row);
     }
 
     /**
-     * @param object $row
+     * @param int $rowid
      * @return bool
      * @throws dml_exception
      */
-    public function delete_matrix_row(object $row): bool {
+    public function delete_matrix_row(int $rowid):bool {
         global $DB;
 
-        if (empty($row->id)) {
+        if (!$rowid) {
             return false;
         }
 
-        return $DB->delete_records(self::TABLE_QUESTION_MATRIX_ROWS, ['id' => $row->id]);
+        return $DB->delete_records(self::TABLE_QUESTION_MATRIX_ROWS, ['id' => $rowid]);
     }
 
     // Cols.
@@ -241,27 +237,19 @@ class question_matrix_store {
      * Cant type this function result can be false|object
      *
      * @param object $col
-     * @return false|object
+     * @return int the new colid
      * @throws dml_exception
      */
-    public function insert_matrix_col(object $col) {
+    public function insert_matrix_col(object $col):int {
         global $DB;
 
         $text = $col->shorttext ?? false;
         if (empty($text)) {
-            return false;
+            return 0;
         }
 
-        $data = (object) [
-            'matrixid' => $col->matrixid,
-            'shorttext' => $col->shorttext,
-            'description' => $col->description['text']
-        ];
-
-        $newid = $DB->insert_record(self::TABLE_QUESTION_MATRIX_COLS, $data);
-        $data->id = $newid;
-        $col->id = $newid;
-        return $data;
+        $newid = $DB->insert_record(self::TABLE_QUESTION_MATRIX_COLS, $col);
+        return $newid;
     }
 
     /**
@@ -269,34 +257,26 @@ class question_matrix_store {
      * @return object
      * @throws dml_exception
      */
-    public function update_matrix_col(object $col): object {
+    public function update_matrix_col(object $col):bool {
         global $DB;
 
         // TODO: Add a possibility to delete if (empty($short)).
-        $data = (object) [
-            'id' => $col->id,
-            'matrixid' => $col->matrixid,
-            'shorttext' => $col->shorttext,
-            'description' => $col->description['text']
-        ];
-
-        $DB->update_record(self::TABLE_QUESTION_MATRIX_COLS, $data);
-        return $data;
+        return $DB->update_record(self::TABLE_QUESTION_MATRIX_COLS, $col);
     }
 
     /**
-     * @param object $col
+     * @param int $colid
      * @return bool
      * @throws dml_exception
      */
-    public function delete_matrix_col(object $col): bool {
+    public function delete_matrix_col(int $colid): bool {
         global $DB;
 
-        if (empty($col->id)) {
+        if (!$colid) {
             return false;
         }
 
-        return $DB->delete_records(self::TABLE_QUESTION_MATRIX_COLS, ['id' => $col->id]);
+        return $DB->delete_records(self::TABLE_QUESTION_MATRIX_COLS, ['id' => $colid]);
     }
 
     // Weights.
