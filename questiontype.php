@@ -389,7 +389,7 @@ class qtype_matrix extends question_type {
         // Use_dnd_ui.
         $fromform->usedndui = (bool) $format->trans_single($format->getpath(
             $data,
-            ['#', 'use_dnd_ui', 0, '#'],
+            ['#', 'usedndui', 0, '#'],
             question_cleaner::DEFAULT_USEDNDUI)
         );
         // Todo: check if we translated this corrent!
