@@ -224,9 +224,9 @@ class qtype_matrix extends question_type {
         // This is bit hacky but it is safe. The to_weight_matrix returns only
         // 0 or 1.
         $multiple = $fromform->multiple;
-        $weights = $this->to_weigth_matrix($fromform, $multiple);
+        $weights = $this->to_weight_matrix($fromform, $multiple);
         if ($this->is_matrix_empty($weights)) {
-            $weights = $this->to_weigth_matrix((object) $_POST, !$multiple); // Todo: remove unsafe $_POST.
+            $weights = $this->to_weight_matrix((object) $_POST, !$multiple); // Todo: remove unsafe $_POST.
         }
 
         foreach ($rowids as $rowindex => $rowid) {
@@ -271,7 +271,7 @@ class qtype_matrix extends question_type {
      * @param boolean $frommultiple Whether we extract from multiple representation or not
      * @result array                    The weights
      */
-    public function to_weigth_matrix(object $fromform, bool $frommultiple): array {
+    public function to_weight_matrix(object $fromform, bool $frommultiple): array {
         $result = [];
         $rowcount = 20;
         $colcount = 20;
