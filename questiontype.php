@@ -276,27 +276,23 @@ class qtype_matrix extends question_type {
         $rowcount = 20;
         $colcount = 20;
 
-        // Init.
-        for ($row = 0; $row < $rowcount; $row++) {
-            for ($col = 0; $col < $colcount; $col++) {
-                $result[$row][$col] = 0;
-            }
-        }
-
-        if ($frommultiple) {
-            for ($row = 0; $row < $rowcount; $row++) {
-                for ($col = 0; $col < $colcount; $col++) {
-                    $key = qtype_matrix_grading::cell_name($row, $col, true);
+        for ($rowindex = 0; $rowindex < $rowcount; $rowindex++) {
+            $foundcorrectcol = false;
+            for ($colindex = 0; $colindex < $colcount; $colindex++) {
+                // Always initialize the matrix cell, don't leave 'holes'
+                $result[$rowindex][$colindex] = 0;
+                // Reminder: The cell name only uses rowindex if we're not allowing multiple correct answers
+                $key = qtype_matrix_grading::cell_name($rowindex, $colindex, $frommultiple);
+                if (!$frommultiple) {
+                    // Only one column can be correct, so ensure that we don't continue after we find it
+                    if (!$foundcorrectcol && isset($fromform->{$key})) {
+                        $correctcolindex = $fromform->{$key};
+                        $result[$rowindex][$correctcolindex] = 1;
+                        $foundcorrectcol = true;
+                    }
+                } else {
                     $value = $fromform->{$key} ?? 0;
-                    $result[$row][$col] = $value ? 1 : 0;
-                }
-            }
-        } else {
-            for ($row = 0; $row < $rowcount; $row++) {
-                $key = qtype_matrix_grading::cell_name($row, 0, false);
-                if (isset($fromform->{$key})) {
-                    $col = $fromform->{$key};
-                    $result[$row][$col] = 1;
+                    $result[$rowindex][$colindex] = $value ? 1 : 0;
                 }
             }
         }
