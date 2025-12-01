@@ -365,7 +365,6 @@ class qtype_matrix extends question_type {
         $fromform = $format->import_headers($data);
         $fromform->qtype = 'matrix';
 
-        // TODO: May be '' here, so this doesn't work
         // Grademethod.
         $fromform->grademethod = $format->getpath(
             $data,
@@ -394,7 +393,7 @@ class qtype_matrix extends question_type {
             question_cleaner::DEFAULT_USEDNDUI)
         );
         // Todo: check if we translated this corrent!
-        // TODO: Will we need a "old export" workaround for use_dnd_ui?
+        // TODO: Will we need a "old export" workaround for the old use_dnd_ui option name?
 
         // Rows.
         $fromform->rows = [];
