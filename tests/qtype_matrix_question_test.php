@@ -28,7 +28,7 @@ global $CFG;
 require_once($CFG->dirroot . '/question/engine/tests/helpers.php');
 
 /**
- * Unit tests for the true-false question definition class.
+ * Unit tests for the matrix question definition class.
  *
  */
 class qtype_matrix_question_test extends advanced_testcase {
