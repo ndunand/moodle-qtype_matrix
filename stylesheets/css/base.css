@@ -1,9 +1,3 @@
-/**
-* Warning
-*
-* The CSS file is generated from LESS, modifications done directly to the CSS
-* will be lost.
-*/
 .que.matrix {
     /*tooltip*/
 }
@@ -49,7 +43,7 @@
 
 .que.matrix .description {
     display: none;
-    position: fixed;
+    position: fixed !important;
     background-color: #eee;
     border: 1px solid #848484;
     font-weight: normal;
@@ -66,7 +60,7 @@
 }
 
 .que.matrix th:hover .description {
-    display: block;
+    display: inline-block;
 }
 
 .que.matrix td .description {
@@ -75,24 +69,24 @@
 }
 
 .que.matrix td:hover .description {
-    display: block;
+    display: inline-block;
 }
 
 /** edit matrix **/
 .mform fieldset {
-    overflow: visible;
+    overflow: visible !important;
 }
 
 #page-content {
-    overflow: visible;
+    overflow: visible !important;
 }
 
 #page-content .region-content {
-    overflow: visible;
+    overflow: visible !important;
 }
 
 #page-content #region-main {
-    overflow: visible;
+    overflow: visible !important;
 }
 
 #matrixheader .fitemtitle {
@@ -163,7 +157,6 @@
     min-width: 383px;
     padding: 0;
     margin-left: 0;
-    z-index: 1;
 }
 
 .quedit.matrix .popup .title {
@@ -199,109 +192,3 @@
     background-color: #848484;
     color: #000;
 }
-
-#id_refresh_matrix {
-    background-image: url([[pix:a/refresh]]);
-    background-repeat: no-repeat;
-    background-color: white;
-    color: black;
-    background-position: 1px center;
-    padding-left: 20px;
-}
-
-/*
-mod_ND : BEGIN
-// TODO add .qtype_matrix_dndui selector where needed
-*/
-.que.matrix.qtype_matrix_dndui table.matrix th {
-    border: none;
-    padding: 3em 5em;
-}
-
-.que.matrix.qtype_matrix_dndui table.matrix td {
-    border: none;
-    padding: 3em;
-}
-
-.que.matrix.qtype_matrix_dndui table.matrix td.cell input {
-    display: none;
-}
-
-.que.matrix.qtype_matrix_dndui .activated {
-    background-color: rgba(0, 0, 0, 0.1);
-}
-
-.que.matrix.qtype_matrix_dndui .hovered {
-    background-color: rgba(0, 0, 255, 0.3);
-}
-
-.que.matrix.qtype_matrix_dndui .qtype_matrix_dndui_item {
-    padding: 1em;
-    cursor: move;
-    border: 0.2em solid #999;
-    background-color: #fff;
-}
-
-.que.matrix.qtype_matrix_dndui .qtype_matrix_dndui_item.disabled {
-    cursor: auto;
-    opacity: 0.3;
-}
-
-.que.matrix.qtype_matrix_dndui .cell span.title,
-.que.matrix.qtype_matrix_dndui .cell.ui-droppable > span {
-    padding: 1em 2em 1em 1em;
-    border: 0.2em solid #999;
-    position: relative;
-    background-color: #fff;
-}
-
-.que.matrix.qtype_matrix_dndui .cell span span {
-    font-family: sans-serif;
-    font-weight: bold;
-    position: absolute;
-    top: 0.2em;
-    right: 0.2em;
-    color: #999;
-    cursor: pointer;
-    border: none;
-    padding: 0;
-    line-height: 1em;
-}
-
-.que.matrix.qtype_matrix_dndui table.matrix .outerwalled {
-    border-left: 0.2em solid #000;
-    border-right: 0.2em solid #000;
-}
-
-.que.matrix.qtype_matrix_dndui table.matrix th.outerwalled {
-    border-top: 0.2em solid #000;
-}
-
-.que.matrix.qtype_matrix_dndui table.matrix tr.lastrow td.outerwalled {
-    border-bottom: 0.2em solid #000;
-}
-
-/* modifications nécessaires à l'affichage correct du mode édition avec le theme_unil */
-body#page-question-type-matrix #fgroup_id_matrix fieldset {
-    margin-left: 0;
-}
-
-body#page-question-type-matrix #page-content {
-    overflow-x: scroll;
-}
-
-body#page-question-type-matrix div#region-main {
-    overflow-x: scroll;
-}
-
-#id_add_rows,
-#id_add_cols {
-    font-size: 22px;
-    background-color: white;
-    color: black;
-    padding: 0 5px 5px 5px;
-}
-
-/*
-mod_ND : END
-*/
