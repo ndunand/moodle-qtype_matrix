@@ -40,7 +40,7 @@ class question_matrix_store {
         global $DB;
         $result = $DB->get_record(self::TABLE_QUESTION_MATRIX, ['questionid' => $questionid]);
         if ($result) {
-            $result->multiple = (bool) $result->multiple;
+            $result = question_cleaner::clean_data($result);
         }
         return $result;
     }
@@ -56,11 +56,10 @@ class question_matrix_store {
         global $DB;
         $data = (object) [
             'questionid' => $matrix->questionid,
-            'multiple' => $matrix->multiple,
             'grademethod' => $matrix->grademethod,
-            'usedndui' => $matrix->usedndui,
+            'multiple' => $matrix->multiple,
             'shuffleanswers' => $matrix->shuffleanswers,
-            'renderer' => 'matrix'
+            'usedndui' => $matrix->usedndui,
         ];
 
         $newid = $DB->insert_record(self::TABLE_QUESTION_MATRIX, $data);
@@ -79,11 +78,10 @@ class question_matrix_store {
         $data = (object) [
             'id' => $matrix->id,
             'questionid' => $matrix->questionid,
-            'multiple' => $matrix->multiple,
             'grademethod' => $matrix->grademethod,
-            'usedndui' => $matrix->usedndui,
+            'multiple' => $matrix->multiple,
             'shuffleanswers' => $matrix->shuffleanswers,
-            'renderer' => 'matrix'
+            'usedndui' => $matrix->usedndui,
         ];
         $DB->update_record(self::TABLE_QUESTION_MATRIX, $data);
         return $matrix;
@@ -123,8 +121,7 @@ class question_matrix_store {
                       WHERE qm.questionid = :qid)',
             ['qid' => $questionid]);
 
-        // Matrix.
-        $DB->delete_records('qtype_matrix', ['questionid' => $questionid]);
+        // The qtype_matrix record is automatically deleted by Moodle core
         return true;
     }
 

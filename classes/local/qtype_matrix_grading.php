@@ -26,6 +26,7 @@ use qtype_matrix_question;
  */
 abstract class qtype_matrix_grading {
 
+    const VALID_GRADINGS = ['all', 'kany', 'kprime', 'difference'];
     /**
      * @return array
      * @uses \qtype_matrix\local\grading\kany
@@ -38,7 +39,7 @@ abstract class qtype_matrix_grading {
             return $result;
         }
         $result = [];
-        $classlist = ['all', 'kany', 'kprime', 'difference'];
+        $classlist = self::VALID_GRADINGS;
         $namespace = 'qtype_matrix\\local\\grading\\';
         foreach ($classlist as $class) {
             $classname = $namespace . $class;

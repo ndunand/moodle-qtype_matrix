@@ -14,6 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+defined('MOODLE_INTERNAL') || die();
+
+use qtype_matrix\local\question_cleaner;
+
+global $CFG;
+require_once($CFG->dirroot . '/question/engine/bank.php');
+
 /**
  * restore plugin class that provides the necessary information
  * needed to restore one match qtype plugin
@@ -52,8 +59,11 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
         // Todo: check import of version moodle1 data.
 
         if ($this->is_question_created()) {
-            $data->questionid = $this->get_new_parentid('question');
-            $newitemid = $DB->insert_record('qtype_matrix', $data);
+            $qtypeobj = question_bank::get_qtype($this->pluginname);
+            $data->{$qtypeobj->questionid_column_name()} = $this->get_new_parentid('question');
+            $extrafields = $qtypeobj->extra_question_fields();
+            $extrafieldstable = array_shift($extrafields);
+            $newitemid = $DB->insert_record($extrafieldstable, $data);
             $this->set_mapping('matrix', $oldid, $newitemid);
         }
         else {
@@ -104,7 +114,7 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
             $info->filequestionid = $oldmatrixid;
             $info->dbquestionid = $newmatrixid;
             $info->answer = $data->shorttext;
-            throw new restore_step_exception('error_question_answers_missing_in_db');
+            throw new restore_step_exception('error_question_answers_missing_in_db', $info);
         } else {
             $this->set_mapping('col', $oldid, $newitemid);
         }
@@ -144,7 +154,7 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
             $info->filequestionid = $oldmatrixid;
             $info->dbquestionid = $newmatrixid;
             $info->answer = $data->shorttext;
-            throw new restore_step_exception('error_question_answers_missing_in_db');
+            throw new restore_step_exception('error_question_answers_missing_in_db', $info);
         } else {
             $this->set_mapping('row', $oldid, $newitemid);
         }
@@ -256,7 +266,7 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
         return $result;
     }
 
-     /**
+    /**
      * Converts the backup data structure to the question data structure.
      * This is needed for question identity hash generation to work correctly.
      *
@@ -265,26 +275,15 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
      */
     public static function convert_backup_to_questiondata(array $backupdata): stdClass {
         $questiondata = parent::convert_backup_to_questiondata($backupdata);
-        
+        $questiondata = question_cleaner::clean_data($questiondata, true);
         // Add the matrix-specific options.
         if (isset($backupdata['plugin_qtype_matrix_question']['matrix'][0])) {
             $matrix = $backupdata['plugin_qtype_matrix_question']['matrix'][0];
-            
-            // Add the matrix options to the question data.
-            $questiondata->options = new stdClass();
 
-            $questiondata->options->usedndui = $matrix['usedndui'] ?? "0";
-            $questiondata->options->grademethod = $matrix['grademethod'] ?? 'kprime';
-            $questiondata->options->multiple = boolval($matrix['multiple']);
-            
-            $questiondata->options->answers = $matrix['answers'] ?? [];
-            $questiondata->options->renderer = $matrix['renderer'] ?? 'matrix';
-            $questiondata->options->shuffleanswers = boolval($matrix['shuffleanswers']);
-            
             // Process rows to correct format
             $rowids = [];
-            $questiondata->options->rows = [];
             if (isset($matrix['rows']['row'])) {
+                $rows = [];
                 foreach ($matrix['rows']['row'] as $row) {
                     $description = $row['description'] ?? '';
 
@@ -300,15 +299,16 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
                         'format' => FORMAT_HTML
                     ];
 
-                    $questiondata->options->rows[$row['id']] = (object) $row;
+                    $rows[$row['id']] = (object) $row;
                     $rowids[] = $row['id'];
                 }
+                $questiondata->options->rows = $rows;
             }
 
             // Process cols to correct format
             $columnids = [];
-            $questiondata->options->cols = [];
             if (isset($matrix['cols']['col'])) {
+                $columns = [];
                 foreach ($matrix['cols']['col'] as $column) {
                     $column['matrixid'] = $matrix['id'];
 
@@ -318,14 +318,15 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
                         'format' => FORMAT_HTML
                     ];
 
-                    $questiondata->options->cols[$column['id']] = (object) $column;
+                    $columns[$column['id']] = (object) $column;
                     $columnids[] = $column['id'];
                 }
+                $questiondata->options->cols = $columns;
             }
-            
-           /**
-            * Return the weights in the format of rowid -> colid -> value
-            */
+
+            /**
+             * Return the weights in the format of rowid -> colid -> value
+             */
             $weights = [];
 
             // prepare weights with 0 values as they are not present when their value is empty
@@ -342,16 +343,8 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
                 }
             }
             $questiondata->options->weights = $weights;
-        } else {
-            $questiondata->options->rows = [];
-            $questiondata->options->cols = [];
-            $questiondata->options->weights = [[]];
-            $questiondata->options->grademethod = 'kprime';
-            $questiondata->options->shuffleanswers = true;
-            $questiondata->options->usedndui = false;
-            $questiondata->options->multiple = true;
         }
-        
+
         return $questiondata;
     }
 
@@ -370,4 +363,18 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
 
         return parent::remove_excluded_question_data($questiondata, $excludefields);
     }
+
+    #[\Override]
+    public function define_excluded_identity_hash_fields(): array {
+        return [
+            '/options/cols/id',
+            '/options/cols/matrixid',
+            '/options/rows/id',
+            '/options/rows/matrixid',
+            '/options/weights/id',
+            '/options/weights/rowid',
+            '/options/weights/colid',
+        ];
+    }
+
 }

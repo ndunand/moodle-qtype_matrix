@@ -13,6 +13,10 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+defined('MOODLE_INTERNAL') || die();
+
+global $CFG;
+require_once($CFG->dirroot . '/question/engine/bank.php');
 
 /**
  * Provides the information to backup matrix questions
@@ -26,6 +30,7 @@ class backup_qtype_matrix_plugin extends backup_qtype_plugin {
      * @throws base_element_struct_exception
      */
     protected function define_question_plugin_structure(): backup_plugin_element {
+        $qtypeobj = question_bank::get_qtype($this->pluginname);
         // Define the virtual plugin element with the condition to fulfill.
         $plugin = $this->get_plugin_element(null, '../../qtype', 'matrix');
         // Create one standard named plugin element (the visible container).
@@ -35,9 +40,9 @@ class backup_qtype_matrix_plugin extends backup_qtype_plugin {
         $plugin->add_child($pluginwrapper);
 
         // Now create the qtype own structures.
-        $matrix = new backup_nested_element('matrix',
-            ['id'],
-            ['grademethod', 'multiple', 'shuffleanswers', 'renderer']);
+        $extrafields = $qtypeobj->extra_question_fields();
+        $extrafieldstable = array_shift($extrafields);
+        $matrix = new backup_nested_element('matrix', ['id'], $extrafields);
 
         $matrixcols = new backup_nested_element('cols');
         $matrixcol = new backup_nested_element('col', ['id'], ['shorttext', 'description']);
@@ -61,7 +66,7 @@ class backup_qtype_matrix_plugin extends backup_qtype_plugin {
         $matrixweights->add_child($matrixweight);
 
         // Set source to populate the data.
-        $matrix->set_source_table('qtype_matrix', ['questionid' => backup::VAR_PARENTID]);
+        $matrix->set_source_table($extrafieldstable, [$qtypeobj->questionid_column_name() => backup::VAR_PARENTID]);
         $matrixcol->set_source_table('qtype_matrix_cols', ['matrixid' => backup::VAR_PARENTID]);
         $matrixrow->set_source_table('qtype_matrix_rows', ['matrixid' => backup::VAR_PARENTID]);
 
