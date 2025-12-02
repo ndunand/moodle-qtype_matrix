@@ -22,8 +22,6 @@ use qtype_matrix\local\setting;
 
 defined('MOODLE_INTERNAL') || die;
 
-use qtype_matrix\local\question_cleaner;
-
 /**
  * The question type class for the matrix question type.
  *
@@ -46,8 +44,11 @@ class qtype_matrix_edit_form extends question_edit_form {
     const PARAM_ADD_ROWS = 'add_rows';
     const PARAM_GRADE_METHOD = 'grademethod';
     const PARAM_MULTIPLE = 'multiple';
+    const DEFAULT_MULTIPLE = false;
     const PARAM_USE_DND_UI = 'usedndui';
+    const DEFAULT_USE_DND_UI = false;
     const PARAM_SHUFFLE_ANSERS = 'shuffleanswers';
+    const DEFAULT_SHUFFLE_ANSWERS = true;
 
     /**
      *
@@ -76,13 +77,13 @@ class qtype_matrix_edit_form extends question_edit_form {
 
         if (setting::allow_dnd_ui()) {
             $builder->add_selectyesno(self::PARAM_USE_DND_UI, lang::use_dnd_ui());
-            $builder->set_default(self::PARAM_USE_DND_UI, question_cleaner::DEFAULT_USEDNDUI);
+            $builder->set_default(self::PARAM_USE_DND_UI, self::DEFAULT_USE_DND_UI);
         }
 
         $mform->addElement('advcheckbox', self::PARAM_SHUFFLE_ANSERS, lang::shuffle_answers(), null, null, [0,
             1]);
         $builder->add_help_button(self::PARAM_SHUFFLE_ANSERS);
-        $builder->set_default(self::PARAM_SHUFFLE_ANSERS, question_cleaner::DEFAULT_SHUFFLEANSWERS);
+        $builder->set_default(self::PARAM_SHUFFLE_ANSERS, self::DEFAULT_SHUFFLE_ANSWERS);
     }
 
     /**
@@ -95,11 +96,11 @@ class qtype_matrix_edit_form extends question_edit_form {
 
         if (setting::show_kprime_gui()) {
             $builder->add_selectyesno(self::PARAM_MULTIPLE, lang::multiple_allowed());
-            $builder->set_default(self::PARAM_MULTIPLE, question_cleaner::DEFAULT_MULTIPLE);
+            $builder->set_default(self::PARAM_MULTIPLE, self::DEFAULT_MULTIPLE);
             $builder->register_hook_multiple();
         } else {
-            $this->_form->addElement('hidden', self::PARAM_MULTIPLE, question_cleaner::DEFAULT_MULTIPLE);
-            $this->_form->setType(self::PARAM_MULTIPLE, PARAM_BOOL);
+            $this->_form->addElement('hidden', self::PARAM_MULTIPLE, self::DEFAULT_MULTIPLE);
+            $this->_form->setType(self::PARAM_MULTIPLE, PARAM_RAW);
         }
     }
 
@@ -355,7 +356,7 @@ class qtype_matrix_edit_form extends question_edit_form {
         if ($this->param_grade_method() == difference::get_name()) {
             $data[self::PARAM_MULTIPLE] = false;
         }
-        return $data[self::PARAM_MULTIPLE] ?? question_cleaner::DEFAULT_MULTIPLE;
+        return $data[self::PARAM_MULTIPLE] ?? self::DEFAULT_MULTIPLE;
     }
 
     public function get_javascript(): string {
@@ -397,10 +398,13 @@ class qtype_matrix_edit_form extends question_edit_form {
         $isnew = empty($question->id);
         if (!$isnew) {
             $options = $question->options;
+            $question->multiple = $options->multiple ? '1' : '0';
+            $question->grademethod = $options->grademethod;
+            $question->shuffleanswers = $options->shuffleanswers ? '1' : '0';
+            $question->usedndui = $options->usedndui ? '1' : '0';
             $question->rows_shorttext = [];
             $question->rows_description = [];
             $question->rows_feedback = [];
-
             $question->rowid = [];
             foreach ($options->rows as $row) {
                 $question->rows_shorttext[] = $row->shorttext;

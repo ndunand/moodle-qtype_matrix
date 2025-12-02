@@ -20,7 +20,10 @@
                        SEQUENCE="false" COMMENT="Use drag and drop UI?" PREVIOUS="multiple" NEXT="shuffleanswers"/>
                 <FIELD NAME="shuffleanswers" TYPE="int" LENGTH="1" NOTNULL="true" UNSIGNED="true" DEFAULT="1"
                        SEQUENCE="false" COMMENT="Shuffle answer statements?" PREVIOUS="usedndui"
-                       />
+                       NEXT="renderer"/>
+                <FIELD NAME="renderer" TYPE="text" LENGTH="small" NOTNULL="true" SEQUENCE="false"
+                       COMMENT="the type of renderer to use to draw the student ui (eg, could be drag and drop later, but is 'matrix' for now).  should match a class: qtype_matrix_renderer_{$value}"
+                       PREVIOUS="multiple"/>
             </FIELDS>
             <KEYS>
                 <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="questionidfk"/>
