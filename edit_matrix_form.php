@@ -111,7 +111,7 @@ class qtype_matrix_edit_form extends question_edit_form {
         $builder = $this->builder;
 
         // Grading method.
-        $defaultgrading = qtype_matrix::defaut_grading();
+        $defaultgrading = qtype_matrix::default_grading();
         $defaultgradingname = $defaultgrading->get_name();
         $gradings = qtype_matrix::gradings();
 
@@ -342,7 +342,7 @@ class qtype_matrix_edit_form extends question_edit_form {
      */
     protected function param_grade_method() {
         $data = $this->_form->exportValues();
-        return $data[self::PARAM_GRADE_METHOD] ?? qtype_matrix::defaut_grading()->get_name();
+        return $data[self::PARAM_GRADE_METHOD] ?? qtype_matrix::default_grading()->get_name();
     }
 
     /**

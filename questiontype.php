@@ -135,10 +135,54 @@ class qtype_matrix extends question_type {
         return $matrix;
     }
 
-    public static function defaut_grading(): qtype_matrix_grading {
+    public static function default_grading(): qtype_matrix_grading {
         return qtype_matrix_grading::default_grading();
     }
 
+    /**
+     * @param $fromform - the form data containing the dimension's data
+     * @param int $matrixid - the matrix id to store dimension data for
+     * @param bool $isrow - whether we want to store rows or cols
+     * @return array - the database ids of existing dimension records for the matrix
+     */
+    private function save_dimension($fromform, int $matrixid, bool $isrow):array {
+        $store = new question_matrix_store();
+        $dim = $isrow ? 'row' : 'col';
+        $dimsexist = $store->{$dim.'s_exist'}($matrixid);
+        $dimids = [];
+
+        foreach ($fromform->{$dim.'s_shorttext'} as $i => $short) {
+            $dimrecord = (object) [
+                'matrixid' => $matrixid,
+                'shorttext' => $short,
+                'description' => $fromform->{$dim.'s_description'}[$i]['text'],
+            ];
+            if ($isrow) {
+                $dimrecord->feedback = $fromform->{$dim.'s_feedback'}[$i]['text'];
+            }
+            $delete = empty($dimrecord->shorttext);
+            if ($delete && !$dimsexist) {
+                continue;
+            }
+            if (!$dimsexist) {
+                $newdimid = $store->{'insert_matrix_'.$dim}($dimrecord);
+                if ($newdimid) {
+                    $dimids[] = $newdimid;
+                }
+            } else {
+                $dimid = $fromform->{$dim.'id'}[$i];
+                if (!$delete) {
+                    $dimrecord->id = $dimid;
+                    if ($store->{'update_matrix_'.$dim}($dimrecord)) {
+                        $dimids[] = $dimid;
+                    }
+                } else {
+                    $store->{'delete_matrix_'.$dim}($dimid);
+                }
+            }
+        }
+        return $dimids;
+    }
     /**
      * Saves question-type specific options.
      * This is called by {@link save_question()} to save the question-type specific data.
@@ -153,71 +197,13 @@ class qtype_matrix extends question_type {
         $transaction = $DB->start_delegated_transaction();
         parent::save_question_options($fromform);
         $store = new question_matrix_store();
-        $makecopy = $fromform->makecopy ?? false;
 
         $questionid = $fromform->id;
 
-        // The variable $questionid is not equal to matrix->id.
+
         $matrix = (object) $store->get_matrix_by_question_id($questionid);
-        $matrixid = $matrix->id;
-        // Rows.
-        // Mapping for indexes to db ids.
-        $rowids = [];
-        foreach ($fromform->rows_shorttext as $i => $short) {
-            // Just to be on the safe side the old ids are removed when we make a question copy
-            if ($makecopy) {
-                $fromform->rowid[$i] = 0;
-            }
-            $rowid = $fromform->rowid[$i];
-            $row = (object) [
-                'id' => $rowid,
-                'matrixid' => $matrixid,
-                'shorttext' => $short,
-                'description' => $fromform->rows_description[$i],
-                'feedback' => $fromform->rows_feedback[$i]
-            ];
-
-            $delete = empty($row->shorttext);
-
-            if ($delete) {
-                $store->delete_matrix_row($row);
-            } else if (!$rowid) {
-                $store->insert_matrix_row($row);
-                $rowids[] = $row->id;
-            } else {
-                $store->update_matrix_row($row);
-                $rowids[] = $row->id;
-            }
-        }
-
-        // Cols.
-        // Mapping for indexes to db ids.
-        $colids = [];
-        foreach ($fromform->cols_shorttext as $i => $short) {
-            // Just to be on the safe side the old ids are removed when we make a question copy
-            if ($makecopy) {
-                $fromform->colid[$i] = 0;
-            }
-            $colid = $fromform->colid[$i];
-            $col = (object) [
-                'id' => $colid,
-                'matrixid' => $matrixid,
-                'shorttext' => $fromform->cols_shorttext[$i],
-                'description' => $fromform->cols_description[$i]
-            ];
-
-            $delete = empty($col->shorttext);
-
-            if ($delete) {
-                $store->delete_matrix_col($col);
-            } else if (!$colid) {
-                $store->insert_matrix_col($col);
-                $colids[] = $col->id;
-            } else {
-                $store->update_matrix_col($col);
-                $colids[] = $fromform->colid[$i];
-            }
-        }
+        $rowids = $this->save_dimension($fromform, $matrix->id,true);
+        $colids = $this->save_dimension($fromform, $matrix->id,false);
 
         // Weights.
         // First we delete all weights. (There is no danger of deleting the original weights when making a copy,
@@ -237,16 +223,10 @@ class qtype_matrix extends question_type {
         //
         // This is bit hacky but it is safe. The to_weight_matrix returns only
         // 0 or 1.
-        if ($fromform->multiple) {
-            $weights = $this->to_weigth_matrix($fromform, true);
-            if ($this->is_matrix_empty($weights)) {
-                $weights = $this->to_weigth_matrix((object) $_POST, false); // Todo: remove unsafe $_POST.
-            }
-        } else {
-            $weights = $this->to_weigth_matrix($fromform, false);
-            if ($this->is_matrix_empty($weights)) {
-                $weights = $this->to_weigth_matrix((object) $_POST, true); // Todo: remove unsafe $_POST.
-            }
+        $multiple = $fromform->multiple;
+        $weights = $this->to_weight_matrix($fromform, $multiple);
+        if ($this->is_matrix_empty($weights)) {
+            $weights = $this->to_weight_matrix((object) $_POST, !$multiple); // Todo: remove unsafe $_POST.
         }
 
         foreach ($rowids as $rowindex => $rowid) {
@@ -291,32 +271,28 @@ class qtype_matrix extends question_type {
      * @param boolean $frommultiple Whether we extract from multiple representation or not
      * @result array                    The weights
      */
-    public function to_weigth_matrix(object $fromform, bool $frommultiple): array {
+    public function to_weight_matrix(object $fromform, bool $frommultiple): array {
         $result = [];
         $rowcount = 20;
         $colcount = 20;
 
-        // Init.
-        for ($row = 0; $row < $rowcount; $row++) {
-            for ($col = 0; $col < $colcount; $col++) {
-                $result[$row][$col] = 0;
-            }
-        }
-
-        if ($frommultiple) {
-            for ($row = 0; $row < $rowcount; $row++) {
-                for ($col = 0; $col < $colcount; $col++) {
-                    $key = qtype_matrix_grading::cell_name($row, $col, true);
+        for ($rowindex = 0; $rowindex < $rowcount; $rowindex++) {
+            $foundcorrectcol = false;
+            for ($colindex = 0; $colindex < $colcount; $colindex++) {
+                // Always initialize the matrix cell, don't leave 'holes'
+                $result[$rowindex][$colindex] = 0;
+                // Reminder: The cell name only uses rowindex if we're not allowing multiple correct answers
+                $key = qtype_matrix_grading::cell_name($rowindex, $colindex, $frommultiple);
+                if (!$frommultiple) {
+                    // Only one column can be correct, so ensure that we don't continue after we find it
+                    if (!$foundcorrectcol && isset($fromform->{$key})) {
+                        $correctcolindex = $fromform->{$key};
+                        $result[$rowindex][$correctcolindex] = 1;
+                        $foundcorrectcol = true;
+                    }
+                } else {
                     $value = $fromform->{$key} ?? 0;
-                    $result[$row][$col] = $value ? 1 : 0;
-                }
-            }
-        } else {
-            for ($row = 0; $row < $rowcount; $row++) {
-                $key = qtype_matrix_grading::cell_name($row, 0, false);
-                if (isset($fromform->{$key})) {
-                    $col = $fromform->{$key};
-                    $result[$row][$col] = 1;
+                    $result[$rowindex][$colindex] = $value ? 1 : 0;
                 }
             }
         }
@@ -389,12 +365,11 @@ class qtype_matrix extends question_type {
         $fromform = $format->import_headers($data);
         $fromform->qtype = 'matrix';
 
-        // TODO: May be '' here, so this doesn't work
         // Grademethod.
         $fromform->grademethod = $format->getpath(
             $data,
             ['#', 'grademethod', 0, '#'],
-            self::defaut_grading()->get_name()
+            self::default_grading()->get_name()
         );
 
         // Multiple.
@@ -414,11 +389,11 @@ class qtype_matrix extends question_type {
         // Use_dnd_ui.
         $fromform->usedndui = (bool) $format->trans_single($format->getpath(
             $data,
-            ['#', 'use_dnd_ui', 0, '#'],
+            ['#', 'usedndui', 0, '#'],
             question_cleaner::DEFAULT_USEDNDUI)
         );
         // Todo: check if we translated this corrent!
-        // TODO: Will we need a "old export" workaround for use_dnd_ui?
+        // TODO: Will we need a "old export" workaround for the old use_dnd_ui option name?
 
         // Rows.
         $fromform->rows = [];

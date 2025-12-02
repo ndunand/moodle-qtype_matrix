@@ -28,7 +28,7 @@ global $CFG;
 require_once($CFG->dirroot . '/question/engine/tests/helpers.php');
 
 /**
- * Unit tests for the true-false question definition class.
+ * Unit tests for the matrix question definition class.
  *
  */
 class qtype_matrix_question_test extends advanced_testcase {
@@ -43,7 +43,7 @@ class qtype_matrix_question_test extends advanced_testcase {
         $answer = [];
         $this->assertTrue($question->is_complete_response($answer));
 
-        $answer = self::make_answer_correct($question);
+        $answer = self::make_correct_answer($question);
         $this->assertTrue($question->is_complete_response($answer));
 
         $answer = self::make_answer_incorrect($question);
@@ -55,7 +55,7 @@ class qtype_matrix_question_test extends advanced_testcase {
         $message = $question->get_validation_error($answer);
         $this->assertNotEmpty($message);
 
-        $answer = self::make_answer_correct($question);
+        $answer = self::make_correct_answer($question);
         $this->assertTrue($question->is_complete_response($answer));
 
         $answer = self::make_answer_incorrect($question);
@@ -76,15 +76,15 @@ class qtype_matrix_question_test extends advanced_testcase {
      * @param qtype_matrix_question $question
      * @return array
      */
-    protected static function make_answer_correct(qtype_matrix_question $question): array {
-        $result = [];
+    protected static function make_correct_answer(qtype_matrix_question $question): array {
+        $answer = [];
         foreach ($question->rows as $row) {
             $col = 0;
             $key = $question->key($row, $col);
-            $result[$key] = $question->multiple ? 'on' : $col;
+            $answer[$key] = $question->multiple ? 'on' : $col;
         }
 
-        return $result;
+        return $answer;
     }
 
     /**
@@ -110,7 +110,7 @@ class qtype_matrix_question_test extends advanced_testcase {
     public function test_get_correct_response(): void {
         $question = self::make_question('multiple');
 
-        $answer = self::make_answer_correct($question);
+        $answer = self::make_correct_answer($question);
         $correct = $question->get_correct_response();
         $this->assertEquals($answer, $correct);
 
@@ -119,7 +119,7 @@ class qtype_matrix_question_test extends advanced_testcase {
 
         $question = self::make_question('single');
 
-        $answer = self::make_answer_correct($question);
+        $answer = self::make_correct_answer($question);
         $this->assertEquals($answer, $question->get_correct_response());
 
         $answer = self::make_answer_incorrect($question);
@@ -143,7 +143,7 @@ class qtype_matrix_question_test extends advanced_testcase {
     public function test_summarise_response(): void {
         $question = self::make_question('multiple');
 
-        $answer = self::make_answer_correct($question);
+        $answer = self::make_correct_answer($question);
         $summary = $question->summarise_response($answer);
         $this->assertNotEquals('', $summary);
 
@@ -155,7 +155,7 @@ class qtype_matrix_question_test extends advanced_testcase {
         $summary = $question->get_question_summary();
         $this->assertNotEmpty($summary);
 
-        $answer = self::make_answer_correct($question);
+        $answer = self::make_correct_answer($question);
         $summary = $question->summarise_response($answer);
         $this->assertNotEquals('', $summary);
 
@@ -172,7 +172,7 @@ class qtype_matrix_question_test extends advanced_testcase {
         $question = self::make_question('multiple');
 
         $correct = $question->get_correct_response();
-        $answer = self::make_answer_correct($question);
+        $answer = self::make_correct_answer($question);
 
         $this->assertEquals($correct, $answer);
         $this->assertEquals($correct, $correct);
@@ -212,7 +212,7 @@ class qtype_matrix_question_test extends advanced_testcase {
     }
 
     protected function question_grading_pass($question, float $partialgrading = 0.5): void {
-        $answer = self::make_answer_correct($question);
+        $answer = self::make_correct_answer($question);
         $grade = $question->grade_response($answer);
         $this->assertEquals([1, question_state::$gradedright], $grade);
 
