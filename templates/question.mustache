@@ -1,0 +1,140 @@
+{{!
+    @template qtype_matrix/question
+
+    Template for displayed matrix questions.
+    The example context has only one item and doesn't show feedback for brevity's sake.
+
+
+    Example context (json):
+    {
+        "multiple": false,
+        "isreadonly": true,
+        "usedndui": false,
+        "showfeedback": false,
+        "expiredquestion": false,
+        "errormessage": "",
+        "questiontext": "The question text for the question",
+        "answerheaders": [
+            {
+                "shorttext": "Short text of the answer",
+                "description": "Longer description for the answer",
+                "cellclass": "c1",
+                "lastcol": false
+            },
+            {
+                "shorttext": "Short text of the second answer",
+                "description": "Longer description for the second answer",
+                "cellclass": "c2",
+                "lastcol": true
+            }
+        ],
+        "rows": [
+            {
+                "header": {
+                    "shorttext": "Short text for the first row item",
+                    "description": "Longer description for the first row item",
+                    "cellclass": "c0",
+                    "lastrow": false
+                },
+                "cells": [
+                    {
+                        "cellname": "q88:1_cell265",
+                        "cellclass": "c1",
+                        "ischecked": true,
+                        "colid": 123,
+                        "lastcol": false
+                    },
+                    {
+                        "cellname": "q88:1_cell266",
+                        "cellclass": "c2",
+                        "ischecked": false,
+                        "colid": 123,
+                        "lastcol": true
+                    }
+                ]
+            },
+            {
+                "header": {
+                    "shorttext": "Short text for the second row item",
+                    "description": "Longer description for the second row item",
+                    "cellclass": "c0",
+                    "lastrow": true
+                },
+                "cells": [
+                    {
+                        "cellname": "q88:1_cell265",
+                        "cellclass": "c1",
+                        "ischecked": true,
+                        "colid": 123,
+                        "lastcol": false
+                    },
+                    {
+                        "cellname": "q88:1_cell266",
+                        "cellclass": "c2",
+                        "ischecked": false,
+                        "colid": 123,
+                        "lastcol": true
+                    }
+                ]
+            }
+        ]
+    }
+}}
+
+{{#expiredquestion}}
+Expired question: This can happen in preview mode.
+{{/expiredquestion}}
+{{^expiredquestion}}
+<div class="question_text">{{{ questiontext }}}</div>
+<table class="matrix{{#usedndui}} uses_dndui{{/usedndui}}">
+    <thead>
+        <tr>
+            <td class="header c0"></td>
+{{#answerheaders}}
+            <th class="header {{ cellclass }}{{#lastcol}} lastcol{{/lastcol}}" scope="col">
+                <span class="title">{{{ shorttext }}}</span>
+{{#description}}
+                <span class="description">{{{ description }}}</span>
+{{/description}}
+            </th>
+{{/answerheaders}}
+{{#showfeedback}}
+            <td class="header {{ feedbackcellclass }} lastcol"></td>
+{{/showfeedback}}
+        </tr>
+    </thead>
+    <tbody>
+{{#rows}}
+    <tr{{#lastrow}} class="lastrow"{{/lastrow}}>
+{{#header}}
+        <td class="cell {{ cellclass }}">
+            <span class="title">{{{ shorttext }}}</span>
+{{#description}}
+            <span class="description">{{{ description }}}</span>
+{{/description}}
+        </td>
+{{/header}}
+{{#cells}}
+        <td class="cell {{ cellclass }}{{#lastcol}} lastcol{{/lastcol}}">
+{{#multiple}}
+            <input type="checkbox" name="{{ cellname }}" value="{{ colid }}"{{#isreadonly}} disabled="disabled"{{/isreadonly}}{{#ischecked}} checked="checked"{{/ischecked}}>
+{{/multiple}}
+{{^multiple}}
+            <input type="radio" name="{{ cellname }}" value="{{ colid }}"{{#isreadonly}} disabled="disabled"{{/isreadonly}}{{#ischecked}} checked="checked"{{/ischecked}}>
+{{/multiple}}
+{{#feedbackimage}}
+            {{{ feedbackimage }}}
+{{/feedbackimage}}
+        </td>
+{{/cells}}
+{{#feedback}}
+        <td class="cell {{ feedbackcellclass }} lastcol">{{{ feedback }}}</td>
+{{/feedback}}
+    </tr>
+{{/rows}}
+    </tbody>
+</table>
+{{#errormessage}}
+<div class="validationerror">{{ errormessage }}</div>
+{{/errormessage}}
+{{/expiredquestion}}
