@@ -19,12 +19,12 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import jQuery from 'jquery';
+import $ from 'jquery';
+import 'jqueryui';
 
 export const init = () => {
     var n = 0; // Matrix question number (1..)
     var dnduistr = 'qtype_matrix_dndui';
-    var $ = jQuery;
 
     var wasDropped = function(ismultiple, $tr, $cell, text, $draggable, checkBoxes) {
         if (!ismultiple) {

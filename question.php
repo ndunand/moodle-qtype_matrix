@@ -161,8 +161,6 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
     public function start_attempt(question_attempt_step $step, $variant): void {
         global $PAGE;
         if ($this->usedndui && !$PAGE->requires->is_head_done()) {
-            $PAGE->requires->jquery();
-            $PAGE->requires->jquery_plugin('ui');
             $PAGE->requires->jquery_plugin('ui-css');
             $PAGE->requires->js_call_amd('qtype_matrix/dnd', 'init');
         }
@@ -243,8 +241,6 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
     public function apply_attempt_state(question_attempt_step $step): void {
         if ($this->usedndui) {
             global $PAGE;
-            $PAGE->requires->jquery();
-            $PAGE->requires->jquery_plugin('ui');
             $PAGE->requires->jquery_plugin('ui-css');
             $PAGE->requires->js_call_amd('qtype_matrix/dnd', 'init');
         }
