@@ -16,10 +16,8 @@
 
 namespace qtype_matrix\output;
 
-use dml_exception;
-use html_table;
-use html_writer;
 use qtype_matrix\local\setting;
+use dml_exception;
 use qtype_with_combined_feedback_renderer;
 use question_attempt;
 use question_display_options;
@@ -43,106 +41,100 @@ class renderer extends qtype_with_combined_feedback_renderer {
      */
     public function formulation_and_controls(question_attempt $qa, question_display_options $options): string {
         $question = $qa->get_question();
-        $response = $qa->get_last_qt_data();
-
-        $table = new html_table();
-        $table->attributes['class'] = 'matrix';
-
-        if (setting::allow_dnd_ui() && $question->usedndui) {
-            $table->attributes['class'] .= ' uses_dndui';
+        $showfeedback = $options->correctness ?? false;
+        $context = [];
+        $context['multiple'] = $question->multiple;
+        $context['isreadonly'] = $options->readonly;
+        $context['usedndui'] = (setting::allow_dnd_ui() && $question->usedndui);
+        $context['showfeedback'] = $showfeedback;
+        // TODO: this is somehow possible since a preview is not a real attempt and therefore it can update the
+        // question and it will take away the rows and this will trigger an error her so we skip these.
+        $context['expiredquestion'] = (count($question->rows) == 0);
+        if ($qa->get_state() == question_state::$invalid) {
+            $context['errormessage'] = $question->get_validation_error($qa->get_last_qt_data());
         }
-
-        $table->head = [];
-        $table->head[] = '';
+        $context['questiontext'] = $question->format_questiontext($qa);
+        $context['answerheaders'] = [];
+        $lastcol = false;
+        // Row header + answer headers + optional feedback header
+        $nrcols = 1 + count($question->cols) + (int) $showfeedback;
+        // The first header is an always empty one because its the header cell for the row headers
+        // Therefore we start the counting at the second one (index wise)
+        $colindex = 1;
+        // Context for the answer headers
+        foreach ($question->cols as $col) {
+            if (!$showfeedback && $colindex == ($nrcols - 1)) {
+                $lastcol = true;
+            }
+            $context['answerheaders'][] = $this->headercontext($col, $colindex, $lastcol);
+            $colindex++;
+        }
+        // Finally the optional feedback column header
+        if ($showfeedback) {
+            $context['feedbackcellclass'] = 'c' . $colindex;
+        }
+        $context['rows'] = [];
 
         $order = $question->get_order($qa);
-
-        foreach ($question->cols as $col) {
-            $table->head[] = self::matrix_header($col);
-        }
-
-        if ($options->correctness) {
-            $table->head[] = '';
-        }
-
-        if (count($question->rows) == 0) {
-            // Todo: this is somehow possible since a preview is not a real attempt and therefore it can update the
-            // Question and it will take away the rows and this will trigger an error her so we skip these.
-            return "Expired question: This can happen in preview mode.";
-        }
-
+        $response = $qa->get_last_qt_data();
+        $nrrows = count($order);
+        $currentrow = 1;
         foreach ($order as $rowid) {
+            $rowcontext = [];
+            $rowcellindex = 0;
             $row = $question->rows[$rowid];
-            $rowdata = [];
-            $rowdata[] = self::matrix_header($row);
+            $rowcontext['header'] = $this->headercontext($row, $rowcellindex++, false);
+            $rowcontext['cells'] = [];
+            $lastcol = false;
             foreach ($question->cols as $col) {
-                $key = $question->key($row, $col);
-                $cellname = $qa->get_field_prefix() . $key;
-
-                $isreadonly = $options->readonly;
+                if (!$showfeedback && $rowcellindex == ($nrcols - 1)) {
+                    $lastcol = true;
+                }
+                $cellname = $qa->get_field_prefix() . $question->key($row, $col);
                 $ischecked = $question->response($response, $row, $col);
 
-                if ($question->multiple) {
-                    $cell = self::checkbox($cellname, $ischecked, $isreadonly);
-                } else {
-                    $cell = self::radio($cellname, $col->id, $ischecked, $isreadonly);
-                }
-                $weight = $question->weight($row, $col);
-                if ($options->correctness && ($ischecked || question_state::graded_state_for_fraction($weight)->is_correct())) {
-                    $cell .= $this->feedback_image($weight);
-                }
-                $rowdata[] = $cell;
-            }
+                $cellcontext = [];
+                $cellcontext['cellname'] = $cellname;
+                $cellcontext['cellclass'] = 'c' . $rowcellindex++;
+                $cellcontext['ischecked'] = $ischecked;
+                $cellcontext['colid'] = $col->id;
+                $cellcontext['lastcol'] = $lastcol;
 
-            if ($options->correctness) {
+                $weight = $question->weight($row, $col);
+                if ($showfeedback && ($ischecked || question_state::graded_state_for_fraction($weight)->is_correct())) {
+                    $cellcontext['feedbackimage'] = $this->feedback_image($weight);
+                }
+                $rowcontext['cells'][] = $cellcontext;
+            }
+            if ($showfeedback) {
+                // feedback for the row in the final column
                 $rowgrade = $question->grading()->grade_row($question, $row, $response);
                 $feedback = $row->feedback['text'];
                 $feedback = strip_tags($feedback) ? format_text($feedback) : '';
-                $rowdata[] = $this->feedback_image($rowgrade) . $feedback;
+                $rowcontext['feedback'] = $this->feedback_image($rowgrade) . $feedback;
+                $rowcontext['feedbackcellclass'] = 'c' . $rowcellindex;
             }
-            $table->data[] = $rowdata;
-        }
-        $questiontext = $question->format_questiontext($qa);
-        $result = html_writer::tag('div', $questiontext, ['class' => 'question_text']);
-        $result .= html_writer::table($table);
-
-        if ($qa->get_state() == question_state::$invalid) {
-            $result .= html_writer::nonempty_tag('div',
-                $question->get_validation_error($qa->get_last_qt_data()),
-                ['class' => 'validationerror']);
+            if ($currentrow == $nrrows) {
+                $rowcontext['lastrow'] = true;
+            }
+            $currentrow++;
+            $context['rows'][] = $rowcontext;
         }
 
-        return $result;
+        return $this->render_from_template('qtype_matrix/question', $context);
     }
 
-    public static function matrix_header(?object $header): string {
-        if (empty($header)) {
-            return "";
-        }
-        $text = $header->shorttext;
-
-        $description = $header->description['text'];
+    private function headercontext($roworcol, int $index, bool $lastcol):array {
+        $headercontext = [];
+        $headercontext['cellclass'] = 'c'.$index;
+        $headercontext['lastcol'] = $lastcol;
+        $headercontext['shorttext'] = format_text($roworcol->shorttext);
+        $description = $roworcol->description['text'];
         if (strip_tags($description)) {
             $description = preg_replace('-^<p>-', '', $description);
             $description = preg_replace('-</p>$-', '', $description);
-            $description = '<span class="description" >' . format_text($description) . '</span>';
-        } else {
-            $description = '';
+            $headercontext['description'] = format_text($description);
         }
-
-        return '<span class="title">' . format_text($text) . '</span>' . $description;
+        return $headercontext;
     }
-
-    protected static function checkbox(string $name, bool $checked, bool $readonly): string {
-        $readonly = $readonly ? 'readonly="readonly" disabled="disabled"' : '';
-        $checked = $checked ? 'checked="checked"' : '';
-        return "<input type=\"checkbox\" name=\"$name\" $checked $readonly />";
-    }
-
-    protected static function radio(string $name, string $value, bool $checked, bool $readonly): string {
-        $readonly = $readonly ? 'readonly="readonly" disabled="disabled"' : '';
-        $checked = $checked ? 'checked="checked"' : '';
-        return "<input type=\"radio\" name=\"$name\" value=\"$value\" $checked $readonly />";
-    }
-
 }
