@@ -98,5 +98,18 @@ function xmldb_qtype_matrix_upgrade(int $oldversion): bool {
         upgrade_plugin_savepoint(true, 2025093001, 'qtype', 'matrix');
 
     }
+    if ($oldversion < 2025093002) {
+        // Replace the non-unique index
+        $table = new xmldb_table('qtype_matrix');
+        $oldforeignindex = new xmldb_index('quesmatr_que_ix', XMLDB_INDEX_NOTUNIQUE, ['questionid']);
+        if ($dbman->index_exists($table, $oldforeignindex)) {
+            $dbman->drop_index($table, $oldforeignindex);
+            $newuniqueindex = new xmldb_index('qtypmatr_que_uix', XMLDB_INDEX_UNIQUE, ['questionid']);
+            $dbman->add_index($table, $newuniqueindex);
+        }
+        upgrade_plugin_savepoint(true, 2025093002, 'qtype', 'matrix');
+
+    }
+
     return true;
 }
