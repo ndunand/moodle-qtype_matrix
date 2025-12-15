@@ -148,10 +148,12 @@ class qtype_matrix extends question_type {
     private function save_dimension($fromform, int $matrixid, bool $isrow):array {
         $store = new question_matrix_store();
         $dim = $isrow ? 'row' : 'col';
-        $dimsexist = $store->{$dim.'s_exist'}($matrixid);
         $dimids = [];
 
         foreach ($fromform->{$dim.'s_shorttext'} as $i => $short) {
+            if (!$short) {
+                continue;
+            }
             $dimrecord = (object) [
                 'matrixid' => $matrixid,
                 'shorttext' => $short,
@@ -160,25 +162,9 @@ class qtype_matrix extends question_type {
             if ($isrow) {
                 $dimrecord->feedback = $fromform->{$dim.'s_feedback'}[$i]['text'];
             }
-            $delete = empty($dimrecord->shorttext);
-            if ($delete && !$dimsexist) {
-                continue;
-            }
-            if (!$dimsexist) {
-                $newdimid = $store->{'insert_matrix_'.$dim}($dimrecord);
-                if ($newdimid) {
-                    $dimids[] = $newdimid;
-                }
-            } else {
-                $dimid = $fromform->{$dim.'id'}[$i];
-                if (!$delete) {
-                    $dimrecord->id = $dimid;
-                    if ($store->{'update_matrix_'.$dim}($dimrecord)) {
-                        $dimids[] = $dimid;
-                    }
-                } else {
-                    $store->{'delete_matrix_'.$dim}($dimid);
-                }
+            $newdimid = $store->{'insert_matrix_'.$dim}($dimrecord);
+            if ($newdimid) {
+                $dimids[] = $newdimid;
             }
         }
         return $dimids;
@@ -205,12 +191,7 @@ class qtype_matrix extends question_type {
         $rowids = $this->save_dimension($fromform, $matrix->id,true);
         $colids = $this->save_dimension($fromform, $matrix->id,false);
 
-        // Weights.
-        // First we delete all weights. (There is no danger of deleting the original weights when making a copy,
-        // because we are anyway deleting only weights associated with our newly created question ID).
-        // Then we recreate them. (Because updating is too much of a pain).
-        $store->delete_matrix_weights($questionid);
-
+        // FIXME: We should just not validate the form with true if we changed the option (or dynamically change the form with AJAX)
         // When we switch from multiple answers to single answers (or the other
         // way around) we loose answers.
         //

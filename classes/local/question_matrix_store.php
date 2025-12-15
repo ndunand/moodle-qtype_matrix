@@ -46,25 +46,6 @@ class question_matrix_store {
     }
 
     /**
-     * @param object $matrix
-     * @return object
-     * @throws dml_exception
-     */
-    public function update_matrix(object $matrix): object {
-        global $DB;
-        $data = (object) [
-            'id' => $matrix->id,
-            'questionid' => $matrix->questionid,
-            'grademethod' => $matrix->grademethod,
-            'multiple' => $matrix->multiple,
-            'shuffleanswers' => $matrix->shuffleanswers,
-            'usedndui' => $matrix->usedndui,
-        ];
-        $DB->update_record(self::TABLE_QUESTION_MATRIX, $data);
-        return $matrix;
-    }
-
-    /**
      * @param int $questionid
      * @return bool
      * @throws dml_exception
@@ -160,32 +141,6 @@ class question_matrix_store {
         return $newid;
     }
 
-    /**
-     * @param object $row
-     * @return object
-     * @throws dml_exception
-     */
-    public function update_matrix_row(object $row):bool {
-        global $DB;
-        // TODO: Add a possibility to delete if (empty($short)).
-        return $DB->update_record(self::TABLE_QUESTION_MATRIX_ROWS, $row);
-    }
-
-    /**
-     * @param int $rowid
-     * @return bool
-     * @throws dml_exception
-     */
-    public function delete_matrix_row(int $rowid):bool {
-        global $DB;
-
-        if (!$rowid) {
-            return false;
-        }
-
-        return $DB->delete_records(self::TABLE_QUESTION_MATRIX_ROWS, ['id' => $rowid]);
-    }
-
     // Cols.
 
     /**
@@ -229,33 +184,6 @@ class question_matrix_store {
         return $newid;
     }
 
-    /**
-     * @param object $col
-     * @return object
-     * @throws dml_exception
-     */
-    public function update_matrix_col(object $col):bool {
-        global $DB;
-
-        // TODO: Add a possibility to delete if (empty($short)).
-        return $DB->update_record(self::TABLE_QUESTION_MATRIX_COLS, $col);
-    }
-
-    /**
-     * @param int $colid
-     * @return bool
-     * @throws dml_exception
-     */
-    public function delete_matrix_col(int $colid): bool {
-        global $DB;
-
-        if (!$colid) {
-            return false;
-        }
-
-        return $DB->delete_records(self::TABLE_QUESTION_MATRIX_COLS, ['id' => $colid]);
-    }
-
     // Weights.
 
     /**
@@ -278,23 +206,6 @@ class question_matrix_store {
                               WHERE qm.questionid = $questionid)
                "; // Todo: remove unsafe sql operation.
         return $DB->get_records_sql($sql);
-    }
-
-    /**
-     * @param int $questionid
-     * @return bool
-     * @throws dml_exception
-     */
-    public function delete_matrix_weights(int $questionid): bool {
-        global $DB;
-        $sql = "DELETE FROM {qtype_matrix_weights}
-                WHERE rowid IN
-                (
-                 SELECT qmr.id FROM {qtype_matrix_rows} qmr
-                 INNER JOIN {qtype_matrix} qm ON qmr.matrixid = qm.id
-                 WHERE qm.questionid = $questionid
-                )"; // Todo: remove unsafe sql operation.
-        return $DB->execute($sql);
     }
 
     /**
