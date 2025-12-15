@@ -150,12 +150,4 @@ abstract class qtype_matrix_grading {
     public function validation(array $data): array {
         return [];
     }
-
-    protected function col_count(array $data): int {
-        return count($data['cols_shorttext']);
-    }
-
-    protected function row_count(array $data): int {
-        return count($data['rows_shorttext']);
-    }
 }
