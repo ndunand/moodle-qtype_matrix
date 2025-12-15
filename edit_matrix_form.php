@@ -174,7 +174,6 @@ class qtype_matrix_edit_form extends question_edit_form {
             $popup = $builder->create_htmlpopup("cols_description[$col]", lang::col_description());
             $matrix = array_merge($matrix, $popup);
 
-            $matrix[] = $builder->create_hidden("colid[$col]");
             $matrix[] = $builder->create_static('</div>');
             $matrix[] = $builder->create_static('</th>');
         }
@@ -202,7 +201,6 @@ class qtype_matrix_edit_form extends question_edit_form {
             $matrix[] = $builder->create_text("rows_shorttext[$row]", false);
             $questionpopup = $builder->create_htmlpopup("rows_description[$row]", lang::row_long());
             $matrix = array_merge($matrix, $questionpopup);
-            $matrix[] = $builder->create_hidden("rowid[$row]");
 
             $matrix[] = $builder->create_static('</div>');
             $matrix[] = $builder->create_static('</td>');
