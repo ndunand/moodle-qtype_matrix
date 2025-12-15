@@ -73,6 +73,10 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
         // The same way we have only one representation in the DB. For that we
         // would need to transform the html form data after the post.
         // Not sure if we can do it.
+        // FIXME: Unsure here, IMHO a question which changes the multiple option should normally not be regradable.
+        //        If you change from single to multiple, you prevent the student from being able to mark the other answers as correct
+        //        If you change from multiple to single, you change the context of the question and maybe the student would have chosen otherwise
+        //        So if changing the option is not regradable, the response format couldn't change between question versions
         $responsemultiple = $this->multiple;
         foreach ($response as $key => $value) {
             $responsemultiple = (strpos($key, '_') !== false);
@@ -271,34 +275,6 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
                 shuffle($this->order);
             }
             $this->write_data($step); // Todo: Does this solves https://github.com/ndunand/moodle-qtype_matrix/issues/31 ?
-        }
-
-        // Rows can be deleted between attempts. We need therefore to remove
-        // those that were stored in the step but are not present anymore.
-
-        $rowsremoved = [];
-        foreach ($this->order as $rowkey) {
-            if (!isset($this->rows[$rowkey])) {
-                $rowsremoved[] = $rowkey;
-            }
-        }
-        $this->order = array_diff($this->order, $rowsremoved);
-
-        // Rows can be added between attempts. We need therefore to add those
-        // rows that were not stored in the step.
-
-        $rowsadded = [];
-        $rowskeys = array_keys($this->rows);
-        foreach ($rowskeys as $rowkey) {
-            if (!in_array($rowkey, $this->order)) {
-                $rowsadded[] = $rowkey;
-            }
-        }
-        if ($this->shuffle_answers()) {
-            shuffle($rowsadded);
-        }
-        foreach ($rowsadded as $rowkey) {
-            $this->order[] = $rowkey;
         }
     }
 
