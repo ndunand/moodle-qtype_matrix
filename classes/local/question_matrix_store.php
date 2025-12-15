@@ -46,29 +46,6 @@ class question_matrix_store {
     }
 
     /**
-     * We may want to insert an existing question to make a copy
-     *
-     * @param object $matrix
-     * @return object
-     * @throws dml_exception
-     */
-    public function insert_matrix(object $matrix): object {
-        global $DB;
-        $data = (object) [
-            'questionid' => $matrix->questionid,
-            'grademethod' => $matrix->grademethod,
-            'multiple' => $matrix->multiple,
-            'shuffleanswers' => $matrix->shuffleanswers,
-            'usedndui' => $matrix->usedndui,
-        ];
-
-        $newid = $DB->insert_record(self::TABLE_QUESTION_MATRIX, $data);
-        $data->id = $newid;
-        $matrix->id = $newid;
-        return $matrix;
-    }
-
-    /**
      * @param object $matrix
      * @return object
      * @throws dml_exception
