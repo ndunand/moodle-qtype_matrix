@@ -103,10 +103,6 @@ class matrix_form_builder {
         return $this->_form->createElement('editor', $name, $label);
     }
 
-    public function create_hidden(string $name, $value = null): object {
-        return $this->_form->createElement('hidden', $name, $value);
-    }
-
     /**
      * @param string|null $name
      * @param string|null $label
