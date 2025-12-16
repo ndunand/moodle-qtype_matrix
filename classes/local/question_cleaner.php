@@ -12,7 +12,7 @@ use \stdClass;
 
 class question_cleaner {
 
-    const DEFAULT_MULTIPLE = true;
+    const DEFAULT_MULTIPLE = false;
 
     const DEFAULT_SHUFFLEANSWERS = true;
 
