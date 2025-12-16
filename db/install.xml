@@ -24,7 +24,7 @@
             </FIELDS>
             <KEYS>
                 <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="questionidfk"/>
-                <KEY NAME="questionidfk" TYPE="foreign" FIELDS="questionid" REFTABLE="question" REFFIELDS="id"
+                <KEY NAME="questionidfk" TYPE="foreign-unique" FIELDS="questionid" REFTABLE="question" REFFIELDS="id"
                      COMMENT="fk to question table" PREVIOUS="primary"/>
             </KEYS>
         </TABLE>
