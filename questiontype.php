@@ -279,31 +279,29 @@ class qtype_matrix extends question_type {
         //        Even that is inconsistent currently, as you can reference too large colindices but not have too many rows
         // TODO: Should there a be a global limit for rows/cols? I don't think it's enforced consistently yet
         // TODO: Do we even need a matrix with 0 value padding? Or just one with all values at the right spot?
-        $result = [];
-        $rowcount = 20;
-        $colcount = 20;
+        $matrix = array_fill(
+            0,
+            20,
+            array_fill(0, 20, 0)
+        );
 
-        for ($rowindex = 0; $rowindex < $rowcount; $rowindex++) {
-            $foundcorrectcol = false;
-            for ($colindex = 0; $colindex < $colcount; $colindex++) {
-                // Always initialize the matrix cell, don't leave 'holes'
-                $result[$rowindex][$colindex] = 0;
+        foreach ($matrix as $rowindex => $row) {
+            foreach ($row as $colindex => $initialvalue) {
                 // Reminder: The cell name only uses rowindex if we're not allowing multiple correct answers
                 $key = qtype_matrix_grading::cell_name($rowindex, $colindex, $frommultiple);
-                if (!$frommultiple) {
-                    // Only one column can be correct, so ensure that we don't continue after we find it
-                    if (!$foundcorrectcol && isset($fromform->{$key})) {
+                if (isset($fromform->{$key})) {
+                    if (!$frommultiple) {
+                        // Only one column can be correct, so ensure that we don't continue after we find it
                         $correctcolindex = $fromform->{$key};
-                        $result[$rowindex][$correctcolindex] = 1;
-                        $foundcorrectcol = true;
+                        $matrix[$rowindex][$correctcolindex] = 1;
+                        break;
+                    } else if ($fromform->{$key}) {
+                        $matrix[$rowindex][$colindex] = 1;
                     }
-                } else {
-                    $value = $fromform->{$key} ?? 0;
-                    $result[$rowindex][$colindex] = $value ? 1 : 0;
                 }
             }
         }
-        return $result;
+        return $matrix;
     }
 
     /**
