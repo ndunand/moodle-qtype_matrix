@@ -492,7 +492,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
             foreach ($this->cols as $col) {
                 $key = $this->key($row, $col);
                 $value = $response[$key] ?? false;
-                if ($value === $col->id || $value === 'on') {
+                if ($value === $col->id || $value === true) {
                     $result[] = "$row->shorttext: $col->shorttext";
                 }
             }
@@ -543,7 +543,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
                 $weight = $this->weight($row, $col);
                 $key = $this->key($row, $col);
                 if ($weight > 0) {
-                    $result[$key] = $this->multiple ? 'on' : $col->id;
+                    $result[$key] = $this->multiple ? true : $col->id;
                 }
             }
         }

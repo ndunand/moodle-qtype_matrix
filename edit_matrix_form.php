@@ -429,7 +429,7 @@ class qtype_matrix_edit_form extends question_edit_form {
 
                     $weight = $options->weights[$row->id][$col->id];
                     // Todo: check security impact we access and set direct on an object, could be bad.
-                    $question->{$cellnamemultipleanswers} = ($weight > 0) ? 'on' : '';
+                    $question->{$cellnamemultipleanswers} = ($weight > 0);
                     $question->{$cellnamesingleanswer} = $colindex;
                     if (!$options->multiple && $weight > 0) {
                         break;
