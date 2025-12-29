@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<question type="matrix">
+    <name>
+        <text>Matrix question</text>
+    </name>
+    <questiontext format="html">
+        <text><![CDATA[<p>Questiontext</p>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+        <text><![CDATA[<p>General Feedback</p>]]></text>
+    </generalfeedback>
+    <defaultgrade>1</defaultgrade>
+    <penalty>1</penalty>
+    <hidden>0</hidden>
+    <row>
+        <shorttext>row0shorttext</shorttext>
+        <description format="html">
+            <text><![CDATA[<p>row0description</p>]]></text>
+        </description>
+        <feedback format="html">
+            <text><![CDATA[<p>row0feedback</p>]]></text>
+        </feedback>
+    </row>
+    <row>
+        <shorttext>row1shorttext</shorttext>
+        <description format="html">
+            <text><![CDATA[<p>row1description</p>]]></text>
+        </description>
+        <feedback format="html">
+            <text><![CDATA[<p>row1feedback</p>]]></text>
+        </feedback>
+    </row>
+    <row>
+        <shorttext>row2shorttext</shorttext>
+        <description format="html">
+            <text><![CDATA[<p>row2description</p>]]></text>
+        </description>
+        <feedback format="html">
+            <text><![CDATA[<p>row2feedback</p>]]></text>
+        </feedback>
+    </row>
+    <row>
+        <shorttext>row3shorttext</shorttext>
+        <description format="html">
+            <text><![CDATA[<p>row3description</p>]]></text>
+        </description>
+        <feedback format="html">
+            <text><![CDATA[<p>row3feedback</p>]]></text>
+        </feedback>
+    </row>
+    <col>
+        <shorttext>col0shorttext</shorttext>
+        <description format="html">
+            <text><![CDATA[<p>col0description</p>]]></text>
+        </description>
+    </col>
+    <col>
+        <shorttext>col1shorttext</shorttext>
+        <description format="html">
+            <text><![CDATA[<p>col1description</p>]]></text>
+        </description>
+    </col>
+    <col>
+        <shorttext>col2shorttext</shorttext>
+        <description format="html">
+            <text><![CDATA[<p>col2description</p>]]></text>
+        </description>
+    </col>
+    <weights-of-row>
+        <weight-of-col>1</weight-of-col>
+        <weight-of-col>0</weight-of-col>
+        <weight-of-col>0</weight-of-col>
+    </weights-of-row>
+    <weights-of-row>
+        <weight-of-col>0</weight-of-col>
+        <weight-of-col>1</weight-of-col>
+        <weight-of-col>0</weight-of-col>
+    </weights-of-row>
+    <weights-of-row>
+        <weight-of-col>0</weight-of-col>
+        <weight-of-col>0</weight-of-col>
+        <weight-of-col>1</weight-of-col>
+    </weights-of-row>
+    <weights-of-row>
+        <weight-of-col>1</weight-of-col>
+        <weight-of-col>0</weight-of-col>
+        <weight-of-col>0</weight-of-col>
+    </weights-of-row>
+</question>
