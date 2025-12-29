@@ -59,7 +59,7 @@ class all extends qtype_matrix_grading implements grading {
     }
 
     /**
-     * Grade a row
+     * All cells of a row of an answer must match with the question's row to get point.
      *
      * @param qtype_matrix_question $question  The question to grade
      * @param integer|object         $row       Row to grade
@@ -67,6 +67,7 @@ class all extends qtype_matrix_grading implements grading {
      * @return float                            The row grade, either 0 or 1
      */
     public function grade_row(qtype_matrix_question $question, $row, array $responses): float {
+        // All of a row must be correct to get a point.
         foreach ($question->cols as $col) {
             $answer = $question->answer($row, $col);
             $response = $question->response($responses, $row, $col);
