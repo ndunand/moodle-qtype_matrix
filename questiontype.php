@@ -504,6 +504,12 @@ class qtype_matrix extends question_type {
     public function export_to_xml($questiondata, qformat_xml $format, $extra = null): string {
         // FIXME: indenting is wrong in exported XML, see test fixture for export_to_xml test
         // FIXME: Exporting IDs is unnecessary, export indices
+        // This is necessary so we don't have "false" values translated to empty tags
+        foreach ($questiondata->options as $key => $value) {
+            if ($value === false) {
+                $questiondata->options->{$key} = 0;
+            }
+        }
         $output = parent::export_to_xml($questiondata, $format, $extra);
 
         // Rows.
