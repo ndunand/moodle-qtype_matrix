@@ -4,46 +4,44 @@
 * The CSS file is generated from LESS, modifications done directly to the CSS
 * will be lost.
 */
-.que.matrix .formulation {
-    /*tooltip*/
-}
-.que.matrix .formulation table {
+.que.matrix .formulation table.matrix {
     display: inline-table;
     border-style: none;
+    /*tooltip*/
 }
-.que.matrix .formulation table th,
-.que.matrix .formulation table td {
+.que.matrix .formulation table.matrix th,
+.que.matrix .formulation table.matrix td {
     border-color: #848484;
     border-bottom-style: solid;
 }
-.que.matrix .formulation table tr.lastrow th,
-.que.matrix .formulation table tr.lastrow td {
+.que.matrix .formulation table.matrix tr.lastrow th,
+.que.matrix .formulation table.matrix tr.lastrow td {
     border-bottom-style: none;
 }
-.que.matrix .formulation thead th,
-.que.matrix .formulation thead td {
+.que.matrix .formulation table.matrix thead th,
+.que.matrix .formulation table.matrix thead td {
     border-width: 3px;
 }
-.que.matrix .formulation tbody th,
-.que.matrix .formulation tbody td {
+.que.matrix .formulation table.matrix tbody th,
+.que.matrix .formulation table.matrix tbody td {
     border-width: 1px;
 }
-.que.matrix .formulation td,
-.que.matrix .formulation th {
+.que.matrix .formulation table.matrix td,
+.que.matrix .formulation table.matrix th {
     text-align: left;
     padding: 5px;
     min-width: 50px;
 }
-.que.matrix .formulation .feedbackcell p {
+.que.matrix .formulation table.matrix .feedbackcell p {
     display: inline;
     margin: 0;
     margin-left: 5px;
 }
-.que.matrix .formulation th,
-.que.matrix .formulation td {
+.que.matrix .formulation table.matrix th,
+.que.matrix .formulation table.matrix td {
     position: relative;
 }
-.que.matrix .formulation .description {
+.que.matrix .formulation table.matrix .description {
     display: none;
     position: fixed;
     background-color: #eee;
@@ -52,20 +50,20 @@
     padding: 8px;
     z-index: 1000;
 }
-.que.matrix .formulation .description p {
+.que.matrix .formulation table.matrix .description p {
     margin: 0;
 }
-.que.matrix .formulation th .description {
+.que.matrix .formulation table.matrix th .description {
     margin-top: 6px;
 }
-.que.matrix .formulation th:hover .description {
+.que.matrix .formulation table.matrix th:hover .description {
     display: block;
 }
-.que.matrix .formulation td .description {
+.que.matrix .formulation table.matrix td .description {
     margin-left: 8px;
     margin-top: -8px;
 }
-.que.matrix .formulation td:hover .description {
+.que.matrix .formulation table.matrix td:hover .description {
     display: block;
 }
 /** edit matrix **/
@@ -263,6 +261,3 @@ body#page-question-type-matrix div#region-main {
     color: black;
     padding: 0 5px 5px 5px;
 }
-/*
-mod_ND : END
-*/
