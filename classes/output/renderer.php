@@ -16,8 +16,10 @@
 
 namespace qtype_matrix\output;
 
+use qtype_matrix\local\lang;
 use qtype_matrix\local\setting;
 use dml_exception;
+use html_writer;
 use qtype_with_combined_feedback_renderer;
 use question_attempt;
 use question_display_options;
@@ -99,6 +101,12 @@ class renderer extends qtype_with_combined_feedback_renderer {
                 $cellcontext['ischecked'] = $ischecked;
                 $cellcontext['colid'] = $col->id;
                 $cellcontext['lastcol'] = $lastcol;
+                // Cell for item $row->SHORTTEXT and possible answer $col->shorttext
+                $a = [
+                    'itemshorttext' => $row->shorttext,
+                    'answershorttext' => $col->shorttext
+                ];
+                $cellcontext['arialabel'] = lang::get('cellarialabel', (object) $a);
 
                 $weight = $question->weight($row, $col);
                 if ($showfeedback && ($ischecked || question_state::graded_state_for_fraction($weight)->is_correct())) {

@@ -16,7 +16,7 @@
         "questiontext": "The question text for the question",
         "answerheaders": [
             {
-                "shorttext": "Short text of the answer",
+                "shorttext": "Short text of the first answer",
                 "descriptionid": "colheader1",
                 "description": "Longer description for the answer",
                 "cellclass": "c1",
@@ -45,6 +45,7 @@
                         "cellclass": "c1",
                         "ischecked": true,
                         "colid": 123,
+                        "arialabel": "Select possible answer Short text of the first answer for item Short text for the first row item",
                         "lastcol": false
                     },
                     {
@@ -52,6 +53,7 @@
                         "cellclass": "c2",
                         "ischecked": false,
                         "colid": 123,
+                        "arialabel": "Select possible answer Short text of the second answer for item Short text for the first row item",
                         "lastcol": true
                     }
                 ]
@@ -70,6 +72,7 @@
                         "cellclass": "c1",
                         "ischecked": true,
                         "colid": 123,
+                        "arialabel": "Select possible answer Short text of the first answer for item Short text for the second row item",
                         "lastcol": false
                     },
                     {
@@ -77,6 +80,7 @@
                         "cellclass": "c2",
                         "ischecked": false,
                         "colid": 123,
+                        "arialabel": "Select possible answer Short text of the second answer for item Short text for the second row item",
                         "lastcol": true
                     }
                 ]
@@ -121,10 +125,10 @@ Expired question: This can happen in preview mode.
 {{#cells}}
         <td class="cell {{ cellclass }}{{#lastcol}} lastcol{{/lastcol}}">
 {{#multiple}}
-            <input type="checkbox" name="{{ cellname }}" value="{{ colid }}"{{#isreadonly}} disabled="disabled"{{/isreadonly}}{{#ischecked}} checked="checked"{{/ischecked}}>
+            <input type="checkbox" name="{{ cellname }}" value="{{ colid }}"{{#isreadonly}} disabled="disabled"{{/isreadonly}}{{#ischecked}} checked="checked"{{/ischecked}} aria-label="{{{ arialabel }}}">
 {{/multiple}}
 {{^multiple}}
-            <input type="radio" name="{{ cellname }}" value="{{ colid }}"{{#isreadonly}} disabled="disabled"{{/isreadonly}}{{#ischecked}} checked="checked"{{/ischecked}}>
+            <input type="radio" name="{{ cellname }}" value="{{ colid }}"{{#isreadonly}} disabled="disabled"{{/isreadonly}}{{#ischecked}} checked="checked"{{/ischecked}} aria-label="{{{ arialabel }}}">
 {{/multiple}}
 {{#feedbackimage}}
             {{{ feedbackimage }}}
