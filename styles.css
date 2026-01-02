@@ -9,11 +9,11 @@
 }
 .que.matrix .formulation table {
   display: inline-table;
+  border-style: none;
 }
 .que.matrix .formulation,
 .que.matrix .formulation td,
 .que.matrix .formulation th {
-  border-style: none;
   border-bottom-style: solid;
   border-width: 1px;
   border-color: #848484;
