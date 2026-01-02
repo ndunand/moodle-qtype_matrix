@@ -107,12 +107,12 @@ Expired question: This can happen in preview mode.
 {{#rows}}
     <tr{{#lastrow}} class="lastrow"{{/lastrow}}>
 {{#header}}
-        <td class="cell {{ cellclass }}">
+        <th class="cell {{ cellclass }}" scope="row">
             <span class="title">{{{ shorttext }}}</span>
 {{#description}}
             <span class="description">{{{ description }}}</span>
 {{/description}}
-        </td>
+        </th>
 {{/header}}
 {{#cells}}
         <td class="cell {{ cellclass }}{{#lastcol}} lastcol{{/lastcol}}">
