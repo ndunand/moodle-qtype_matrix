@@ -20,6 +20,7 @@
  */
 
 import jQuery from 'jquery';
+import 'jqueryui';
 
 export const init = () => {
     var n = 0; // Matrix question number (1..)
@@ -43,7 +44,8 @@ export const init = () => {
             $cell.find('input').prop('checked', true); // Check the checkbox
         }
         var $newspan = $('<span>').text(text); // Fill in the receptacle with a clue that it is checked
-        var $deletebutton = $('<span>').text('X'); // Button to uncheck a checkbox
+        var deletebuttonclass = dnduistr + '_cancel';
+        var $deletebutton = $('<span class="' + deletebuttonclass + '">').text('X'); // Button to uncheck a checkbox
         $deletebutton.click(function() {
             var $btn = $(this);
             // 1. uncheck the box

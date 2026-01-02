@@ -105,7 +105,7 @@ Expired question: This can happen in preview mode.
 {{#rows}}
     <tr{{#lastrow}} class="lastrow"{{/lastrow}}>
 {{#header}}
-        <th class="cell" scope="row">
+        <th scope="row">
             <span class="title"{{#description}} aria-details="{{ descriptionid }}"{{/description}}>{{{ shorttext }}}</span>
 {{#description}}
             <span id="{{ descriptionid }}" class="description">{{{ description }}}</span>
@@ -126,7 +126,7 @@ Expired question: This can happen in preview mode.
         </td>
 {{/cells}}
 {{#feedback}}
-        <td class="cell feedbackcell">{{{ feedback }}}</td>
+        <td class="feedbackcell">{{{ feedback }}}</td>
 {{/feedback}}
     </tr>
 {{/rows}}

@@ -82,7 +82,6 @@ class renderer extends qtype_with_combined_feedback_renderer {
                 $cellcontext['cellclass'] = 'row'.$rowindex.'col'.$rowcolindex;
                 $cellcontext['ischecked'] = $ischecked;
                 $cellcontext['colid'] = $col->id;
-                // Cell for item $row->SHORTTEXT and possible answer $col->shorttext
                 $a = [
                     'itemshorttext' => $row->shorttext,
                     'answershorttext' => $col->shorttext
