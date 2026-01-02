@@ -18,12 +18,12 @@
             {
                 "shorttext": "Short text of the first answer",
                 "descriptionid": "colheader1",
-                "description": "Longer description for the answer",
+                "description": "Longer description for the answer"
             },
             {
                 "shorttext": "Short text of the second answer",
                 "descriptionid": "colheader2",
-                "description": "Longer description for the second answer",
+                "description": "Longer description for the second answer"
             }
         ],
         "rows": [
@@ -40,14 +40,14 @@
                         "cellclass": "row0col0",
                         "ischecked": true,
                         "colid": 123,
-                        "arialabel": "Select possible answer Short text of the first answer for item Short text for the first row item",
+                        "arialabel": "Select possible answer Short text of the first answer for item Short text for the first row item"
                     },
                     {
                         "cellname": "q88:1_cell266",
                         "cellclass": "row0col1",
                         "ischecked": false,
                         "colid": 123,
-                        "arialabel": "Select possible answer Short text of the second answer for item Short text for the first row item",
+                        "arialabel": "Select possible answer Short text of the second answer for item Short text for the first row item"
                     }
                 ]
             },
@@ -84,7 +84,7 @@ Expired question: This can happen in preview mode.
 {{/expiredquestion}}
 {{^expiredquestion}}
 <div class="question_text">{{{ questiontext }}}</div>
-<table class="matrix{{#usedndui}} uses_dndui{{/usedndui}}">
+<table id="{{ uniqid }}" class="matrix{{#usedndui}} uses_dndui{{/usedndui}}">
     <thead>
         <tr>
             <td></td>
@@ -136,3 +136,10 @@ Expired question: This can happen in preview mode.
 <div class="validationerror">{{ errormessage }}</div>
 {{/errormessage}}
 {{/expiredquestion}}
+{{#usedndui}}
+{{#js}}
+    require(['qtype_matrix/dnd'], function(dndmodule) {
+        dndmodule.init('{{ uniqid }}');
+    });
+{{/js}}
+{{/usedndui}}

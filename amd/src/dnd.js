@@ -19,13 +19,12 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import jQuery from 'jquery';
+import $ from 'jquery';
 import 'jqueryui';
 
-export const init = () => {
+export const init = (matrixtableid) => {
     var n = 0; // Matrix question number (1..)
     var dnduistr = 'qtype_matrix_dndui';
-    var $ = jQuery;
 
     var wasDropped = function(ismultiple, $tr, $cell, text, $draggable, checkBoxes) {
         if (!ismultiple) {
@@ -61,13 +60,14 @@ export const init = () => {
         $newspan.appendTo($cell);
     };
 
-    $('.que.matrix').each(function() {
+    let $matrix = $('#' + matrixtableid);
+    if (!$matrix.hasClass('uses_dndui')) {
+        return;
+    }
+    let $parentquestion = $matrix.parents('.que.matrix');
+    $parentquestion.each(function() {
         n++;
         var $question = $(this); // Question display DOM element
-        var $matrix = $question.find('table.matrix'); // Question table
-        if (!$matrix.hasClass('uses_dndui')) {
-            return;
-        }
         var $baskets = $question.find("thead th:has('span.title')"); // Table header cells, i.e. categories
         var $receptacles = $matrix.find('tbody td:has("input")'); // All cells with a checkbox or a radio button
         var $items = $question.find('tbody th'); // First column, i.e. items
