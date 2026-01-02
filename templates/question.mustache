@@ -19,14 +19,12 @@
                 "shorttext": "Short text of the first answer",
                 "descriptionid": "colheader1",
                 "description": "Longer description for the answer",
-                "cellclass": "c1",
                 "lastcol": false
             },
             {
                 "shorttext": "Short text of the second answer",
                 "descriptionid": "colheader2",
                 "description": "Longer description for the second answer",
-                "cellclass": "c2",
                 "lastcol": true
             }
         ],
@@ -36,13 +34,12 @@
                     "shorttext": "Short text for the first row item",
                     "descriptionid": "rowheader1",
                     "description": "Longer description for the first row item",
-                    "cellclass": "c0",
                     "lastrow": false
                 },
                 "cells": [
                     {
                         "cellname": "q88:1_cell265",
-                        "cellclass": "c1",
+                        "cellclass": "row0col0",
                         "ischecked": true,
                         "colid": 123,
                         "arialabel": "Select possible answer Short text of the first answer for item Short text for the first row item",
@@ -50,7 +47,7 @@
                     },
                     {
                         "cellname": "q88:1_cell266",
-                        "cellclass": "c2",
+                        "cellclass": "row0col1",
                         "ischecked": false,
                         "colid": 123,
                         "arialabel": "Select possible answer Short text of the second answer for item Short text for the first row item",
@@ -63,13 +60,12 @@
                     "shorttext": "Short text for the second row item",
                     "descriptionid": "rowheader2",
                     "description": "Longer description for the second row item",
-                    "cellclass": "c0",
                     "lastrow": true
                 },
                 "cells": [
                     {
                         "cellname": "q88:1_cell265",
-                        "cellclass": "c1",
+                        "cellclass": "row1col0",
                         "ischecked": true,
                         "colid": 123,
                         "arialabel": "Select possible answer Short text of the first answer for item Short text for the second row item",
@@ -77,7 +73,7 @@
                     },
                     {
                         "cellname": "q88:1_cell266",
-                        "cellclass": "c2",
+                        "cellclass": "row1col1",
                         "ischecked": false,
                         "colid": 123,
                         "arialabel": "Select possible answer Short text of the second answer for item Short text for the second row item",
@@ -97,9 +93,9 @@ Expired question: This can happen in preview mode.
 <table class="matrix{{#usedndui}} uses_dndui{{/usedndui}}">
     <thead>
         <tr>
-            <td class="c0"></td>
+            <td></td>
 {{#answerheaders}}
-            <th class="{{ cellclass }}{{#lastcol}} lastcol{{/lastcol}}" scope="col">
+            <th{{#lastcol}} class="lastcol"{{/lastcol}} scope="col">
                 <span class="title"{{#description}} aria-details="{{ descriptionid }}"{{/description}}>{{{ shorttext }}}</span>
 {{#description}}
                 <span id="{{ descriptionid }}" class="description">{{{ description }}}</span>
@@ -107,7 +103,7 @@ Expired question: This can happen in preview mode.
             </th>
 {{/answerheaders}}
 {{#showfeedback}}
-            <td class="{{ feedbackcellclass }} lastcol"></td>
+            <td class="lastcol"></td>
 {{/showfeedback}}
         </tr>
     </thead>
@@ -115,7 +111,7 @@ Expired question: This can happen in preview mode.
 {{#rows}}
     <tr{{#lastrow}} class="lastrow"{{/lastrow}}>
 {{#header}}
-        <th class="cell {{ cellclass }}" scope="row">
+        <th class="cell" scope="row">
             <span class="title"{{#description}} aria-details="{{ descriptionid }}"{{/description}}>{{{ shorttext }}}</span>
 {{#description}}
             <span id="{{ descriptionid }}" class="description">{{{ description }}}</span>
@@ -136,7 +132,7 @@ Expired question: This can happen in preview mode.
         </td>
 {{/cells}}
 {{#feedback}}
-        <td class="cell {{ feedbackcellclass }} lastcol">{{{ feedback }}}</td>
+        <td class="cell lastcol">{{{ feedback }}}</td>
 {{/feedback}}
     </tr>
 {{/rows}}
