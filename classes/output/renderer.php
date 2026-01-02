@@ -57,19 +57,9 @@ class renderer extends qtype_with_combined_feedback_renderer {
         }
         $context['questiontext'] = $question->format_questiontext($qa);
         $context['answerheaders'] = [];
-        $lastcol = false;
-        // Row header + answer headers + optional feedback header
-        $nrcols = 1 + count($question->cols) + (int) $showfeedback;
-        // The first header is an always empty one because its the header cell for the row headers
-        // Therefore we start the counting at the second one (index wise)
-        $colindex = 1;
         // Context for the answer headers
         foreach ($question->cols as $col) {
-            if (!$showfeedback && $colindex == ($nrcols - 1)) {
-                $lastcol = true;
-            }
-            $context['answerheaders'][] = $this->headercontext($col, $lastcol);
-            $colindex++;
+            $context['answerheaders'][] = $this->headercontext($col);
         }
         $context['rows'] = [];
 
@@ -82,12 +72,8 @@ class renderer extends qtype_with_combined_feedback_renderer {
             $row = $question->rows[$rowid];
             $rowcontext['header'] = $this->headercontext($row, false);
             $rowcontext['cells'] = [];
-            $lastcol = false;
             $rowcolindex = 0;
             foreach ($question->cols as $col) {
-                if (!$showfeedback && $rowcolindex == ($nrcols - 2)) {
-                    $lastcol = true;
-                }
                 $cellname = $qa->get_field_prefix() . $question->key($row, $col);
                 $ischecked = $question->response($response, $row, $col);
 
@@ -96,7 +82,6 @@ class renderer extends qtype_with_combined_feedback_renderer {
                 $cellcontext['cellclass'] = 'row'.$rowindex.'col'.$rowcolindex;
                 $cellcontext['ischecked'] = $ischecked;
                 $cellcontext['colid'] = $col->id;
-                $cellcontext['lastcol'] = $lastcol;
                 // Cell for item $row->SHORTTEXT and possible answer $col->shorttext
                 $a = [
                     'itemshorttext' => $row->shorttext,
@@ -128,10 +113,9 @@ class renderer extends qtype_with_combined_feedback_renderer {
         return $this->render_from_template('qtype_matrix/question', $context);
     }
 
-    private function headercontext($roworcol, bool $lastcol):array {
+    private function headercontext($roworcol):array {
         $headercontext = [];
         $headercontext['descriptionid'] = html_writer::random_id();
-        $headercontext['lastcol'] = $lastcol;
         $headercontext['shorttext'] = format_text($roworcol->shorttext);
         $description = $roworcol->description['text'];
         if (strip_tags($description)) {

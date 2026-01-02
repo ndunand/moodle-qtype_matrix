@@ -19,13 +19,11 @@
                 "shorttext": "Short text of the first answer",
                 "descriptionid": "colheader1",
                 "description": "Longer description for the answer",
-                "lastcol": false
             },
             {
                 "shorttext": "Short text of the second answer",
                 "descriptionid": "colheader2",
                 "description": "Longer description for the second answer",
-                "lastcol": true
             }
         ],
         "rows": [
@@ -43,7 +41,6 @@
                         "ischecked": true,
                         "colid": 123,
                         "arialabel": "Select possible answer Short text of the first answer for item Short text for the first row item",
-                        "lastcol": false
                     },
                     {
                         "cellname": "q88:1_cell266",
@@ -51,7 +48,6 @@
                         "ischecked": false,
                         "colid": 123,
                         "arialabel": "Select possible answer Short text of the second answer for item Short text for the first row item",
-                        "lastcol": true
                     }
                 ]
             },
@@ -68,16 +64,14 @@
                         "cellclass": "row1col0",
                         "ischecked": true,
                         "colid": 123,
-                        "arialabel": "Select possible answer Short text of the first answer for item Short text for the second row item",
-                        "lastcol": false
+                        "arialabel": "Select possible answer Short text of the first answer for item Short text for the second row item"
                     },
                     {
                         "cellname": "q88:1_cell266",
                         "cellclass": "row1col1",
                         "ischecked": false,
                         "colid": 123,
-                        "arialabel": "Select possible answer Short text of the second answer for item Short text for the second row item",
-                        "lastcol": true
+                        "arialabel": "Select possible answer Short text of the second answer for item Short text for the second row item"
                     }
                 ]
             }
@@ -95,7 +89,7 @@ Expired question: This can happen in preview mode.
         <tr>
             <td></td>
 {{#answerheaders}}
-            <th{{#lastcol}} class="lastcol"{{/lastcol}} scope="col">
+            <th scope="col">
                 <span class="title"{{#description}} aria-details="{{ descriptionid }}"{{/description}}>{{{ shorttext }}}</span>
 {{#description}}
                 <span id="{{ descriptionid }}" class="description">{{{ description }}}</span>
@@ -103,7 +97,7 @@ Expired question: This can happen in preview mode.
             </th>
 {{/answerheaders}}
 {{#showfeedback}}
-            <td class="lastcol"></td>
+            <td></td>
 {{/showfeedback}}
         </tr>
     </thead>
@@ -119,7 +113,7 @@ Expired question: This can happen in preview mode.
         </th>
 {{/header}}
 {{#cells}}
-        <td class="cell {{ cellclass }}{{#lastcol}} lastcol{{/lastcol}}">
+        <td class="cell {{ cellclass }}">
 {{#multiple}}
             <input type="checkbox" name="{{ cellname }}" value="{{ colid }}"{{#isreadonly}} disabled="disabled"{{/isreadonly}}{{#ischecked}} checked="checked"{{/ischecked}} aria-label="{{{ arialabel }}}">
 {{/multiple}}
@@ -132,7 +126,7 @@ Expired question: This can happen in preview mode.
         </td>
 {{/cells}}
 {{#feedback}}
-        <td class="cell lastcol">{{{ feedback }}}</td>
+        <td class="cell feedbackcell">{{{ feedback }}}</td>
 {{/feedback}}
     </tr>
 {{/rows}}
