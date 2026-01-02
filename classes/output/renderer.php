@@ -127,6 +127,7 @@ class renderer extends qtype_with_combined_feedback_renderer {
     private function headercontext($roworcol, int $index, bool $lastcol):array {
         $headercontext = [];
         $headercontext['cellclass'] = 'c'.$index;
+        $headercontext['descriptionid'] = html_writer::random_id();
         $headercontext['lastcol'] = $lastcol;
         $headercontext['shorttext'] = format_text($roworcol->shorttext);
         $description = $roworcol->description['text'];

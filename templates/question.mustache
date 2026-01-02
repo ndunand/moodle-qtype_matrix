@@ -17,12 +17,14 @@
         "answerheaders": [
             {
                 "shorttext": "Short text of the answer",
+                "descriptionid": "colheader1",
                 "description": "Longer description for the answer",
                 "cellclass": "c1",
                 "lastcol": false
             },
             {
                 "shorttext": "Short text of the second answer",
+                "descriptionid": "colheader2",
                 "description": "Longer description for the second answer",
                 "cellclass": "c2",
                 "lastcol": true
@@ -32,6 +34,7 @@
             {
                 "header": {
                     "shorttext": "Short text for the first row item",
+                    "descriptionid": "rowheader1",
                     "description": "Longer description for the first row item",
                     "cellclass": "c0",
                     "lastrow": false
@@ -56,6 +59,7 @@
             {
                 "header": {
                     "shorttext": "Short text for the second row item",
+                    "descriptionid": "rowheader2",
                     "description": "Longer description for the second row item",
                     "cellclass": "c0",
                     "lastrow": true
@@ -92,9 +96,9 @@ Expired question: This can happen in preview mode.
             <td class="c0"></td>
 {{#answerheaders}}
             <th class="{{ cellclass }}{{#lastcol}} lastcol{{/lastcol}}" scope="col">
-                <span class="title">{{{ shorttext }}}</span>
+                <span class="title"{{#description}} aria-details="{{ descriptionid }}"{{/description}}>{{{ shorttext }}}</span>
 {{#description}}
-                <span class="description">{{{ description }}}</span>
+                <span id="{{ descriptionid }}" class="description">{{{ description }}}</span>
 {{/description}}
             </th>
 {{/answerheaders}}
@@ -108,9 +112,9 @@ Expired question: This can happen in preview mode.
     <tr{{#lastrow}} class="lastrow"{{/lastrow}}>
 {{#header}}
         <th class="cell {{ cellclass }}" scope="row">
-            <span class="title">{{{ shorttext }}}</span>
+            <span class="title"{{#description}} aria-details="{{ descriptionid }}"{{/description}}>{{{ shorttext }}}</span>
 {{#description}}
-            <span class="description">{{{ description }}}</span>
+            <span id="{{ descriptionid }}" class="description">{{{ description }}}</span>
 {{/description}}
         </th>
 {{/header}}
