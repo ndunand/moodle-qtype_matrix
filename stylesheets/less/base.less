@@ -5,14 +5,29 @@
   table {
     display: inline-table;
     border-style: none;
+
+    th, td {
+      border-color: @border-color;
+      border-bottom-style: solid;
+    }
+
+    tr.lastrow {
+      th,td {
+        border-bottom-style: none;
+      }
+    }
   }
 
-  &,
-  td,
-  th {
-    border-bottom-style: solid;
-    border-width: 1px;
-    border-color: @border-color;
+  thead {
+    th, td {
+      border-width: 3px;
+    }
+  }
+
+  tbody {
+    th, td {
+      border-width: 1px;
+    }
   }
 
   td,
@@ -20,10 +35,6 @@
     text-align: left;
     padding: 5px;
     min-width: 50px;
-  }
-
-  th {
-    border-width: 3px;
   }
 
   .lastcol p {

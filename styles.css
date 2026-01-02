@@ -11,21 +11,28 @@
   display: inline-table;
   border-style: none;
 }
-.que.matrix .formulation,
-.que.matrix .formulation td,
-.que.matrix .formulation th {
-  border-bottom-style: solid;
-  border-width: 1px;
+.que.matrix .formulation table th,
+.que.matrix .formulation table td {
   border-color: #848484;
+  border-bottom-style: solid;
+}
+.que.matrix .formulation table tr.lastrow th,
+.que.matrix .formulation table tr.lastrow td {
+  border-bottom-style: none;
+}
+.que.matrix .formulation thead th,
+.que.matrix .formulation thead td {
+  border-width: 3px;
+}
+.que.matrix .formulation tbody th,
+.que.matrix .formulation tbody td {
+  border-width: 1px;
 }
 .que.matrix .formulation td,
 .que.matrix .formulation th {
   text-align: left;
   padding: 5px;
   min-width: 50px;
-}
-.que.matrix .formulation th {
-  border-width: 3px;
 }
 .que.matrix .formulation .lastcol p {
   display: inline;
