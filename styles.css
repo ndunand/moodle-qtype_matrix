@@ -27,9 +27,6 @@
 .que.matrix th {
   border-width: 3px;
 }
-.que.matrix .r0 {
-  background-color: transparent;
-}
 .que.matrix .lastcol p {
   display: inline;
   margin: 0;
