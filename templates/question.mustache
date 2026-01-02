@@ -89,9 +89,9 @@ Expired question: This can happen in preview mode.
 <table class="matrix{{#usedndui}} uses_dndui{{/usedndui}}">
     <thead>
         <tr>
-            <td class="header c0"></td>
+            <td class="c0"></td>
 {{#answerheaders}}
-            <th class="header {{ cellclass }}{{#lastcol}} lastcol{{/lastcol}}" scope="col">
+            <th class="{{ cellclass }}{{#lastcol}} lastcol{{/lastcol}}" scope="col">
                 <span class="title">{{{ shorttext }}}</span>
 {{#description}}
                 <span class="description">{{{ description }}}</span>
@@ -99,7 +99,7 @@ Expired question: This can happen in preview mode.
             </th>
 {{/answerheaders}}
 {{#showfeedback}}
-            <td class="header {{ feedbackcellclass }} lastcol"></td>
+            <td class="{{ feedbackcellclass }} lastcol"></td>
 {{/showfeedback}}
         </tr>
     </thead>
