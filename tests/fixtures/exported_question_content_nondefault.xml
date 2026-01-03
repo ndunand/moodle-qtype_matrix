@@ -1,0 +1,116 @@
+    <grademethod>all</grademethod>
+    <multiple>1</multiple>
+    <shuffleanswers>0</shuffleanswers>
+    <usedndui>1</usedndui>
+<!--row: 0-->
+    <row>
+        <shorttext>Row 0</shorttext>
+        <description format="html">
+      <text>Description 0</text>
+        </description>
+        <feedback format="html">
+      <text>Feedback 0</text>
+        </feedback>
+    </row>
+<!--row: 1-->
+    <row>
+        <shorttext>Row 1</shorttext>
+        <description format="html">
+      <text>Description 1</text>
+        </description>
+        <feedback format="html">
+      <text>Feedback 1</text>
+        </feedback>
+    </row>
+<!--row: 2-->
+    <row>
+        <shorttext>Row 2</shorttext>
+        <description format="html">
+      <text>Description 2</text>
+        </description>
+        <feedback format="html">
+      <text>Feedback 2</text>
+        </feedback>
+    </row>
+<!--row: 3-->
+    <row>
+        <shorttext>Row 3</shorttext>
+        <description format="html">
+      <text>Description 3</text>
+        </description>
+        <feedback format="html">
+      <text>Feedback 3</text>
+        </feedback>
+    </row>
+<!--col: 0-->
+    <col>
+        <shorttext>Column 0</shorttext>
+        <description format="html">
+      <text>Description 0</text>
+        </description>
+    </col>
+<!--col: 1-->
+    <col>
+        <shorttext>Column 1</shorttext>
+        <description format="html">
+      <text>Description 1</text>
+        </description>
+    </col>
+<!--col: 2-->
+    <col>
+        <shorttext>Column 2</shorttext>
+        <description format="html">
+      <text>Description 2</text>
+        </description>
+    </col>
+<!--col: 3-->
+    <col>
+        <shorttext>Column 3</shorttext>
+        <description format="html">
+      <text>Description 3</text>
+        </description>
+    </col>
+<!--weights of row: 0-->
+    <weights-of-row>
+<!--weight of col: 0-->
+    <weight-of-col>0</weight-of-col>
+<!--weight of col: 1-->
+    <weight-of-col>1</weight-of-col>
+<!--weight of col: 2-->
+    <weight-of-col>0</weight-of-col>
+<!--weight of col: 3-->
+    <weight-of-col>0</weight-of-col>
+    </weights-of-row>
+<!--weights of row: 1-->
+    <weights-of-row>
+<!--weight of col: 0-->
+    <weight-of-col>0</weight-of-col>
+<!--weight of col: 1-->
+    <weight-of-col>1</weight-of-col>
+<!--weight of col: 2-->
+    <weight-of-col>0</weight-of-col>
+<!--weight of col: 3-->
+    <weight-of-col>0</weight-of-col>
+    </weights-of-row>
+<!--weights of row: 2-->
+    <weights-of-row>
+<!--weight of col: 0-->
+    <weight-of-col>0</weight-of-col>
+<!--weight of col: 1-->
+    <weight-of-col>1</weight-of-col>
+<!--weight of col: 2-->
+    <weight-of-col>0</weight-of-col>
+<!--weight of col: 3-->
+    <weight-of-col>0</weight-of-col>
+    </weights-of-row>
+<!--weights of row: 3-->
+    <weights-of-row>
+<!--weight of col: 0-->
+    <weight-of-col>0</weight-of-col>
+<!--weight of col: 1-->
+    <weight-of-col>1</weight-of-col>
+<!--weight of col: 2-->
+    <weight-of-col>0</weight-of-col>
+<!--weight of col: 3-->
+    <weight-of-col>0</weight-of-col>
+    </weights-of-row>

@@ -22,9 +22,9 @@ use question_bank;
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
-require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
-require_once($CFG->dirroot . '/backup/util/includes/restore_includes.php');
-require_once($CFG->dirroot . '/course/externallib.php');
+require_once $CFG->dirroot . '/backup/util/includes/backup_includes.php';
+require_once $CFG->dirroot . '/backup/util/includes/restore_includes.php';
+require_once $CFG->dirroot . '/course/externallib.php';
 
 /**
  * Tests for the matrix question type backup and restore logic.
@@ -53,7 +53,7 @@ final class backup_test extends \advanced_testcase {
         $quizcontext = \context_module::instance($quiz->cmid);
 
         $cat = $questiongenerator->create_question_category(['contextid' => $quizcontext->id]);
-        $question = $questiongenerator->create_question('matrix', 'kprime', ['category' => $cat->id]);
+        $question = $questiongenerator->create_question('matrix', 'default', ['category' => $cat->id]);
 
         // Store some counts.
         $numquizzes = count(get_fast_modinfo($course)->instances['quiz']);

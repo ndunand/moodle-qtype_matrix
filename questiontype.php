@@ -34,6 +34,9 @@ require_once($CFG->libdir . '/questionlib.php');
  */
 class qtype_matrix extends question_type {
 
+    /**
+     * @return qtype_matrix_grading[]
+     */
     public static function gradings(): array {
         return qtype_matrix_grading::gradings();
     }
@@ -253,31 +256,33 @@ class qtype_matrix extends question_type {
      * @result array                    The weights
      */
     public function to_weight_matrix(object $fromform, bool $frommultiple): array {
-        $result = [];
-        $rowcount = 20;
-        $colcount = 20;
+        // FIXME: Tests show that you even if it looks like there can only be a 20x20 matrix max, in single mode you could create out-of-bounds references.
+        //        Even that is inconsistent currently, as you can reference too large colindices but not have too many rows
+        // TODO: Should there a be a global limit for rows/cols? I don't think it's enforced consistently yet
+        // TODO: Do we even need a matrix with 0 value padding? Or just one with all values at the right spot?
+        $matrix = array_fill(
+            0,
+            20,
+            array_fill(0, 20, 0)
+        );
 
-        for ($rowindex = 0; $rowindex < $rowcount; $rowindex++) {
-            $foundcorrectcol = false;
-            for ($colindex = 0; $colindex < $colcount; $colindex++) {
-                // Always initialize the matrix cell, don't leave 'holes'
-                $result[$rowindex][$colindex] = 0;
+        foreach ($matrix as $rowindex => $row) {
+            foreach ($row as $colindex => $initialvalue) {
                 // Reminder: The cell name only uses rowindex if we're not allowing multiple correct answers
                 $key = qtype_matrix_grading::cell_name($rowindex, $colindex, $frommultiple);
-                if (!$frommultiple) {
-                    // Only one column can be correct, so ensure that we don't continue after we find it
-                    if (!$foundcorrectcol && isset($fromform->{$key})) {
+                if (isset($fromform->{$key})) {
+                    if (!$frommultiple) {
+                        // Only one column can be correct, so ensure that we don't continue after we find it
                         $correctcolindex = $fromform->{$key};
-                        $result[$rowindex][$correctcolindex] = 1;
-                        $foundcorrectcol = true;
+                        $matrix[$rowindex][$correctcolindex] = 1;
+                        break;
+                    } else if ($fromform->{$key}) {
+                        $matrix[$rowindex][$colindex] = 1;
                     }
-                } else {
-                    $value = $fromform->{$key} ?? 0;
-                    $result[$rowindex][$colindex] = $value ? 1 : 0;
                 }
             }
         }
-        return $result;
+        return $matrix;
     }
 
     /**
@@ -309,6 +314,7 @@ class qtype_matrix extends question_type {
         global $OUTPUT;
         $heading = $this->get_heading(empty($question->id));
 
+        // FIXME: The string is always present, this function doesn't need to be overwritten
         if (get_string_manager()->string_exists('pluginname_help', $this->plugin_name())) {
             echo $OUTPUT->heading_with_help($heading, 'pluginname', $this->plugin_name());
         } else {
@@ -336,7 +342,8 @@ class qtype_matrix extends question_type {
      * @return bool|object
      */
     public function import_from_xml($data, $fromform, qformat_xml $format, $extra = null) {
-        // TODO: Can't yet use this because of MDL-87330
+        // TODO: Can't yet use parent::import_from_xml() because of MDL-87330
+        // TODO: Should this function allow bad data to be imported?
         // $fromform = parent::import_from_xml($data, $fromform, $format, $extra);
         if (!isset($data['@']['type']) || $data['@']['type'] != 'matrix') {
             return false;
@@ -377,10 +384,12 @@ class qtype_matrix extends question_type {
         // TODO: Will we need a "old export" workaround for the old use_dnd_ui option name?
 
         // Rows.
+        // FIXME: Testing revealed this is unnecessary here
         $fromform->rows = [];
         $fromform->rows_shorttext = [];
         $fromform->rows_description = [];
         $fromform->rows_feedback = [];
+        // FIXME: Testing revealed this is unnecessary here
         $fromform->rowid = [];
         $index = 0;
         $rowsxml = $data['#']['row'];
@@ -406,9 +415,11 @@ class qtype_matrix extends question_type {
         }
 
         // Cols.
+        // FIXME: Testing revealed this is unnecessary here
         $fromform->cols = [];
         $fromform->cols_shorttext = [];
         $fromform->cols_description = [];
+        // FIXME: Testing revealed this is unnecessary here
         $fromform->colid = [];
         $index = 0;
         $colsxml = $data['#']['col'];
@@ -430,6 +441,10 @@ class qtype_matrix extends question_type {
         $weightsofrowsxml = $data['#']['weights-of-row'];
         $rowindex = 0;
 
+        // FIXME: This looks like it can be refactored to be smaller
+        // FIXME: No need to set $fromform keys to 0, those aren't saved anyway
+        // FIXME: The exporter creates elements with value 0, unnecessary as they are ignored here
+        // FIXME: Maybe add an export version so that we can abort early if we change the export/import result?
         if ($fromform->multiple) {
             foreach ($weightsofrowsxml as $weightsofrowxml) {
                 $colindex = 0;
@@ -441,6 +456,7 @@ class qtype_matrix extends question_type {
                 $rowindex++;
             }
         } else {
+            // FIXME: The exporter doesn't export the indices but just 1/0 which must be transformed here, unnecessary
             foreach ($weightsofrowsxml as $weightsofrowxml) {
                 $colindex = 0;
                 foreach ($weightsofrowxml['#']['weight-of-col'] as $weightofcolxml) {
@@ -467,6 +483,14 @@ class qtype_matrix extends question_type {
      * @return string
      */
     public function export_to_xml($questiondata, qformat_xml $format, $extra = null): string {
+        // FIXME: indenting is wrong in exported XML, see test fixture for export_to_xml test
+        // FIXME: Exporting IDs is unnecessary, export indices
+        // This is necessary so we don't have "false" values translated to empty tags
+        foreach ($questiondata->options as $key => $value) {
+            if ($value === false) {
+                $questiondata->options->{$key} = 0;
+            }
+        }
         $output = parent::export_to_xml($questiondata, $format, $extra);
 
         // Rows.

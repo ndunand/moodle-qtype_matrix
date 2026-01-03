@@ -25,6 +25,9 @@ use qtype_matrix\local\qtype_matrix_grading;
 /**
  * Represents a matrix question.
  */
+// FIXME: This makes no sense. question_graded_automatically_with_countback needs a question to be able to define hints.
+//        Matrix doesn't do that. The interactive behaviour allows nrofhints + 1 tries. So Matrix always allows only one try.
+//        So there's always just one final grade, not one dependending on the tries.
 class qtype_matrix_question extends question_graded_automatically_with_countback {
 
     const KEY_ROWS_ORDER = '_order';
@@ -130,6 +133,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      */
     public function weight($row = null, $col = null): float {
         // Todo: What the heck is this? It is used in two ways? Better Split it up then!
+        // FIXME: We should just remove this part (I've searched for the 'x' but it doesn't feature anywhere)
         if (is_string($row) && is_null($col)) {
             $key = str_replace('cell', $col, $row);
             [$rowid, $colid] = explode('x', $key);
@@ -137,6 +141,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
             $rowid = is_object($row) ? $row->id : $row;
             $colid = is_object($col) ? $col->id : $col;
         }
+        // FIXME: This expects $this->weights to always have a value, better do ?? 0
         return (float) $this->weights[$rowid][$colid];
     }
 
@@ -164,6 +169,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      */
     public function start_attempt(question_attempt_step $step, $variant): void {
         global $PAGE;
+        // FIXME: This can be extracted to the Mustache template for the question, combined with a ID for each question
         if ($this->usedndui && !$PAGE->requires->is_head_done()) {
             $PAGE->requires->jquery();
             $PAGE->requires->jquery_plugin('ui');
@@ -245,6 +251,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      * @throws coding_exception
      */
     public function apply_attempt_state(question_attempt_step $step): void {
+        // FIXME: This can be extracted to the Mustache template for the question, combined with a ID for each question
         if ($this->usedndui) {
             global $PAGE;
             $PAGE->requires->jquery();
@@ -283,6 +290,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      * @return array
      * @throws coding_exception
      */
+    // FIXME: Should be callable with null to just try to return the current order
     public function get_order(question_attempt $qa): array {
         $this->init_order($qa);
         return $this->order;
@@ -317,6 +325,10 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
         $gradevalue = 0;
         foreach ($responses as $response) {
             $x = $this->grade_response($response);
+            // FIXME: This doesn't make sense taking into account what's documented for the countback behaviour
+            //        Example: You attempt the question save three different responses, each having enough items correct to get a grade of e.g. 0.5 for each response
+            //        So now the final grade is 1.5 out of ... um 1.0 ? Depends on what the maximum grade one can get for a question
+            //        Also, no question hints means this behaviour function is useless anyway.
             $gradevalue += $x[0];
         }
         return $gradevalue;
@@ -341,6 +353,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      *
      * @return qtype_matrix_grading
      */
+    // FIXME: Maybe unnecessary? Because we already have qtype_matrix_grading::grading()
     public function grading(): qtype_matrix_grading {
         return qtype_matrix::grading($this->grademethod);
     }
@@ -455,7 +468,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
             foreach ($this->cols as $col) {
                 $key = $this->key($row, $col);
                 $value = $response[$key] ?? false;
-                if ($value === $col->id || $value === 'on') {
+                if ($value === $col->id || $value === true) {
                     $result[] = "$row->shorttext: $col->shorttext";
                 }
             }
@@ -506,7 +519,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
                 $weight = $this->weight($row, $col);
                 $key = $this->key($row, $col);
                 if ($weight > 0) {
-                    $result[$key] = $this->multiple ? 'on' : $col->id;
+                    $result[$key] = $this->multiple ? true : $col->id;
                 }
             }
         }
@@ -541,6 +554,10 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      * @return array
      */
     public function cells(): array {
+        // FIXME: This doesn't work for single, because only the last column's weight is stored for the row
+        // FIXME: The weights aren't even necessary, because the one function using this doesn't use the weights
+        //        Only the stored keys are important
+        // FIXME: Needs order to have been initialized
         $result = [];
         foreach ($this->order as $rowid) {
             $row = $this->rows[$rowid];

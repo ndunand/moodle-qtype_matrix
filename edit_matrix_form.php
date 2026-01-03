@@ -246,6 +246,7 @@ class qtype_matrix_edit_form extends question_edit_form {
             $builder->insert_element_before($matrixheader, 'tagsheader');
             $refreshbutton = $builder->create_submit('refresh_matrix');
             $builder->register_no_submit_button('refresh_matrix');
+            // FIXME: There is no 'none' grading
             $builder->disabled_if('refresh_matrix', self::PARAM_GRADE_METHOD, 'eq', 'none');
             $builder->disabled_if('defaultgrade', self::PARAM_GRADE_METHOD, 'eq', 'none');
             $builder->insert_element_before($refreshbutton, 'tagsheader');
@@ -254,6 +255,7 @@ class qtype_matrix_edit_form extends question_edit_form {
             $this->_form->addElement($matrixheader);
             $refreshbutton = $builder->create_submit('refresh_matrix');
             $builder->register_no_submit_button('refresh_matrix');
+            // FIXME: There is no 'none' grading
             $builder->disabled_if('refresh_matrix', self::PARAM_GRADE_METHOD, 'eq', 'none');
             $builder->disabled_if('defaultgrade', self::PARAM_GRADE_METHOD, 'eq', 'none');
             $this->_form->addElement($refreshbutton);
@@ -425,7 +427,7 @@ class qtype_matrix_edit_form extends question_edit_form {
 
                     $weight = $options->weights[$row->id][$col->id];
                     // Todo: check security impact we access and set direct on an object, could be bad.
-                    $question->{$cellnamemultipleanswers} = ($weight > 0) ? 'on' : '';
+                    $question->{$cellnamemultipleanswers} = ($weight > 0);
                     $question->{$cellnamesingleanswer} = $colindex;
                     if (!$options->multiple && $weight > 0) {
                         break;

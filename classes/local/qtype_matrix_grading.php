@@ -119,6 +119,7 @@ abstract class qtype_matrix_grading {
      * @param array                 $answers
      * @return float
      */
+    // FIXME: This should be moved to the all grading and this should remain abstract
     public function grade_question(qtype_matrix_question $question, array $answers): float {
         $grades = [];
         foreach ($question->rows as $row) {
@@ -137,6 +138,7 @@ abstract class qtype_matrix_grading {
      * @param array                 $responses
      * @return float
      */
+    // FIXME: This should be abstract because it is never right
     public function grade_row(qtype_matrix_question $question, $row, array $responses): float {
         return 0.0;
     }

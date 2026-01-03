@@ -21,7 +21,12 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 
-require_once($CFG->dirroot.'/question/engine/tests/helpers.php');
+use qtype_matrix\local\question_cleaner;
+use qtype_matrix\local\qtype_matrix_grading;
+use qtype_matrix\local\grading\all;
+use core_question\local\bank\question_version_status;
+
+require_once $CFG->dirroot.'/question/engine/tests/helpers.php';
 
 /**
  * Test helper class for the matrix question type.
@@ -29,106 +34,92 @@ require_once($CFG->dirroot.'/question/engine/tests/helpers.php');
 class qtype_matrix_test_helper extends question_test_helper {
 
     public function get_test_questions():array {
-        return ['kprime', 'all', 'any', 'none', 'weighted', 'multiple', 'single', 'dnd', 'nodnd', 'shuffle', 'noshuffle'];
+        return ['default', 'nondefault', 'multipletwocorrect'];
     }
 
-    public function get_matrix_question_form_data_kprime():stdClass {
-        $question = self::make_matrix_question_kprime();
+    public function get_matrix_question_data_default():stdClass {
+        $question = self::make_matrix_question_default();
+        $questiondata = self::transform_generated_question_to_question_data($question);
+
+        return $questiondata;
+    }
+
+    public function get_matrix_question_data_nondefault():stdClass {
+        $question = self::make_matrix_question_nondefault();
+        $questiondata = self::transform_generated_question_to_question_data($question);
+
+        return $questiondata;
+    }
+
+    public function get_matrix_question_form_data_default():stdClass {
+        $question = self::make_matrix_question_default();
         $form = self::transform_generated_question_to_form_data($question);
 
-        $form->status = \core_question\local\bank\question_version_status::QUESTION_STATUS_READY;
+        $form->status = question_version_status::QUESTION_STATUS_READY;
 
         return $form;
     }
 
-    public function get_matrix_question_form_data_all():stdClass {
-        $question = self::make_matrix_question_all();
+    public function get_matrix_question_form_data_nondefault():stdClass {
+        $question = self::make_matrix_question_nondefault();
         $form = self::transform_generated_question_to_form_data($question);
 
-        $form->status = \core_question\local\bank\question_version_status::QUESTION_STATUS_READY;
+        $form->status = question_version_status::QUESTION_STATUS_READY;
 
         return $form;
     }
 
-    public function get_matrix_question_form_data_any():stdClass {
-        $question = self::make_matrix_question_any();
+    public function get_matrix_question_form_data_multipletwocorrect():stdClass {
+        $question = self::make_matrix_question_multipletwocorrect();
         $form = self::transform_generated_question_to_form_data($question);
 
-        $form->status = \core_question\local\bank\question_version_status::QUESTION_STATUS_READY;
+        $form->status = question_version_status::QUESTION_STATUS_READY;
 
         return $form;
     }
 
-    public function get_matrix_question_form_data_none():stdClass {
-        $question = self::make_matrix_question_none();
-        $form = self::transform_generated_question_to_form_data($question);
+    private function transform_generated_question_to_question_data($question):stdClass {
+        $questiondata = new stdClass();
+        test_question_maker::initialise_question_data($questiondata);
+        $questiondata->name = $question->questiontext;
+        $questiondata->generalfeedback = $question->generalfeedback;
+        $questiondata->defaultmark = $question->defaultmark;
+        $questiondata->penalty = $question->penalty;
 
-        $form->status = \core_question\local\bank\question_version_status::QUESTION_STATUS_READY;
+        $questiondata->options = new stdClass();
 
-        return $form;
-    }
+        // This here is necessary because parent::export_to_xml() expects something
+        // which is normally created when using parent::get_question_options().
+        $questiondata->options->answers = [];
 
-    public function get_matrix_question_form_data_weighted():stdClass {
-        $question = self::make_matrix_question_weighted();
-        $form = self::transform_generated_question_to_form_data($question);
+        $questiondata->options->multiple = $question->multiple;
+        $questiondata->options->grademethod = $question->grademethod;
+        $questiondata->options->usedndui = $question->usedndui;
+        $questiondata->options->shuffleanswers = $question->shuffleanswers;
 
-        $form->status = \core_question\local\bank\question_version_status::QUESTION_STATUS_READY;
+        $questiondata->options->rows = [];
+        foreach ($question->rows as $row) {
+            $optionrow = new stdClass();
+            $optionrow->shorttext = $row->shorttext;
+            $optionrow->description = [];
+            $optionrow->description['text'] = $row->description;
+            $optionrow->description['format'] = FORMAT_HTML;
+            $optionrow->feedback['text'] = $row->feedback;
+            $optionrow->feedback['format'] = FORMAT_HTML;
+            $questiondata->options->rows[] = $optionrow;
+        }
+        $questiondata->options->cols = [];
+        foreach ($question->cols as $col) {
+            $optioncol = new stdClass();
+            $optioncol->shorttext = $col->shorttext;
+            $optioncol->description = [];
+            $optioncol->description['text'] = $col->description;
+            $optioncol->description['format'] = FORMAT_HTML;
+            $questiondata->options->cols[] = $optioncol;
+        }
 
-        return $form;
-    }
-
-    public function get_matrix_question_form_data_multiple():stdClass {
-        $question = self::make_matrix_question_multiple();
-        $form = self::transform_generated_question_to_form_data($question);
-
-        $form->status = \core_question\local\bank\question_version_status::QUESTION_STATUS_READY;
-
-        return $form;
-    }
-
-    public function get_matrix_question_form_data_single():stdClass {
-        $question = self::make_matrix_question_single();
-        $form = self::transform_generated_question_to_form_data($question);
-
-        $form->status = \core_question\local\bank\question_version_status::QUESTION_STATUS_READY;
-
-        return $form;
-    }
-
-    public function get_matrix_question_form_data_dnd():stdClass {
-        $question = self::make_matrix_question_dnd();
-        $form = self::transform_generated_question_to_form_data($question);
-
-        $form->status = \core_question\local\bank\question_version_status::QUESTION_STATUS_READY;
-
-        return $form;
-    }
-
-    public function get_matrix_question_form_data_nodnd():stdClass {
-        $question = self::make_matrix_question_nodnd();
-        $form = self::transform_generated_question_to_form_data($question);
-
-        $form->status = \core_question\local\bank\question_version_status::QUESTION_STATUS_READY;
-
-        return $form;
-    }
-
-    public function get_matrix_question_form_data_shuffle():stdClass {
-        $question = self::make_matrix_question_shuffle();
-        $form = self::transform_generated_question_to_form_data($question);
-
-        $form->status = \core_question\local\bank\question_version_status::QUESTION_STATUS_READY;
-
-        return $form;
-    }
-
-    public function get_matrix_question_form_data_noshuffle():stdClass {
-        $question = self::make_matrix_question_noshuffle();
-        $form = self::transform_generated_question_to_form_data($question);
-
-        $form->status = \core_question\local\bank\question_version_status::QUESTION_STATUS_READY;
-
-        return $form;
+        $questiondata->options->weights = $question->weights;
+        return $questiondata;
     }
 
     private function transform_generated_question_to_form_data($question):stdClass {
@@ -175,163 +166,98 @@ class qtype_matrix_test_helper extends question_test_helper {
         foreach ($question->rows as $ri => $row) {
             foreach ($question->cols as $ci => $col) {
                 $key = $question->key($ri, $ci, $question->multiple);
-                $form->{$key} = $question->weights[$ri][$ci];
+                if ($question->weights[$ri][$ci]) {
+                    if (!$question->multiple) {
+                        $form->{$key} = $ci;
+                        break;
+                    } else {
+                        $form->{$key} = $question->weights[$ri][$ci];
+                    }
+                }
             }
         }
         return $form;
     }
 
     /**
+     * Single correct. Produced weight matrix:
+     * <pre>
+     * 0 1 0 0
+     * 0 1 0 0
+     * 0 1 0 0
+     * 0 1 0 0
+     * </pre>
      *
      * @return qtype_matrix_question
      * @throws coding_exception
      */
-    public function make_matrix_question_noshuffle(): qtype_matrix_question {
-        $result = $this->make_matrix_question();
-        $result->shuffleanswers = false;
-        return $result;
-    }
+    public function make_matrix_question_default():qtype_matrix_question {
+        $question = $this->init_default_matrix_question();
 
-    /**
-     *
-     * @return qtype_matrix_question
-     * @throws coding_exception
-     */
-    public function make_matrix_question_shuffle(): qtype_matrix_question {
-        $result = $this->make_matrix_question();
-        $result->shuffleanswers = true;
-        return $result;
-    }
-
-    /**
-     *
-     * @return qtype_matrix_question
-     * @throws coding_exception
-     */
-    public function make_matrix_question_nodnd(): qtype_matrix_question {
-        $result = $this->make_matrix_question();
-        $result->usedndui = false;
-        return $result;
-    }
-
-    /**
-     *
-     * @return qtype_matrix_question
-     * @throws coding_exception
-     */
-    public function make_matrix_question_dnd(): qtype_matrix_question {
-        $result = $this->make_matrix_question();
-        $result->usedndui = true;
-        return $result;
-    }
-
-    /**
-     *
-     * @return qtype_matrix_question
-     * @throws coding_exception
-     */
-    public function make_matrix_question_multiple(): qtype_matrix_question {
-        $result = $this->make_matrix_question();
-        $result->multiple = true;
-        return $result;
-    }
-
-    /**
-     *
-     * @return qtype_matrix_question
-     * @throws coding_exception
-     */
-    public function make_matrix_question_single(): qtype_matrix_question {
-        $result = $this->make_matrix_question();
-        $result->multiple = false;
-        return $result;
-    }
-
-    /**
-     *
-     * @return qtype_matrix_question
-     * @throws coding_exception
-     */
-    public function make_matrix_question_kprime(): qtype_matrix_question {
-        $result = $this->make_matrix_question();
-        $result->grademethod = 'kprime';
-        return $result;
-    }
-
-    /**
-     *
-     * @return qtype_matrix_question
-     * @throws coding_exception
-     */
-    public function make_matrix_question_all(): qtype_matrix_question {
-        $result = $this->make_matrix_question();
-        $result->grademethod = 'all';
-        return $result;
-    }
-
-    /**
-     *
-     * @return qtype_matrix_question
-     * @throws coding_exception
-     */
-    public function make_matrix_question_any(): qtype_matrix_question {
-        $result = $this->make_matrix_question();
-        $result->grademethod = 'any';
-        return $result;
-    }
-
-    /**
-     *
-     * @return qtype_matrix_question
-     * @throws coding_exception
-     */
-    public function make_matrix_question_none(): qtype_matrix_question {
-        $result = $this->make_matrix_question();
-        $result->grademethod = 'none';
-        return $result;
-    }
-
-    /**
-     *
-     * @return qtype_matrix_question
-     * @throws coding_exception
-     */
-    public function make_matrix_question_weighted() {
-        $question = $this->init_matrix_question();
-
-        for ($r = 0; $r < 4; $r++) {
-            for ($c = 0; $c < 4; $c++) {
-                $question->weights[$r][$c] = ($c < 2) ? 0.5 : 0;
-            }
-        }
-
-        $question->grademethod = 'weighted';
+        $question->questiontext = 'default';
+        $question->weights[0][1] = 1;
+        $question->weights[1][1] = 1;
+        $question->weights[2][1] = 1;
+        $question->weights[3][1] = 1;
 
         return $question;
     }
 
     /**
+     * Multiple may be correct, but only one is. Produced weight matrix:
+     * <pre>
+     * 0 1 0 0
+     * 0 1 0 0
+     * 0 1 0 0
+     * 0 1 0 0
+     * </pre>
      *
      * @return qtype_matrix_question
      * @throws coding_exception
      */
-    protected function make_matrix_question() {
-        $question = $this->init_matrix_question();
+    public function make_matrix_question_nondefault():qtype_matrix_question {
+        $question = $this->make_matrix_question_default();
+        $question->questiontext = 'nondefault';
 
-        for ($r = 0; $r < 4; $r++) {
-            for ($c = 0; $c < 4; $c++) {
-                $question->weights[$r][$c] = ($c == 0) ? 1 : 0;
-            }
-        }
-
+        $question->grademethod = all::get_name();
+        $question->multiple = !question_cleaner::DEFAULT_MULTIPLE;
+        $question->shuffleanswers = !question_cleaner::DEFAULT_SHUFFLEANSWERS;
+        $question->usedndui = !question_cleaner::DEFAULT_USEDNDUI;
         return $question;
     }
 
+    /**
+     * Multiple may be correct, and two are. Produced weight matrix:
+     * <pre>
+     * 1 1 0 0
+     * 1 1 0 0
+     * 1 1 0 0
+     * 1 1 0 0
+     * </pre>
+     *
+     * @return qtype_matrix_question
+     * @throws coding_exception
+     */
+    public function make_matrix_question_multipletwocorrect():qtype_matrix_question {
+        $question = $this->make_matrix_question_default();
+        $question->questiontext = 'multipletwocorrect';
+
+        $question->multiple = true;
+        $question->weights[0][0] = 1;
+        $question->weights[0][1] = 1;
+        $question->weights[1][0] = 1;
+        $question->weights[1][1] = 1;
+        $question->weights[2][0] = 1;
+        $question->weights[2][1] = 1;
+        $question->weights[3][0] = 1;
+        $question->weights[3][1] = 1;
+        return $question;
+    }
     /**
      * @return \qtype_matrix_question
      * @throws \coding_exception
      */
-    public function init_matrix_question(): qtype_matrix_question {
+    public function init_default_matrix_question(): qtype_matrix_question {
         question_bank::load_question_definition_classes('matrix');
         $question = new qtype_matrix_question();
         test_question_maker::initialise_a_question($question);
@@ -342,14 +268,19 @@ class qtype_matrix_test_helper extends question_test_helper {
         $question->penalty = 1;
         $question->qtype = question_bank::get_qtype('matrix');
 
-        $question->grademethod = 'kprime';
-        $question->multiple = true;
-        $question->shuffleanswers = true;
-        $question->usedndui = true;
+        $question->grademethod = qtype_matrix_grading::default_grading()->get_name();
+        $question->multiple = question_cleaner::DEFAULT_MULTIPLE;
+        $question->shuffleanswers = question_cleaner::DEFAULT_SHUFFLEANSWERS;
+        $question->usedndui = question_cleaner::DEFAULT_USEDNDUI;
         $matrix = $this->generate_matrix_question_matrix();
         $question->rows = $matrix->rows;
         $question->cols = $matrix->cols;
-        $question->weights = [];
+        $question->weights = array_fill(
+            0,
+            4,
+            array_fill(0, 4, 0)
+        );
+
         return $question;
     }
 
@@ -375,5 +306,15 @@ class qtype_matrix_test_helper extends question_test_helper {
             $roworcolumn->feedback = "Feedback $id";
         }
         return $roworcolumn;
+    }
+
+    /**
+     * @param string $type
+     * @return qtype_matrix_question the requested question object.
+     */
+    public static function make_question(string $type):qtype_matrix_question {
+        /** @var qtype_matrix_question $question */
+        $question = test_question_maker::make_question('matrix', $type);
+        return $question;
     }
 }
