@@ -1,18 +1,31 @@
 @import "variables.less";
 
-.que.matrix {
+.que.matrix .formulation table.matrix {
 
-  table {
-    display: inline-table;
+  display: inline-table;
+  border-style: none;
+
+  th, td {
+    border-color: @border-color;
+    border-bottom-style: solid;
   }
 
-  &,
-  td,
-  th {
-    border-style: none;
-    border-bottom-style: solid;
-    border-width: 1px;
-    border-color: @border-color;
+  tr.lastrow {
+    th,td {
+      border-bottom-style: none;
+    }
+  }
+
+  thead {
+    th, td {
+      border-width: 3px;
+    }
+  }
+
+  tbody {
+    th, td {
+      border-width: 1px;
+    }
   }
 
   td,
@@ -22,15 +35,7 @@
     min-width: 50px;
   }
 
-  th {
-    border-width: 3px;
-  }
-
-  .r0 {
-    background-color: transparent;
-  }
-
-  .lastcol p {
+  .feedbackcell p {
     display: inline;
     margin: 0;
     margin-left: 5px;

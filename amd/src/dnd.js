@@ -19,12 +19,12 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import jQuery from 'jquery';
+import $ from 'jquery';
+import 'jqueryui';
 
-export const init = () => {
+export const init = (matrixtableid) => {
     var n = 0; // Matrix question number (1..)
     var dnduistr = 'qtype_matrix_dndui';
-    var $ = jQuery;
 
     var wasDropped = function(ismultiple, $tr, $cell, text, $draggable, checkBoxes) {
         if (!ismultiple) {
@@ -32,7 +32,7 @@ export const init = () => {
                 // 1. uncheck all other boxes
                 $tr.find('input').prop('checked', false);
                 // 2. remove all other dropped items
-                $cell.parents('tr').find('.cell:has("input") span').remove();
+                $cell.parents('tr').find('td:has("input") span').remove();
             }
             // 3. disable $draggable
             $draggable.draggable('disable');
@@ -43,7 +43,8 @@ export const init = () => {
             $cell.find('input').prop('checked', true); // Check the checkbox
         }
         var $newspan = $('<span>').text(text); // Fill in the receptacle with a clue that it is checked
-        var $deletebutton = $('<span>').text('X'); // Button to uncheck a checkbox
+        var deletebuttonclass = dnduistr + '_cancel';
+        var $deletebutton = $('<span class="' + deletebuttonclass + '">').text('X'); // Button to uncheck a checkbox
         $deletebutton.click(function() {
             var $btn = $(this);
             // 1. uncheck the box
@@ -59,16 +60,17 @@ export const init = () => {
         $newspan.appendTo($cell);
     };
 
-    $('.que.matrix').each(function() {
+    let $matrix = $('#' + matrixtableid);
+    if (!$matrix.hasClass('uses_dndui')) {
+        return;
+    }
+    let $parentquestion = $matrix.parents('.que.matrix');
+    $parentquestion.each(function() {
         n++;
         var $question = $(this); // Question display DOM element
-        var $matrix = $question.find('table.matrix'); // Question table
-        if (!$matrix.hasClass('uses_dndui')) {
-            return;
-        }
-        var $baskets = $question.find("th:has('span.title')"); // Table header cells, i.e. categories
-        var $receptacles = $matrix.find('.cell:has("input")'); // All cells with a checkbox or a radio button
-        var $items = $question.find('.cell.c0'); // First column, i.e. items
+        var $baskets = $question.find("thead th:has('span.title')"); // Table header cells, i.e. categories
+        var $receptacles = $matrix.find('tbody td:has("input")'); // All cells with a checkbox or a radio button
+        var $items = $question.find('tbody th'); // First column, i.e. items
         var ismultiple = !!$matrix.find('input[type=checkbox]').length; // Multiple choice allowed?
 
         $question.addClass('clearfix').addClass(dnduistr); // To make sure we only only for activated dndui
@@ -93,7 +95,7 @@ export const init = () => {
                 'scope': dnduistr + '_' + n + '_item_' + it // Can only be dragged to its own row's droppables
             });
 
-            $tr.find('.cell:has("input")').each(function() { // This row's each possible cell containing a checkbox
+            $tr.find('td:has("input")').each(function() { // This row's each possible cell containing a checkbox
                 var $cell = $(this);
                 $cell.droppable({
                     'activeClass': 'activated', // To hint the user where it can drop the currently dragged item

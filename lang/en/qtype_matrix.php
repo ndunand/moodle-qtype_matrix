@@ -97,3 +97,5 @@ $string['use_dnd_ui'] = 'Use drag &amp; drop ?';
 $string['privacy:metadata'] = 'The Kprime/Matrix Question Type plugin does not store any personal data.';
 $string['correctresponse'] = 'Correct Response';
 
+// Question display
+$string['cellarialabel'] = 'Select possible answer {$a->answershorttext} for item {$a->itemshorttext}';
