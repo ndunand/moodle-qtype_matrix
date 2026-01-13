@@ -244,22 +244,14 @@ class qtype_matrix_edit_form extends question_edit_form {
         $matrixheader = $builder->create_header('matrixheader');
         $matrixgroup = $builder->create_group('matrix', null, $matrix, '', false);
 
+        $refreshbutton = $builder->create_submit('refresh_matrix');
+        $builder->register_no_submit_button('refresh_matrix');
         if (isset($this->_form->_elementIndex['tagsheader'])) {
             $builder->insert_element_before($matrixheader, 'tagsheader');
-            $refreshbutton = $builder->create_submit('refresh_matrix');
-            $builder->register_no_submit_button('refresh_matrix');
-            // FIXME: There is no 'none' grading
-            $builder->disabled_if('refresh_matrix', self::PARAM_GRADE_METHOD, 'eq', 'none');
-            $builder->disabled_if('defaultgrade', self::PARAM_GRADE_METHOD, 'eq', 'none');
             $builder->insert_element_before($refreshbutton, 'tagsheader');
             $builder->insert_element_before($matrixgroup, 'tagsheader');
         } else {
             $this->_form->addElement($matrixheader);
-            $refreshbutton = $builder->create_submit('refresh_matrix');
-            $builder->register_no_submit_button('refresh_matrix');
-            // FIXME: There is no 'none' grading
-            $builder->disabled_if('refresh_matrix', self::PARAM_GRADE_METHOD, 'eq', 'none');
-            $builder->disabled_if('defaultgrade', self::PARAM_GRADE_METHOD, 'eq', 'none');
             $this->_form->addElement($refreshbutton);
             $this->_form->addElement($matrixgroup);
         }
