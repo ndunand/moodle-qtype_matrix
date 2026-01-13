@@ -336,7 +336,6 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      *
      * @return qtype_matrix_grading
      */
-    // FIXME: Maybe unnecessary? Because we already have qtype_matrix_grading::grading()
     public function grading(): qtype_matrix_grading {
         return qtype_matrix::grading($this->grademethod);
     }
@@ -354,27 +353,12 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
         if ($this->multiple) {
             return true;
         }
-        $count = 0;
-        foreach ($this->rows as $row) {
-            $key = $this->key($row, 0);
-            if (isset($response[$key])) {
-                $count++;
-            }
-        }
+        $nransweredrows = count($response);
 
-        // Always return false when not at least one row is answered, since this is not considered partial.
-        if ($count == 0) {
+        if ($nransweredrows == 0) {
             return false;
         }
-        // We know that the count is unequal to 0, so we only need to check if its complete and if we have not a partial type.
-        if ($count != count($this->rows)) {
-            return false;
-        }
-        return true;
-    }
-
-    public function is_question_partial_gradable(): bool {
-        return $this->grademethod == 'all' || $this->grademethod == 'difference';
+        return ($nransweredrows == count($this->rows));
     }
 
     /**
@@ -393,23 +377,6 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
     }
 
     /**
-     * Get the number of selected options
-     *
-     * @param array $response responses, as returned by
-     *                        {@see question_attempt_step::get_qt_data()}.
-     * @return int the number of choices that were selected. in this response.
-     */
-    public function get_num_selected_choices(array $response): int {
-        $numselected = 0;
-        foreach ($response as $key => $value) {
-            if (!empty($value) && $key[0] != '_') {
-                $numselected += 1;
-            }
-        }
-        return $numselected;
-    }
-
-    /**
      * Use by many of the behaviours to determine whether the student
      * has provided enough of an answer for the question to be graded automatically,
      * or whether it must be considered aborted.
@@ -419,23 +386,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      * @return bool whether this response can be graded.
      */
     public function is_gradable_response(array $response): bool {
-        if ($this->is_question_partial_gradable()) {
-            if ($this->get_num_selected_choices($response) > 0) {
-                return true;
-            } else {
-                return false;
-            }
-        } else {
-            foreach ($this->rows as $row) {
-                foreach ($this->cols as $col) {
-                    $key = $this->key($row, $col);
-                    if (!empty($response[$key])) {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
+        return (count($response) > 0);
     }
 
     /**
