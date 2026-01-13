@@ -199,7 +199,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      * @global object $DB   Database object
      * @global object $PAGE Page object
      */
-    public function shuffle_authorized(): bool {
+    private function shuffle_authorized(): bool {
         global $DB, $PAGE;
         $cm = $PAGE->cm;
         if (!is_object($cm)) {

@@ -80,7 +80,7 @@ class qtype_matrix extends question_type {
      * @return boolean to indicate success of failure.
      * @throws dml_exception
      */
-    public function delete_question_options(int $questionid): bool {
+    private function delete_question_options(int $questionid): bool {
         if (empty($questionid)) {
             return false;
         }
