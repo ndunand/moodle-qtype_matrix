@@ -16,7 +16,6 @@
 namespace qtype_matrix\local;
 
 use coding_exception;
-use MoodleQuickForm;
 use qtype_matrix_question;
 
 /**
@@ -81,67 +80,24 @@ abstract class qtype_matrix_grading {
     }
 
     /**
-     * Create the form element used to define the weight of the cell
-     *
-     * @param MoodleQuickForm $form
-     * @param int             $row      row number
-     * @param int             $col      column number
-     * @param bool            $multiple whether the question allows multiple answers
-     * @return object
-     */
-    public function create_cell_element(MoodleQuickForm $form, int $row, int $col, bool $multiple): object {
-        $cellname = $this->cell_name($row, $col, $multiple);
-        if ($multiple) {
-            return $form->createElement('checkbox', $cellname, 'label');
-        } else {
-            return $form->createElement('radio', $cellname, '', '', $col);
-        }
-    }
-
-    /**
-     * Returns a cell name.
-     * Should be a valid php and html identifier
-     *
-     * @param int  $row      row number
-     * @param int  $col      col number
-     * @param bool $multiple one answer per row or several
-     *
-     * @return string
-     */
-    public static function cell_name(int $row, int $col, bool $multiple): string {
-        return $multiple ? "cell{$row}_$col" : "cell$row";
-    }
-
-    /**
-     * Returns the question's grade. By default, it is the average of correct questions.
+     * Returns the question's grade for the given response.
      *
      * @param qtype_matrix_question $question
-     * @param array                 $answers
+     * @param int[] $roworder Order of rows in this question
+     * @param array                 $response
      * @return float
      */
-    // FIXME: This should be moved to the all grading and this should remain abstract
-    public function grade_question(qtype_matrix_question $question, array $answers): float {
-        $grades = [];
-        foreach ($question->rows as $row) {
-            $grades[] = $this->grade_row($question, $row, $answers);
-        }
-        $result = array_sum($grades) / count($grades);
-        $result = min(1, $result);
-        return max(0, $result);
-    }
+    abstract public function grade_question(qtype_matrix_question $question, array $roworder, array $response):float;
 
     /**
      * Grade a specific row
      *
      * @param qtype_matrix_question $question
-     * @param mixed                 $row
-     * @param array                 $responses
+     * @param int $rowindex
+     * @param array                 $response
      * @return float
      */
-    // FIXME: This should be abstract because it is never right
-    public function grade_row(qtype_matrix_question $question, $row, array $responses): float {
-        return 0.0;
-    }
+    abstract public function grade_row(qtype_matrix_question $question, int $rowindex, array $response):float;
 
     /**
      * validate
