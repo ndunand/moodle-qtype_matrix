@@ -97,5 +97,13 @@ $string['use_dnd_ui'] = 'Use drag &amp; drop ?';
 $string['privacy:metadata'] = 'The Kprime/Matrix Question Type plugin does not store any personal data.';
 $string['correctresponse'] = 'Correct Response';
 
+// Attempt syntax migration
+$string['attemptdatamigration_baddata'] = 'Matrix question attempt contains bad data and cannot be migrated';
+
 // Question display
 $string['cellarialabel'] = 'Select possible answer {$a->answershorttext} for item {$a->itemshorttext}';
+
+// Regrading
+$string['regrade_different_nr_rows'] = 'Cannot regrade because question versions have different number of rows';
+$string['regrade_different_nr_cols'] = 'Cannot regrade because question versions have different number of columns';
+$string['regrade_switching_multiple_too_many_correct'] = 'Cannot regrade because the nr of answers per row is different';

@@ -24,7 +24,9 @@ use qtype_matrix\db\question_matrix_store;
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
-require_once($CFG->libdir . '/questionlib.php');
+
+require_once $CFG->libdir . '/questionlib.php';
+require_once $CFG->dirroot . '/question/type/matrix/question.php';
 
 /**
  * The matrix question class
@@ -286,8 +288,8 @@ class qtype_matrix extends question_type {
     public function to_weight_matrix(object $fromform, bool $frommultiple): array {
         // FIXME: Tests show that you even if it looks like there can only be a 20x20 matrix max, in single mode you could create out-of-bounds references.
         //        Even that is inconsistent currently, as you can reference too large colindices but not have too many rows
-        // TODO: Should there a be a global limit for rows/cols? I don't think it's enforced consistently yet
-        // TODO: Do we even need a matrix with 0 value padding? Or just one with all values at the right spot?
+        // TODO: Should there a be a global limit for rows/cols? I don't think it's enforced consistently yet.
+        // TODO: Do we even need a matrix with 0 value padding in code? Or just a sparse matrix?
         $matrix = array_fill(
             0,
             20,
@@ -297,14 +299,14 @@ class qtype_matrix extends question_type {
         foreach ($matrix as $rowindex => $row) {
             foreach ($row as $colindex => $initialvalue) {
                 // Reminder: The cell name only uses rowindex if we're not allowing multiple correct answers
-                $key = qtype_matrix_grading::cell_name($rowindex, $colindex, $frommultiple);
-                if (isset($fromform->{$key})) {
+                $formfieldname = qtype_matrix_question::formfield_name($rowindex, $colindex, $frommultiple);
+                if (isset($fromform->{$formfieldname})) {
                     if (!$frommultiple) {
                         // Only one column can be correct, so ensure that we don't continue after we find it
-                        $correctcolindex = $fromform->{$key};
+                        $correctcolindex = $fromform->{$formfieldname};
                         $matrix[$rowindex][$correctcolindex] = 1;
                         break;
-                    } else if ($fromform->{$key}) {
+                    } else if ($fromform->{$formfieldname}) {
                         $matrix[$rowindex][$colindex] = 1;
                     }
                 }
@@ -448,35 +450,22 @@ class qtype_matrix extends question_type {
         // Weights.
         $fromform->weights = [];
         $weightsofrowsxml = $data['#']['weights-of-row'];
-        $rowindex = 0;
 
-        // FIXME: This looks like it can be refactored to be smaller
-        // FIXME: No need to set $fromform keys to 0, those aren't saved anyway
-        // FIXME: The exporter creates elements with value 0, unnecessary as they are ignored here
-        // FIXME: Maybe add an export version so that we can abort early if we change the export/import result?
-        if ($fromform->multiple) {
-            foreach ($weightsofrowsxml as $weightsofrowxml) {
-                $colindex = 0;
-                foreach ($weightsofrowxml['#']['weight-of-col'] as $weightofcolxml) {
-                    $key = qtype_matrix_grading::cell_name($rowindex, $colindex, $fromform->multiple);
-                    $fromform->{$key} = floatval($weightofcolxml['#']);
-                    $colindex++;
-                }
-                $rowindex++;
-            }
-        } else {
-            // FIXME: The exporter doesn't export the indices but just 1/0 which must be transformed here, unnecessary
-            foreach ($weightsofrowsxml as $weightsofrowxml) {
-                $colindex = 0;
-                foreach ($weightsofrowxml['#']['weight-of-col'] as $weightofcolxml) {
-                    if (floatval($weightofcolxml['#']) != 0) {
-                        $key = qtype_matrix_grading::cell_name($rowindex, $colindex, $fromform->multiple);
-                        $fromform->{$key} = $colindex;
+        $rowindex = 0;
+        foreach ($weightsofrowsxml as $weightsofrowxml) {
+            $colindex = 0;
+            foreach ($weightsofrowxml['#']['weight-of-col'] as $weightofcolxml) {
+                $weight = floatval($weightofcolxml['#']);
+                if ($weight) {
+                    $formfieldname = qtype_matrix_question::formfield_name($rowindex, $colindex, $fromform->multiple);
+                    $fromform->{$formfieldname} = $fromform->multiple ? $weight : $colindex;
+                    if (!$fromform->multiple) {
+                        break;
                     }
-                    $colindex++;
                 }
-                $rowindex++;
+                $colindex++;
             }
+            $rowindex++;
         }
 
         return $fromform;
@@ -564,6 +553,7 @@ class qtype_matrix extends question_type {
      * @return array
      */
     public function get_possible_responses($questiondata) {
+        /** @var qtype_matrix_question $question */
         $question = $this->make_question($questiondata);
         $weights = $question->weights;
         $parts = [];
