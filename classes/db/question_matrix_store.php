@@ -200,19 +200,22 @@ class question_matrix_store {
      */
     public function get_matrix_weights_by_question_id(int $questionid): array {
         global $DB;
-        // Todo: check AND?
-        $sql = "SELECT qmw.*
+        $params = [
+            'rowquestionid' => $questionid,
+            'colquestionid' => $questionid
+        ];
+        $sql = 'SELECT qmw.*
                 FROM {qtype_matrix_weights} qmw
                 WHERE
                     rowid IN (SELECT qmr.id FROM {qtype_matrix_rows} qmr
                               INNER JOIN {qtype_matrix} qm ON qmr.matrixid = qm.id
-                              WHERE qm.questionid = $questionid)
+                              WHERE qm.questionid = :rowquestionid)
                     AND
                     colid IN (SELECT qmc.id FROM {qtype_matrix_cols} qmc
                               INNER JOIN {qtype_matrix} qm ON qmc.matrixid = qm.id
-                              WHERE qm.questionid = $questionid)
-               "; // Todo: remove unsafe sql operation.
-        return $DB->get_records_sql($sql);
+                              WHERE qm.questionid = :colquestionid)
+               ';
+        return $DB->get_records_sql($sql, $params);
     }
 
     /**
