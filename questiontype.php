@@ -492,8 +492,6 @@ class qtype_matrix extends question_type {
      * @return string
      */
     public function export_to_xml($questiondata, qformat_xml $format, $extra = null): string {
-        // FIXME: indenting is wrong in exported XML, see test fixture for export_to_xml test
-        // FIXME: Exporting IDs is unnecessary, export indices
         // This is necessary so we don't have "false" values translated to empty tags
         foreach ($questiondata->options as $key => $value) {
             if ($value === false) {
@@ -501,39 +499,44 @@ class qtype_matrix extends question_type {
             }
         }
         $output = parent::export_to_xml($questiondata, $format, $extra);
-
         // Rows.
-        foreach ($questiondata->options->rows as $rowid => $row) {
-            $output .= "<!--row: " . $rowid . "-->\n";
+        $rowindex = 0;
+        foreach ($questiondata->options->rows as $row) {
+            $output .= "<!--row: " . $rowindex . "-->\n";
             $output .= "    <row>\n";
             $output .= "        <shorttext>" . $row->shorttext . "</shorttext>\n";
             $output .= "        <description {$format->format($row->description['format'])}>\n";
-            $output .= $format->writetext($row->description['text'], 3);
+            $output .= $format->writetext($row->description['text'], 6);
             $output .= "        </description>\n";
             $output .= "        <feedback {$format->format($row->feedback['format'])}>\n";
-            $output .= $format->writetext($row->feedback['text'], 3);
+            $output .= $format->writetext($row->feedback['text'], 6);
             $output .= "        </feedback>\n";
             $output .= "    </row>\n";
+            $rowindex++;
         }
 
         // Cols.
-        foreach ($questiondata->options->cols as $colid => $col) {
-            $output .= "<!--col: " . $colid . "-->\n";
+        $colindex = 0;
+        foreach ($questiondata->options->cols as $col) {
+            $output .= "<!--col: " . $colindex . "-->\n";
             $output .= "    <col>\n";
             $output .= "        <shorttext>" . $col->shorttext . "</shorttext>\n";
             $output .= "        <description {$format->format($col->description['format'])}>\n";
-            $output .= $format->writetext($col->description['text'], 3);
+            $output .= $format->writetext($col->description['text'], 6);
             $output .= "        </description>\n";
             $output .= "    </col>\n";
+            $colindex++;
         }
 
         // Weights.
         foreach ($questiondata->options->weights as $rowid => $weightsofrow) {
-            $output .= "<!--weights of row: " . $rowid . "-->\n";
+            $rowindex = array_search($rowid, array_keys($questiondata->options->rows));
+            $output .= "<!--weights of row: " . $rowindex . "-->\n";
             $output .= "    <weights-of-row>\n";
             foreach ($weightsofrow as $colid => $weightofcol) {
-                $output .= "<!--weight of col: " . $colid . "-->\n";
-                $output .= "    <weight-of-col>" . $weightofcol . "</weight-of-col>\n";
+                $colindex = array_search($colid, array_keys($questiondata->options->cols));
+                $output .= "<!--weight of col: " . $colindex . "-->\n";
+                $output .= "        <weight-of-col>" . $weightofcol . "</weight-of-col>\n";
             }
             $output .= "    </weights-of-row>\n";
         }
