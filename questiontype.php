@@ -397,13 +397,9 @@ class qtype_matrix extends question_type {
         );
 
         // Rows.
-        // FIXME: Testing revealed this is unnecessary here
-        $fromform->rows = [];
         $fromform->rows_shorttext = [];
         $fromform->rows_description = [];
         $fromform->rows_feedback = [];
-        // FIXME: Testing revealed this is unnecessary here
-        $fromform->rowid = [];
         $index = 0;
         $rowsxml = $data['#']['row'];
 
@@ -423,17 +419,12 @@ class qtype_matrix extends question_type {
                     $format->getpath($rowxml, ['#', 'feedback', 0, '@', 'format'], 'html')
                 )
             ];
-            $fromform->rowid[$index] = false;
             $index++;
         }
 
         // Cols.
-        // FIXME: Testing revealed this is unnecessary here
-        $fromform->cols = [];
         $fromform->cols_shorttext = [];
         $fromform->cols_description = [];
-        // FIXME: Testing revealed this is unnecessary here
-        $fromform->colid = [];
         $index = 0;
         $colsxml = $data['#']['col'];
 
@@ -445,7 +436,6 @@ class qtype_matrix extends question_type {
                     $format->getpath($colxml, ['#', 'description', 0, '@', 'format'], 'html')
                 )
             ];
-            $fromform->colid[$index] = false;
             $index++;
         }
 
