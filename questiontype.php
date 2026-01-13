@@ -404,19 +404,22 @@ class qtype_matrix extends question_type {
         $rowsxml = $data['#']['row'];
 
         foreach ($rowsxml as $rowxml) {
+            // FIXME: Should an empty text for shorttext be OK?
             $fromform->rows_shorttext[$index] = $format->getpath($rowxml, ['#', 'shorttext', 0, '#'], '');
-            // TODO: Isn't there a function for both text and format?
             $fromform->rows_description[$index] = [
                 'text' => $format->getpath($rowxml, ['#', 'description', 0, '#', 'text', 0, '#'], ''),
                 'format' => $format->trans_format(
-                    $format->getpath($rowxml, ['#', 'description', 0, '@', 'format'], 'html')
+                    $format->getpath(
+                        $rowxml, ['#', 'description', 0, '@', 'format'], $format->get_format(FORMAT_HTML)
+                    )
                 )
             ];
-
             $fromform->rows_feedback[$index] = [
                 'text' => $format->getpath($rowxml, ['#', 'feedback', 0, '#', 'text', 0, '#'], ''),
                 'format' => $format->trans_format(
-                    $format->getpath($rowxml, ['#', 'feedback', 0, '@', 'format'], 'html')
+                    $format->getpath(
+                        $rowxml, ['#', 'feedback', 0, '@', 'format'], $format->get_format(FORMAT_HTML)
+                    )
                 )
             ];
             $index++;
@@ -429,11 +432,14 @@ class qtype_matrix extends question_type {
         $colsxml = $data['#']['col'];
 
         foreach ($colsxml as $colxml) {
+            // FIXME: Should an empty text for shorttext be OK?
             $fromform->cols_shorttext[$index] = $format->getpath($colxml, ['#', 'shorttext', 0, '#'], '');
             $fromform->cols_description[$index] = [
                 'text' => $format->getpath($colxml, ['#', 'description', 0, '#', 'text', 0, '#'], ''),
                 'format' => $format->trans_format(
-                    $format->getpath($colxml, ['#', 'description', 0, '@', 'format'], 'html')
+                    $format->getpath(
+                        $colxml, ['#', 'description', 0, '@', 'format'], $format->get_format(FORMAT_HTML)
+                    )
                 )
             ];
             $index++;
