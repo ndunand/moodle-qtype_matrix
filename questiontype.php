@@ -330,27 +330,6 @@ class qtype_matrix extends question_type {
         return true;
     }
 
-    /**
-     * This method should be overriden if you want to include a special heading or some other
-     * html on a question editing page besides the question editing form.
-     *
-     * @param question_edit_form $mform     a child of question_edit_form
-     * @param object             $question
-     * @param string             $wizardnow is '' for first page.
-     */
-    public function display_question_editing_page($mform, $question, $wizardnow): void {
-        global $OUTPUT;
-        $heading = $this->get_heading(empty($question->id));
-
-        // FIXME: The string is always present, this function doesn't need to be overwritten
-        if (get_string_manager()->string_exists('pluginname_help', $this->plugin_name())) {
-            echo $OUTPUT->heading_with_help($heading, 'pluginname', $this->plugin_name());
-        } else {
-            echo $OUTPUT->heading_with_help($heading, $this->name(), $this->plugin_name());
-        }
-        $mform->display();
-    }
-
     public function name(): string {
         return 'matrix';
     }
