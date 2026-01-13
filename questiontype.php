@@ -350,7 +350,6 @@ class qtype_matrix extends question_type {
      */
     public function import_from_xml($data, $fromform, qformat_xml $format, $extra = null) {
         // TODO: Can't yet use parent::import_from_xml() because of MDL-87330
-        // TODO: Should this function allow bad data to be imported?
         // $fromform = parent::import_from_xml($data, $fromform, $format, $extra);
         if (!isset($data['@']['type']) || $data['@']['type'] != 'matrix') {
             return false;
@@ -366,6 +365,9 @@ class qtype_matrix extends question_type {
             ['#', 'grademethod', 0, '#'],
             self::default_grading()->get_name()
         );
+        if (!in_array($fromform->grademethod, qtype_matrix_grading::VALID_GRADINGS)) {
+            $fromform->grademethod = qtype_matrix_grading::default_grading()->get_name();
+        }
 
         // Multiple.
         $fromform->multiple = (bool) $format->trans_single($format->getpath(
