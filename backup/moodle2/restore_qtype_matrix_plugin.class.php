@@ -41,8 +41,6 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
         $result[] = new restore_decode_content('qtype_matrix_cols', $fields, 'qtype_matrix_cols');
         $fields = ['shorttext', 'description', 'feedback'];
         $result[] = new restore_decode_content('qtype_matrix_rows', $fields, 'qtype_matrix_rows');
-        $fields = ['rowid', 'colid', 'weight'];
-        $result[] = new restore_decode_content('qtype_matrix_weights', $fields, 'qtype_matrix_weights');
 
         return $result;
     }
