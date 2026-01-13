@@ -23,6 +23,8 @@ require_once $CFG->dirroot . '/question/type/matrix/question.php';
 require_once $CFG->dirroot . '/question/type/matrix/questiontype.php';
 
 use qtype_matrix\db\question_matrix_store;
+use qtype_matrix\db\stepdata_migration_utils;
+use core\exception\moodle_exception;
 
 /**
  * restore plugin class that provides the necessary information
@@ -30,6 +32,8 @@ use qtype_matrix\db\question_matrix_store;
  *
  */
 class restore_qtype_matrix_plugin extends restore_qtype_plugin {
+
+    private $attemptorders = [];
 
     /**
      * Return the contents of this qtype to be processed by the links decoder
@@ -181,27 +185,62 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
         return serialize($result);
     }
 
+    /**
+     * Return a matrix store for database access.
+     * Exists mainly because unit tests work better with it.
+     * @return question_matrix_store
+     */
+    protected function get_matrix_store():question_matrix_store {
+        static $store = null;
+        if (!$store) {
+            $store = new question_matrix_store();
+        }
+        return $store;
+    }
+
     public function recode_response($questionid, $sequencenumber, array $response): array {
         $recodedresponse = [];
-        foreach ($response as $responsekey => $responseval) {
-            if ($responsekey == '_order') {
-                $recodedresponse['_order'] = $this->recode_choice_order($responseval);
-            } else if (substr($responsekey, 0, 4) == 'cell') {
-                $responsekeynocell = substr($responsekey, 4);
-                $responsekeyids = explode('_', $responsekeynocell);
-                $newrowid = $this->get_mappingid('row', $responsekeyids[0]);
-                $newcolid = $this->get_mappingid('col', $responseval) ?? false;
-                if (count($responsekeyids) == 1) {
-                    $recodedresponse['cell' . $newrowid] = $newcolid;
-                } else if (count($responsekeyids) == 2) {
-                    $recodedresponse['cell' . $newrowid . '_' . $newcolid] = $newcolid;
-                } else {
-                    $recodedresponse[$responsekey] = $responseval;
-                }
+        $newattemptid = $this->get_new_parentid('question_attempt');
+
+        if ($sequencenumber == 0) {
+            if (isset($response[qtype_matrix_question::KEY_ROWS_ORDER])) {
+                $recodedresponse[qtype_matrix_question::KEY_ROWS_ORDER] =
+                    $this->recode_choice_order($response[qtype_matrix_question::KEY_ROWS_ORDER]);
+                $this->attemptorders[$newattemptid] = explode(',', $recodedresponse[qtype_matrix_question::KEY_ROWS_ORDER]);
             } else {
-                $recodedresponse[$responsekey] = $responseval;
+                throw new restore_step_exception('error_qtype_matrix_attempt_step_data_not_migratable');
+            }
+        } else {
+            $neworder = $this->attemptorders[$newattemptid] ?? [];
+            if (!$neworder) {
+                throw new restore_step_exception('error_qtype_matrix_attempt_step_data_not_migratable');
+            }
+            $store = $this->get_matrix_store();
+            $restoredmatrix = $store->get_matrix_by_question_id($questionid);
+            $restoredcols = $store->get_matrix_cols_by_matrix_id($restoredmatrix->id);
+            $restoredcolids = array_keys($restoredcols);
+            foreach ($response as $key => $value) {
+                if (str_contains($key, 'cell')) {
+                    $oldrowid = stepdata_migration_utils::extract_row_id($key);
+                    $newrowid = $this->get_mappingid('row', $oldrowid, 0);
+                    $newrowindex = array_search($newrowid, $neworder);
+                    $oldcolid = stepdata_migration_utils::extract_col_id($key, $value);
+                    $newcolid = $this->get_mappingid('col', $oldcolid, 0);
+                    $newcolindex = array_search($newcolid, $restoredcolids);
+                    // Either we can map a backup ID to new rows/cols of a new question or to an already existing question.
+                    // If we couldn't, then the row/col IDs from the attempt point to those of another earlier question version
+                    // This version may or may not be in the backup and thus may or may not have been restored yet.
+                    if ($newrowindex === false || $newcolindex === false) {
+                        throw new restore_step_exception('error_qtype_matrix_attempt_step_data_not_migratable');
+                    }
+                    $newname = qtype_matrix_question::responsekey($newrowindex, $newcolindex);
+                    $recodedresponse[$newname] = true;
+                } else {
+                    $recodedresponse[$key] = $value;
+                }
             }
         }
+
         return $recodedresponse;
     }
 
@@ -214,7 +253,7 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
     protected function recode_choice_order(string $order): string {
         $neworder = [];
         foreach (explode(',', $order) as $id) {
-            if ($newid = $this->get_mappingid('row', $id)) {
+            if ($newid = $this->get_mappingid('row', (int) $id)) {
                 $neworder[] = $newid;
             }
         }
