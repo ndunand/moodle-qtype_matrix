@@ -157,8 +157,8 @@ class qtype_matrix_edit_form extends question_edit_form {
         $mform = $this->_form;
         $builder = $this->builder;
 
-        $colscount = $this->param_cols();
-        $rowscount = $this->param_rows();
+        $colscount = $this->nr_dims_to_display('col');
+        $rowscount = $this->nr_dims_to_display('row');
 
         $grademethod = $this->param_grade_method();
         $grading = qtype_matrix::grading($grademethod);
@@ -271,70 +271,33 @@ class qtype_matrix_edit_form extends question_edit_form {
         $this->_form->setExpanded('matrixheader');
     }
 
-    /**
-     * Returns the current number of columns
-     *
-     * @return int The number of columns
-     * @throws coding_exception
-     */
-    protected function param_cols(): int {
-        $result = self::DEFAULT_COLS;
-        // Todo: fix direct access to POST! Insecure, no filters in place.
-        if (isset($_POST[self::PARAM_COLS])) {
-            $result = count($_POST[self::PARAM_COLS]);
-        } else if (isset($this->question->options->cols) && count($this->question->options->cols) > 0) {
-            $result = count($this->question->options->cols);
+    protected function nr_dims_to_display(string $type):int {
+        switch ($type) {
+            case 'row':
+                $currentparamname = self::PARAM_ROWS;
+                $newdimparamname = self::PARAM_ADD_ROWS;
+                $fallbackvalue = self::DEFAULT_ROWS;
+                $lastversiondims = $this->question->options->rows ?? [];
+                break;
+            case 'col':
+                $currentparamname = self::PARAM_COLS;
+                $newdimparamname = self::PARAM_ADD_COLUMNS;
+                $fallbackvalue = self::DEFAULT_COLS;
+                $lastversiondims = $this->question->options->cols ?? [];
+                break;
+        }
+        $nrmatrixdims = $fallbackvalue;
+        $nrcurrentdims = count(optional_param_array($currentparamname, [], PARAM_TEXT));
+        $nrlastversiondims = count($lastversiondims ?? []);
+        if ($nrcurrentdims) {
+            $nrmatrixdims = $nrcurrentdims;
+        } else if ($nrlastversiondims) {
+            $nrmatrixdims = $nrlastversiondims;
         }
 
-        $addcols = $this->param_add_columns();
-        if ($addcols) {
-            $result++;
-        }
+        $nrmatrixdims += (int) optional_param($newdimparamname, false, PARAM_BOOL);
 
-        return $result;
-    }
-
-    // Elements.
-
-    /**
-     * Returns column which is sent by the user, can be used to check if a response is made.
-     * True if data exists (!=''). False if not (=='').
-     *
-     * @return string columns to add
-     * @throws coding_exception
-     */
-    protected function param_add_columns(): string {
-        return optional_param(self::PARAM_ADD_COLUMNS, '', PARAM_TEXT);
-    }
-
-    /**
-     * @return int
-     * @throws coding_exception
-     */
-    protected function param_rows(): int {
-        $result = self::DEFAULT_ROWS;
-        // Todo: fix direct access to POST! Insecure, no filters in place.
-        if (isset($_POST[self::PARAM_ROWS])) {
-            $result = count($_POST[self::PARAM_ROWS]);
-        } else if (isset($this->question->options->rows) && count($this->question->options->rows) > 0) {
-            $result = count($this->question->options->rows);
-        }
-
-        $addrows = $this->param_add_rows();
-        if ($addrows) {
-            $result++;
-        }
-        return $result;
-    }
-
-    /**
-     * True if the user asked to add a row. False otherwise.
-     *
-     * @return bool rows to add
-     * @throws coding_exception
-     */
-    protected function param_add_rows(): bool {
-        return !empty(optional_param(self::PARAM_ADD_ROWS, '', PARAM_TEXT));
+        return $nrmatrixdims;
     }
 
     /**
