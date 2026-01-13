@@ -168,12 +168,11 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      * @throws dml_exception
      */
     public function start_attempt(question_attempt_step $step, $variant): void {
-        global $PAGE;
         $this->order = array_keys($this->rows);
         if ($this->shuffle_answers()) {
             shuffle($this->order);
         }
-        $this->write_data($step);
+        $this->write_order_data($step);
     }
 
     /**
@@ -222,7 +221,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      * @return void
      * @throws coding_exception
      */
-    protected function write_data(question_attempt_step $step): void {
+    protected function write_order_data(question_attempt_step $step): void {
         $step->set_qt_var(self::KEY_ROWS_ORDER, implode(',', $this->order));
     }
 
@@ -266,7 +265,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
             if ($this->shuffle_answers()) {
                 shuffle($this->order);
             }
-            $this->write_data($step); // Todo: Does this solves https://github.com/ndunand/moodle-qtype_matrix/issues/31 ?
+            $this->write_order_data($step);
         }
     }
 
@@ -275,7 +274,6 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      * @return array
      * @throws coding_exception
      */
-    // FIXME: Should be callable with null to just try to return the current order
     public function get_order(question_attempt $qa): array {
         $this->init_order($qa);
         return $this->order;
