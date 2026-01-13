@@ -90,50 +90,25 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
      * @return void
      * @throws dml_exception
      */
-    public function process_col($data): void {
-        global $DB;
-        $data = (object) $data;
-        $oldid = $data->id;
-
-        $oldmatrixid = $this->get_old_parentid('matrix');
-        $newmatrixid = $this->get_new_parentid('matrix');
-        if (!$newmatrixid) {
-            return;
-        }
-
-        if ($this->is_question_created()) {
-            $data->matrixid = $newmatrixid;
-            $newitemid = $DB->insert_record('qtype_matrix_cols', $data);
-        } else {
-            $originalrecords = $DB->get_records('qtype_matrix_cols', ['matrixid' => $newmatrixid]);
-            foreach ($originalrecords as $record) {
-                if ($data->shorttext == $record->shorttext) { // Todo: this looks dirty to me!
-                    $newitemid = $record->id;
-                }
-            }
-        }
-        if (!isset($newitemid)) {
-            $info = new stdClass();
-            $info->filequestionid = $oldmatrixid;
-            $info->dbquestionid = $newmatrixid;
-            $info->answer = $data->shorttext;
-            throw new restore_step_exception('error_question_answers_missing_in_db', $info);
-        } else {
-            $this->set_mapping('col', $oldid, $newitemid);
-        }
+    public function process_row($data): void {
+        $this->process_dim($data, true);
     }
 
     /**
-     * Process the qtype/rows/row element
+     * Process the qtype/cols/col element.
      *
      * @param $data
      * @return void
      * @throws dml_exception
      */
-    public function process_row($data): void {
+    public function process_col($data): void {
+        $this->process_dim($data, false);
+    }
+
+    private function process_dim($backupdata, bool $isrow): void {
         global $DB;
-        $data = (object) $data;
-        $oldid = $data->id;
+        $backupdata = (object) $backupdata;
+        $oldid = $backupdata->id;
 
         $oldmatrixid = $this->get_old_parentid('matrix');
         $newmatrixid = $this->get_new_parentid('matrix');
@@ -141,13 +116,17 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
             return;
         }
 
+        $dim = $isrow ? 'row' : 'col';
+        $dimtable = $isrow ? 'qtype_matrix_rows' : 'qtype_matrix_cols';
+        $newitemid = 0;
         if ($this->is_question_created()) {
-            $data->matrixid = $newmatrixid;
-            $newitemid = $DB->insert_record('qtype_matrix_rows', $data);
+            $backupdata->matrixid = $newmatrixid;
+            $newitemid = $DB->insert_record($dimtable, $backupdata);
         } else {
-            $originalrecords = $DB->get_records('qtype_matrix_rows', ['matrixid' => $newmatrixid]);
+            // FIXME: It isn't ensured that 2 rows/cols don't have the same shorttext right now.
+            $originalrecords = $DB->get_records($dimtable, ['matrixid' => $newmatrixid]);
             foreach ($originalrecords as $record) {
-                if ($data->shorttext == $record->shorttext) { // Todo: this looks dirty to me!
+                if ($backupdata->shorttext == $record->shorttext) {
                     $newitemid = $record->id;
                 }
             }
@@ -156,10 +135,10 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
             $info = new stdClass();
             $info->filequestionid = $oldmatrixid;
             $info->dbquestionid = $newmatrixid;
-            $info->answer = $data->shorttext;
+            $info->answer = $backupdata->shorttext;
             throw new restore_step_exception('error_question_answers_missing_in_db', $info);
         } else {
-            $this->set_mapping('row', $oldid, $newitemid);
+            $this->set_mapping($dim, $oldid, $newitemid);
         }
     }
 
