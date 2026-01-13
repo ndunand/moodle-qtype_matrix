@@ -19,8 +19,7 @@
  *
  */
 use qtype_matrix\local\qtype_matrix_grading;
-use qtype_matrix\local\question_cleaner;
-use qtype_matrix\local\question_matrix_store;
+use qtype_matrix\db\question_matrix_store;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -33,6 +32,35 @@ require_once($CFG->libdir . '/questionlib.php');
  * Pretty simple concept - a matrix with a number of different grading methods and options.
  */
 class qtype_matrix extends question_type {
+
+    public const DEFAULT_USEDNDUI = false;
+
+    public const DEFAULT_MULTIPLE = false;
+
+    public const DEFAULT_SHUFFLEANSWERS = true;
+
+    public static function clean_data($questiondata, bool $useoptions = false) {
+        $datasource = $questiondata;
+        if ($useoptions) {
+            $questiondata->options ??= new stdClass();
+            $datasource = $questiondata->options;
+        }
+
+        if (
+            !isset($datasource->grademethod)
+            || !is_string($datasource->grademethod)
+            || !in_array($datasource->grademethod, qtype_matrix_grading::VALID_GRADINGS)
+        ) {
+            $datasource->grademethod = qtype_matrix_grading::default_grading()->get_name();
+        }
+        $datasource->multiple = (bool)($datasource->multiple ?? self::DEFAULT_MULTIPLE);
+        $datasource->shuffleanswers = (bool)($datasource->shuffleanswers ?? self::DEFAULT_SHUFFLEANSWERS);
+        $datasource->usedndui = (bool)($datasource->usedndui ?? self::DEFAULT_USEDNDUI);
+        $datasource->rows ??= [];
+        $datasource->cols ??= [];
+        $datasource->weights ??= [[]];
+        return $questiondata;
+    }
 
     /**
      * @return qtype_matrix_grading[]
@@ -91,7 +119,7 @@ class qtype_matrix extends question_type {
      */
     public function get_question_options($questiondata): bool {
         parent::get_question_options($questiondata);
-        $questiondata = question_cleaner::clean_data($questiondata, true);
+        $questiondata = self::clean_data($questiondata, true);
 
         $matrix = self::retrieve_matrix($questiondata->id);
         $questiondata->options->rows = $matrix->rows ?? [];
@@ -364,24 +392,28 @@ class qtype_matrix extends question_type {
         $fromform->multiple = (bool) $format->trans_single($format->getpath(
             $data,
             ['#', 'multiple', 0, '#'],
-            question_cleaner::DEFAULT_MULTIPLE)
+            self::DEFAULT_MULTIPLE)
         );
 
         // Shuffleanswers.
         $fromform->shuffleanswers = (bool) $format->trans_single($format->getpath(
             $data,
             ['#', 'shuffleanswers', 0, '#'],
-            question_cleaner::DEFAULT_SHUFFLEANSWERS)
+            self::DEFAULT_SHUFFLEANSWERS)
         );
 
         // Use_dnd_ui.
+        // FIXME: Do we still need this or can we just drop it?
+        $olddnduivalue = (bool) $format->trans_single($format->getpath(
+            $data,
+            ['#', 'use_dnd_ui', 0, '#'],
+            self::DEFAULT_USEDNDUI)
+        );
         $fromform->usedndui = (bool) $format->trans_single($format->getpath(
             $data,
             ['#', 'usedndui', 0, '#'],
-            question_cleaner::DEFAULT_USEDNDUI)
+            $olddnduivalue)
         );
-        // Todo: check if we translated this corrent!
-        // TODO: Will we need a "old export" workaround for the old use_dnd_ui option name?
 
         // Rows.
         // FIXME: Testing revealed this is unnecessary here

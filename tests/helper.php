@@ -21,12 +21,13 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 
-use qtype_matrix\local\question_cleaner;
 use qtype_matrix\local\qtype_matrix_grading;
 use qtype_matrix\local\grading\all;
 use core_question\local\bank\question_version_status;
 
-require_once $CFG->dirroot.'/question/engine/tests/helpers.php';
+require_once $CFG->dirroot . '/question/engine/tests/helpers.php';
+require_once $CFG->dirroot . '/question/type/matrix/question.php';
+require_once $CFG->dirroot . '/question/type/matrix/questiontype.php';
 
 /**
  * Test helper class for the matrix question type.
@@ -220,9 +221,9 @@ class qtype_matrix_test_helper extends question_test_helper {
         $question->questiontext = 'nondefault';
 
         $question->grademethod = all::get_name();
-        $question->multiple = !question_cleaner::DEFAULT_MULTIPLE;
-        $question->shuffleanswers = !question_cleaner::DEFAULT_SHUFFLEANSWERS;
-        $question->usedndui = !question_cleaner::DEFAULT_USEDNDUI;
+        $question->multiple = !qtype_matrix::DEFAULT_MULTIPLE;
+        $question->shuffleanswers = !qtype_matrix::DEFAULT_SHUFFLEANSWERS;
+        $question->usedndui = !qtype_matrix::DEFAULT_USEDNDUI;
         return $question;
     }
 
@@ -269,9 +270,9 @@ class qtype_matrix_test_helper extends question_test_helper {
         $question->qtype = question_bank::get_qtype('matrix');
 
         $question->grademethod = qtype_matrix_grading::default_grading()->get_name();
-        $question->multiple = question_cleaner::DEFAULT_MULTIPLE;
-        $question->shuffleanswers = question_cleaner::DEFAULT_SHUFFLEANSWERS;
-        $question->usedndui = question_cleaner::DEFAULT_USEDNDUI;
+        $question->multiple = qtype_matrix::DEFAULT_MULTIPLE;
+        $question->shuffleanswers = qtype_matrix::DEFAULT_SHUFFLEANSWERS;
+        $question->usedndui = qtype_matrix::DEFAULT_USEDNDUI;
         $matrix = $this->generate_matrix_question_matrix();
         $question->rows = $matrix->rows;
         $question->cols = $matrix->cols;

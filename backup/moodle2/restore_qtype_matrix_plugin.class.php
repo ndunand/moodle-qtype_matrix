@@ -16,10 +16,13 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-use qtype_matrix\local\question_cleaner;
-
 global $CFG;
-require_once($CFG->dirroot . '/question/engine/bank.php');
+
+require_once $CFG->dirroot . '/question/engine/bank.php';
+require_once $CFG->dirroot . '/question/type/matrix/question.php';
+require_once $CFG->dirroot . '/question/type/matrix/questiontype.php';
+
+use qtype_matrix\db\question_matrix_store;
 
 /**
  * restore plugin class that provides the necessary information
@@ -81,7 +84,7 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
     }
 
     /**
-     * Process the qtype/cols/col
+     * Process the qtype/rows/row element.
      *
      * @param $data
      * @return void
@@ -275,7 +278,7 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
      */
     public static function convert_backup_to_questiondata(array $backupdata): stdClass {
         $questiondata = parent::convert_backup_to_questiondata($backupdata);
-        $questiondata = question_cleaner::clean_data($questiondata, true);
+        $questiondata = qtype_matrix::clean_data($questiondata, true);
         // Add the matrix-specific options.
         if (isset($backupdata['plugin_qtype_matrix_question']['matrix'][0])) {
             $matrix = $backupdata['plugin_qtype_matrix_question']['matrix'][0];
