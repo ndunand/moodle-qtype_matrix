@@ -57,8 +57,6 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
         $data = (object) $data;
         $oldid = $data->id;
 
-        // Todo: check import of version moodle1 data.
-
         if ($this->is_question_created()) {
             $qtypeobj = question_bank::get_qtype($this->pluginname);
             $data->{$qtypeobj->questionid_column_name()} = $this->get_new_parentid('question');
@@ -155,6 +153,8 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
         $key = $data->colid . 'x' . $data->rowid;
         $data->colid = $this->get_mappingid('col', $data->colid);
         $data->rowid = $this->get_mappingid('row', $data->rowid);
+        // This prevents bad data to arrive in the database. Currently the only useful weight values are 1 or 0.
+        $data->weight = (int) (bool) $data->weight;
         $newitemid = $DB->insert_record('qtype_matrix_weights', $data);
         $this->set_mapping('weight' . $key, $oldid, $newitemid);
     }
@@ -258,7 +258,7 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
         $questiondata = qtype_matrix::clean_data($questiondata, true);
         // Add the matrix-specific options.
         if (isset($backupdata['plugin_qtype_matrix_question']['matrix'][0])) {
-            $matrix = $backupdata['plugin_qtype_matrix_question']['matrix'][0];
+            $matrix = &$backupdata['plugin_qtype_matrix_question']['matrix'][0];
 
             // Process rows to correct format
             $rowids = [];
@@ -326,22 +326,6 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
         }
 
         return $questiondata;
-    }
-
-    /**
-     * Remove excluded fields from the questiondata structure. We use this function to remove the
-     * id and questionid fields for the weights, because they cannot be removed via the default
-     * mechanism due to the two-dimensional array. Once this is done, we call the parent function
-     * to remove the necessary fields.
-     *
-     * @param stdClass $questiondata
-     * @param array $excludefields Paths to the fields to exclude.
-     * @return stdClass The $questiondata with excluded fields removed.
-     */
-    public static function remove_excluded_question_data(stdClass $questiondata, array $excludefields = []): stdClass {
-        unset($questiondata->hints);
-
-        return parent::remove_excluded_question_data($questiondata, $excludefields);
     }
 
     #[\Override]
