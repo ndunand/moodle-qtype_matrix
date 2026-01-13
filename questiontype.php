@@ -203,7 +203,7 @@ class qtype_matrix extends question_type {
     /**
      * Saves question-type specific options.
      * This is called by {@link save_question()} to save the question-type specific data.
-     *
+     * This is always called after a new question has been created and saved
      * @param object $fromform This holds the information from the editing form, it is not a standard question object.
      * @return object $result->error or $result->noticeyesno or $result->notice
      * @throws dml_exception
@@ -243,7 +243,7 @@ class qtype_matrix extends question_type {
 
         foreach ($rowids as $rowindex => $rowid) {
             foreach ($colids as $colindex => $colid) {
-                $value = $weights[$rowindex][$colindex];
+                $value = $weights[$rowindex][$colindex] ?? false;
                 if ($value) {
                     $weight = (object) [
                         'rowid' => $rowid,
