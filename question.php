@@ -472,9 +472,10 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      */
     public function summarise_response(array $response): string {
         $result = [];
+        $colids = array_keys($this->cols);
         foreach ($this->order as $rowindex => $rowid) {
             $row = $this->rows[$rowid];
-            foreach (array_keys($this->cols) as $colindex => $colid) {
+            foreach ($colids as $colindex => $colid) {
                 if ($this->response($response, $rowindex, $colindex)) {
                     $result[] = $row->shorttext.': '.$this->cols[$colid]->shorttext;
                 }
@@ -520,8 +521,9 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      */
     public function get_correct_response(): array {
         $response = [];
+        $colids = array_keys($this->cols);
         foreach ($this->order as $rowindex => $rowid) {
-            foreach (array_keys($this->cols) as $colindex => $colid) {
+            foreach ($colids as $colindex => $colid) {
                 if ($this->weight($rowid, $colid) > 0) {
                     $key = $this::responsekey($rowindex, $colindex);
                     $response[$key] = true;

@@ -134,7 +134,8 @@ Expired question: This can happen in preview mode.
 {{/multiple}}
 {{^multiple}}
             <input type="radio" name="{{ formfieldname }}" value="{{ colindex }}"{{#isreadonly}} disabled="disabled"{{/isreadonly}}{{#ischecked}} checked="checked"{{/ischecked}} aria-label="{{{ arialabel }}}">
-            <input type="hidden" id="{{ uniqid }}_{{ cellclass }}" name="{{ responseparamname }}" value="{{#ischecked}}1{{/ischecked}}{{^ischecked}}0{{/ischecked}}">
+            <input hidden type="checkbox" id="{{ uniqid }}_{{ cellclass }}" name="{{ responseparamname }}" value="1"{{#ischecked}} checked="checked"{{/ischecked}} aria-hidden="true">
+            <label hidden for="{{ uniqid }}_{{ cellclass }}">{{ cellclass }}</label>
 {{/multiple}}
 {{#showfeedback}}
             {{{ feedbackimage }}}
