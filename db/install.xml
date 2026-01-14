@@ -52,6 +52,8 @@
                        COMMENT="longer text to explain shorttext."/>
                 <FIELD NAME="feedback" TYPE="text" LENGTH="big" NOTNULL="false" SEQUENCE="false"
                        COMMENT="feedback."/>
+                <FIELD NAME="autopass" TYPE="int" LENGTH="1" NOTNULL="true" UNSIGNED="true" DEFAULT="0"
+                       SEQUENCE="false" COMMENT="Automatically give point when grading the row"/>
             </FIELDS>
             <KEYS>
                 <KEY NAME="primary" TYPE="primary" FIELDS="id"/>

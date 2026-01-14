@@ -41,6 +41,8 @@ class qtype_matrix extends question_type {
 
     public const DEFAULT_SHUFFLEANSWERS = true;
 
+    public const DEFAULT_ROW_AUTOPASS = false;
+
     public static function clean_data($questiondata, bool $useoptions = false) {
         $datasource = $questiondata;
         if ($useoptions) {

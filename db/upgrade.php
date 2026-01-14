@@ -182,5 +182,21 @@ function xmldb_qtype_matrix_upgrade(int $oldversion): bool {
         $transaction->allow_commit();
         upgrade_plugin_savepoint(true, $stepdatamigrationversion, 'qtype', 'matrix');
     }
+    if ($oldversion < 2025093005) {
+        // Add the override possibility for grading rows.
+        $table = new xmldb_table('qtype_matrix_rows');
+        // Adding fields to table matrix.
+        $autopassfield = $table->add_field(
+            'autopass',
+            XMLDB_TYPE_INTEGER,
+            '2',
+            null,
+            XMLDB_NOTNULL,
+            null,
+            (int) qtype_matrix::DEFAULT_ROW_AUTOPASS
+        );
+        $dbman->add_field($table, $autopassfield);
+        upgrade_plugin_savepoint(true, 2025093005, 'qtype', 'matrix');
+    }
     return true;
 }
