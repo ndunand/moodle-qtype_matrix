@@ -43,67 +43,81 @@ Kprime questions consist of an item stem and four corresponding answer statement
 </ul>';
 }
 
-
 $string['pluginname_link'] = 'question/type/matrix';
+$string['privacy:metadata'] = 'The Kprime/Matrix Question Type plugin does not store any personal data.';
 
-// Gradings.
+// Edit form
+$string['multipleallowed'] = 'Allow multiple responses per answer statement?';
+
+$string['grademethod'] = 'Scoring method';
 $string['all'] = 'Subpoints';
 $string['kany'] = 'Kprime (at least one correct, no wrong answer)  ';
 $string['kprime'] = 'Kprime1/0';
 $string['difference'] = 'Difference';
 
-// Strings.
-$string['true'] = 'True';
-$string['false'] = 'False';
+$string['use_dnd_ui'] = 'Use drag &amp; drop ?';
 
-// Form.
-$string['multipleallowed'] = 'Allow multiple responses per answer statement?';
+$string['shuffleanswers'] = 'Shuffle answer statements?';
+$string['shuffleanswers_help'] = 'If enabled, the order of the answer statements is randomly shuffled for each attempt, provided that “Shuffle within questions” in the activity settings is also enabled.';
 
-$string['grademethod'] = 'Scoring method';
+// Edit form, matrix start
+$string['matrixheader'] = 'Response matrix';
 
-$string['rowsheader'] = 'Matrix rows';
-$string['rowsheader_desc'] = '<p>Shorttext will be used when it\'s present, with the longer text as a tooltip.<br />Be mindful of how this will be displayed</p>
-<p>Students can select multiple or single columns per row, depending on how the question has been configured, and each row receives a grade, defined by one of the grading methods.</p>
-<p>The final grade for the question is an average of their grades for each of the rows with the exeption of the Kprime type where all answers have to be correct.</p>';
+$string['refresh_matrix'] = 'Refresh response matrix';
 
+// Rows
 $string['rows_shorttext'] = 'Answer statement';
 $string['rows_description'] = 'Description';
 $string['rows_feedback'] = 'Feedback';
 
-$string['colsheader'] = 'Matrix columns';
-$string['colsheader_desc'] = '<p>Shorttext will be used when it\'s present, with the longer text as a tooltip.<br />Be mindful of how this will be displayed.</p>
-<p>Students can select multiple or single columns per row, depending on how the question has been configured, and each row receives a grade, defined by one of the grading methods.</p>
-<p>The final grade for the question is an average of their grades for each of the rows with the exeption of the Kprime type where all answers have to be correct.</p>';
-
+// Cols
 $string['cols_shorttext'] = 'Response';
 $string['cols_description'] = 'Description';
+// Default values for new question cols
+$string['true'] = 'True';
+$string['false'] = 'False';
+// Autopass grade for row
+$string['editform_colheader_autopass'] = 'Auto pass row';
 
-$string['refresh_matrix'] = 'Refresh response matrix';
-
-$string['matrixheader'] = 'Response matrix';
-
+// Form validation
 $string['mustdefine1by1'] = 'You must define at least one answer statement and two responses';
-$string['mustaddupto100'] = 'The sum of all non negative weights in each row must be 100%';
-$string['weightednomultiple'] = 'It doesn\'t make sense to choose weighted grading with multiple answers not allowed';
 $string['oneanswerperrow'] = 'You must provide an answer for each row';
+// Edit form, matrix end
 
-$string['shuffleanswers'] = 'Shuffle answer statements?';
-$string['shuffleanswers_help'] = 'If enabled, the order of the answer statements is randomly shuffled for each attempt, provided that “Shuffle within questions” in the activity settings is also enabled.';
+// Global options
 $string['show_non_kprime_gui'] = 'Show graphical user interface for options which are not strictly kprime matrix options (more than four rows, more than two columsn, multiple options).';
-
 $string['allow_dnd_ui'] = 'Allow usage of Drag&Drop UI';
 $string['allow_dnd_ui_descr'] = 'If allowed, the teachers will have the possibility to enable the Drag&Drop feature to any Matrix questions';
-$string['use_dnd_ui'] = 'Use drag &amp; drop ?';
-$string['privacy:metadata'] = 'The Kprime/Matrix Question Type plugin does not store any personal data.';
-$string['correctresponse'] = 'Correct Response';
-
-// Attempt syntax migration
-$string['attemptdatamigration_baddata'] = 'Matrix question attempt contains bad data and cannot be migrated';
+$string['allow_autopass'] = 'Allow automatically passing grading rows in attempts';
+$string['allow_autopass_desc'] = 'Sometimes you identify badly worded questions/rows after the fact'
+    . ' and just want to quickly give everyone a point.';
 
 // Question display
 $string['cellarialabel'] = 'Select possible answer {$a->answershorttext} for item {$a->itemshorttext}';
+$string['correctresponse'] = 'Correct Response';
 
 // Regrading
 $string['regrade_different_nr_rows'] = 'Cannot regrade because question versions have different number of rows';
 $string['regrade_different_nr_cols'] = 'Cannot regrade because question versions have different number of columns';
 $string['regrade_switching_multiple_too_many_correct'] = 'Cannot regrade because the nr of answers per row is different';
+
+// Attempt syntax migration
+$string['attemptdatamigration_baddata'] = 'Matrix question attempt contains bad data and cannot be migrated';
+
+// Unused section
+// FIXME: rowsheader strings are not used right now.
+$string['rowsheader'] = 'Matrix rows';
+$string['rowsheader_desc'] = '<p>Shorttext will be used when it\'s present, with the longer text as a tooltip.<br />Be mindful of how this will be displayed</p>
+<p>Students can select multiple or single columns per row, depending on how the question has been configured, and each row receives a grade, defined by one of the grading methods.</p>
+<p>The final grade for the question is an average of their grades for each of the rows with the exeption of the Kprime type where all answers have to be correct.</p>';
+
+// FIXME: colsheader strings are not used right now.
+$string['colsheader'] = 'Matrix columns';
+$string['colsheader_desc'] = '<p>Shorttext will be used when it\'s present, with the longer text as a tooltip.<br />Be mindful of how this will be displayed.</p>
+<p>Students can select multiple or single columns per row, depending on how the question has been configured, and each row receives a grade, defined by one of the grading methods.</p>
+<p>The final grade for the question is an average of their grades for each of the rows with the exeption of the Kprime type where all answers have to be correct.</p>';
+// FIXME: mustaddupto100 string not used right now.
+$string['mustaddupto100'] = 'The sum of all non negative weights in each row must be 100%';
+// FIXME: weightednomultiple string not used right now.
+$string['weightednomultiple'] = 'It doesn\'t make sense to choose weighted grading with multiple answers not allowed';
+

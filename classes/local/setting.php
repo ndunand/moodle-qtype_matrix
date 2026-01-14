@@ -39,6 +39,14 @@ class setting {
     }
 
     /**
+     * @return bool
+     * @throws dml_exception
+     */
+    public static function allow_autopass(): bool {
+        return self::get('allow_autopass');
+    }
+
+    /**
      * Not sure how to type this -> should this be used outside to? did not found any class extern calls?
      *
      * @param string $name
