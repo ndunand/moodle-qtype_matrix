@@ -95,6 +95,7 @@ $string['allow_autopass_desc'] = 'Sometimes you identify badly worded questions/
 // Question display
 $string['cellarialabel'] = 'Select possible answer {$a->answershorttext} for item {$a->itemshorttext}';
 $string['correctresponse'] = 'Correct Response';
+$string['autopassingrow'] = 'Everyone receives full points for this row';
 
 // Regrading
 $string['regrade_different_nr_rows'] = 'Cannot regrade because question versions have different number of rows';

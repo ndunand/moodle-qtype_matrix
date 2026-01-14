@@ -11,6 +11,7 @@
         "isreadonly": true,
         "usedndui": false,
         "showfeedback": false,
+        "hasautopassrows": true,
         "expiredquestion": false,
         "errormessage": "",
         "questiontext": "The question text for the question",
@@ -28,12 +29,12 @@
         ],
         "rows": [
             {
-                "lastrow": false,
                 "header": {
                     "shorttext": "Short text for the first row item",
                     "descriptionid": "rowheader1",
                     "description": "Longer description for the first row item"
                 },
+                "rowcssclasses": "autopassrow",
                 "cells": [
                     {
                         "cellclass": "row0col0",
@@ -56,15 +57,16 @@
                         "feedbackimage": "ICONHTML"
                     }
                 ],
-                "feedback": "ICONHTML_AND_FEEDBACK"
+                "feedback": "ICONHTML_AND_FEEDBACK",
+                "autopassrow": true
             },
             {
-                "lastrow": true,
                 "header": {
                     "shorttext": "Short text for the second row item",
                     "descriptionid": "rowheader2",
                     "description": "Longer description for the second row item"
                 },
+                "rowcssclasses": "lastrow",
                 "cells": [
                     {
                         "cellclass": "row1col0",
@@ -87,7 +89,8 @@
                         "feedbackimage": "ICONHTML"
                     }
                 ],
-                "feedback": "ICONHTML_AND_FEEDBACK"
+                "feedback": "ICONHTML_AND_FEEDBACK",
+                "autopassrow": false
             }
         ]
     }
@@ -114,11 +117,14 @@ Expired question: This can happen in preview mode.
 {{#showfeedback}}
             <td></td>
 {{/showfeedback}}
+{{#hasautopassrows}}
+            <td></td>
+{{/hasautopassrows}}
         </tr>
     </thead>
     <tbody>
 {{#rows}}
-    <tr{{#lastrow}} class="lastrow"{{/lastrow}}>
+    <tr{{#rowcssclasses}} class="{{ rowcssclasses }}"{{/rowcssclasses}}>
 {{#header}}
         <th scope="row">
             <span class="title"{{#description}} aria-details="{{ descriptionid }}"{{/description}}>{{{ shorttext }}}</span>
@@ -145,6 +151,9 @@ Expired question: This can happen in preview mode.
 {{#showfeedback}}
         <td class="feedbackcell">{{{ feedback }}}</td>
 {{/showfeedback}}
+{{#hasautopassrows}}
+        <td>{{#autopassrow}}{{#str}}autopassingrow, qtype_matrix{{/str}}{{/autopassrow}}</td>
+{{/hasautopassrows}}
     </tr>
 {{/rows}}
     </tbody>

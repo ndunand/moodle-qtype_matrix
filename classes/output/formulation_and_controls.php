@@ -36,6 +36,7 @@ class formulation_and_controls implements renderable, templatable {
         $context['isreadonly'] = $this->options->readonly;
         $context['usedndui'] = (setting::allow_dnd_ui() && $question->usedndui);
         $context['showfeedback'] = $showfeedback;
+        $context['hasautopassrows'] = $question->has_autopass_rows();
         // FIXME: I think this (expiredquestion) is no longer possible in Moodle
         // TODO: this is somehow possible since a preview is not a real attempt and therefore it can update the
         // question and it will take away the rows and this will trigger an error her so we skip these.
@@ -58,6 +59,17 @@ class formulation_and_controls implements renderable, templatable {
             $rowcontext = [];
             $row = $question->rows[$rowid];
             $rowcontext['header'] = $this->headercontext($row);
+            $rowcssclasses = [];
+            if ($showfeedback && $question->autopass_row($rowindex)) {
+                $rowcssclasses[] = 'autopassrow';
+                $rowcontext['autopassrow'] = true;
+            }
+            if ($rowindex == ($nrrows - 1)) {
+                $rowcssclasses[] = 'lastrow';
+            }
+            if ($rowcssclasses) {
+                $rowcontext['rowcssclasses'] = implode(' ', $rowcssclasses);
+            }
             $rowcontext['cells'] = [];
             $colindex = 0;
             foreach ($question->cols as $colid => $col) {
@@ -96,9 +108,6 @@ class formulation_and_controls implements renderable, templatable {
                 $feedback = $row->feedback['text'];
                 $feedback = strip_tags($feedback) ? format_text($feedback) : '';
                 $rowcontext['feedback'] = $output->feedback_image($rowgrade) . $feedback;
-            }
-            if ($rowindex == ($nrrows - 1)) {
-                $rowcontext['lastrow'] = true;
             }
             $context['rows'][] = $rowcontext;
         }

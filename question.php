@@ -402,6 +402,19 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
     }
 
     /**
+     * Checks if any row in this question version automatically receives a passing grade.
+     * @return bool
+     */
+    public function has_autopass_rows(): bool {
+        foreach ($this->rows as $row) {
+            if ($row->autopass) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Grade a response to the question, returning a fraction between
      * get_min_fraction() and 1.0, and the corresponding {@link question_state}
      * right, partial or wrong.

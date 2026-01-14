@@ -196,7 +196,7 @@ class qtype_matrix extends question_type {
             ];
             if ($isrow) {
                 $dimrecord->feedback = $fromform->{'rows_feedback'}[$i]['text'];
-                $dimrecord->autopass = $fromform->{'rows_autopass'}[$i];
+                $dimrecord->autopass = $fromform->{'rows_autopass'}[$i] ?? false;
             }
             $newdimid = $store->{'insert_matrix_'.$dim}($dimrecord);
             if ($newdimid) {
