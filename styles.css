@@ -26,6 +26,9 @@
 .que.matrix .formulation table.matrix tbody td {
     border-width: 1px;
 }
+.que.matrix .formulation table.matrix tbody tr.autopassrow {
+    background-color: lightgreen;
+}
 .que.matrix .formulation table.matrix td,
 .que.matrix .formulation table.matrix th {
     text-align: left;
@@ -244,7 +247,7 @@
     padding: 0;
     line-height: 1em;
 }
-/* modifications nécessaires à l'affichage correct du mode édition avec le theme_unil */
+/* Modifications necessary for the correct display of edit mode with theme_unil */
 body#page-question-type-matrix #fgroup_id_matrix fieldset {
     margin-left: 0;
 }

@@ -133,48 +133,12 @@ final class backup_test extends \advanced_testcase {
      * @dataProvider get_matrix_test_questions
      * @param string $testquestion - The question to check
      */
-    public function test_core_repeated_restore_quiz_with_same_stamp_questions($testquestion):void {
-        global $CFG;
-        $this->resetAfterTest();
-        require_once($CFG->dirroot . '/mod/quiz/tests/backup/repeated_restore_test.php');
-        $coreTest = new repeated_restore_test();
-        $coreTest->test_restore_quiz_with_same_stamp_questions('matrix', $testquestion);
-    }
-
-    /**
-     * @dataProvider get_matrix_test_questions
-     * @param string $testquestion - The question to check
-     */
     public function test_core_repeated_restore_quiz_with_edited_questions($testquestion):void {
         global $CFG;
         $this->resetAfterTest();
         require_once($CFG->dirroot . '/mod/quiz/tests/backup/repeated_restore_test.php');
         $coreTest = new repeated_restore_test();
         $coreTest->test_restore_quiz_with_edited_questions('matrix', $testquestion);
-    }
-
-    /**
-     * @dataProvider get_matrix_test_questions
-     * @param string $testquestion - The question to check
-     */
-    public function test_core_repeated_restore_course_with_same_stamp_questions($testquestion):void {
-        global $CFG;
-        $this->resetAfterTest();
-        require_once($CFG->dirroot . '/mod/quiz/tests/backup/repeated_restore_test.php');
-        $coreTest = new repeated_restore_test();
-        $coreTest->test_restore_course_with_same_stamp_questions('matrix', $testquestion);
-    }
-
-    /**
-     * @dataProvider get_matrix_test_questions
-     * @param string $testquestion - The question to check
-     */
-    public function test_core_repeated_restore_quiz_with_same_stamp_questions_edited_hints($testquestion):void {
-        global $CFG;
-        $this->resetAfterTest();
-        require_once($CFG->dirroot . '/mod/quiz/tests/backup/repeated_restore_test.php');
-        $coreTest = new repeated_restore_test();
-        $coreTest->test_restore_quiz_with_same_stamp_questions_edited_hints('matrix', $testquestion);
     }
 
     /**

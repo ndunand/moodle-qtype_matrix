@@ -28,4 +28,8 @@ if ($ADMIN->fulltree) {
         new lang_string('allow_dnd_ui_descr', 'qtype_matrix'), '0',
         '1', '0'));
 
+    $settings->add(new admin_setting_configcheckbox('qtype_matrix/allow_autopass',
+        new lang_string('allow_autopass', 'qtype_matrix'),
+        new lang_string('allow_autopass_desc', 'qtype_matrix'), '0',
+        '1', '0'));
 }

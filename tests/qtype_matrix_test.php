@@ -16,7 +16,6 @@
 
 namespace qtype_matrix;
 
-use qtype_matrix\local\question_cleaner;
 use qtype_matrix\local\qtype_matrix_grading;
 use qtype_matrix_test_helper;
 use qtype_matrix;
@@ -29,10 +28,8 @@ use test_question_maker;
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
-require_once $CFG->dirroot . '/question/engine/tests/helpers.php';
-require_once $CFG->dirroot . '/question/format/xml/format.php';
-require_once $CFG->dirroot . '/question/type/matrix/questiontype.php';
 require_once $CFG->dirroot . '/question/type/matrix/tests/helper.php';
+require_once $CFG->dirroot . '/question/format/xml/format.php';
 
 /**
  * Unit tests for the matrix question definition class.
@@ -283,12 +280,16 @@ class qtype_matrix_test extends advanced_testcase {
             $foundrowids[] = $weightrecord->rowid;
             $foundcombos[] = [$weightrecord->rowid, $weightrecord->colid];
         }
-        foreach ($typequestion->weights as $rowindex => $row) {
-            foreach ($row as $colindex => $colvalue) {
+        $indicedtestquestionrows = array_keys($typequestion->rows);
+        $indicedtestquestioncols = array_keys($typequestion->cols);
+        foreach ($typequestion->weights as $rowid => $row) {
+            $savedrowid = $indicedrowids[array_search($rowid, $indicedtestquestionrows)];
+            foreach ($row as $colid => $colvalue) {
+                $savedcolid = $indicedcolids[array_search($colid, $indicedtestquestioncols)];
                 if ($colvalue > 0) {
-                    $this->assertContainsEquals([$indicedrowids[$rowindex], $indicedcolids[$colindex]], $foundcombos);
+                    $this->assertContainsEquals([$savedrowid, $savedcolid], $foundcombos);
                 } else {
-                    $this->assertNotContainsEquals([$indicedrowids[$rowindex], $indicedcolids[$colindex]], $foundcombos);
+                    $this->assertNotContainsEquals([$savedrowid, $savedcolid], $foundcombos);
                 }
             }
         }
@@ -353,7 +354,7 @@ class qtype_matrix_test extends advanced_testcase {
             'multiple, first col correct' => [
                 true,
                 [
-                    'cell0_0' => 1
+                    'r0c0' => 1
                 ],
                 [
                     0 => [
@@ -364,8 +365,8 @@ class qtype_matrix_test extends advanced_testcase {
             'multiple, two cols correct' => [
                 true,
                 [
-                    'cell0_0' => 1,
-                    'cell0_1' => 1
+                    'r0c0' => 1,
+                    'r0c1' => 1
                 ],
                 [
                     0 => [
@@ -377,7 +378,7 @@ class qtype_matrix_test extends advanced_testcase {
             'single, first col correct' => [
                 false,
                 [
-                    'cell0' => 0
+                    'r0' => 0
                 ],
                 [
                     0 => [
@@ -389,8 +390,8 @@ class qtype_matrix_test extends advanced_testcase {
 //            'single, out of range' => [
 //                false,
 //                [
-//                    'cell0' => 21,
-//                    'cell21' => 0
+//                    'r0' => 21,
+//                    'r21' => 0
 //                ],
 //                [
 //                ],
@@ -398,8 +399,8 @@ class qtype_matrix_test extends advanced_testcase {
             'multiple, out of range' => [
                 false,
                 [
-                    'cell0_21' => 1,
-                    'cell21_0' => 1,
+                    'r0c21' => 1,
+                    'r21c0' => 1,
                 ],
                 [
                 ],
@@ -434,22 +435,22 @@ class qtype_matrix_test extends advanced_testcase {
             $this->assertEquals('<p>col'.$colindex.'description</p>', $fromform->cols_description[$colindex]['text']);
             $this->assertEquals(FORMAT_HTML, $fromform->cols_description[$colindex]['format']);
         }
-        $this->assertEquals(0, $fromform->cell0);
-        $this->assertFalse(isset($fromform->cell0_0));
-        $this->assertFalse(isset($fromform->cell0_1));
-        $this->assertFalse(isset($fromform->cell0_2));
-        $this->assertEquals(1, $fromform->cell1);
-        $this->assertFalse(isset($fromform->cell1_0));
-        $this->assertFalse(isset($fromform->cell1_1));
-        $this->assertFalse(isset($fromform->cell1_2));
-        $this->assertEquals(2, $fromform->cell2);
-        $this->assertFalse(isset($fromform->cell2_0));
-        $this->assertFalse(isset($fromform->cell2_1));
-        $this->assertFalse(isset($fromform->cell2_2));
-        $this->assertEquals(0, $fromform->cell3);
-        $this->assertFalse(isset($fromform->cell3_0));
-        $this->assertFalse(isset($fromform->cell3_1));
-        $this->assertFalse(isset($fromform->cell3_2));
+        $this->assertEquals(0, $fromform->r0);
+        $this->assertFalse(isset($fromform->r0c0));
+        $this->assertFalse(isset($fromform->r0c1));
+        $this->assertFalse(isset($fromform->r0c2));
+        $this->assertEquals(1, $fromform->r1);
+        $this->assertFalse(isset($fromform->r1c0));
+        $this->assertFalse(isset($fromform->r1c1));
+        $this->assertFalse(isset($fromform->r1c2));
+        $this->assertEquals(2, $fromform->r2);
+        $this->assertFalse(isset($fromform->r2c0));
+        $this->assertFalse(isset($fromform->r2c1));
+        $this->assertFalse(isset($fromform->r2c2));
+        $this->assertEquals(0, $fromform->r3);
+        $this->assertFalse(isset($fromform->r3c0));
+        $this->assertFalse(isset($fromform->r3c1));
+        $this->assertFalse(isset($fromform->r3c2));
     }
 
     public function test_import_from_xml_nondefault_value_question():void {
@@ -487,22 +488,22 @@ class qtype_matrix_test extends advanced_testcase {
             }
             $this->assertEquals(FORMAT_HTML, $fromform->cols_description[$colindex]['format']);
         }
-        $this->assertEquals(1, $fromform->cell0_0);
-        $this->assertEquals(1, $fromform->cell0_1);
-        $this->assertEquals(1, $fromform->cell0_2);
-        $this->assertFalse(isset($fromform->cell0));
-        $this->assertEquals(1, $fromform->cell1_0);
-        $this->assertEquals(0, $fromform->cell1_1);
-        $this->assertEquals(1, $fromform->cell1_2);
-        $this->assertFalse(isset($fromform->cell1));
-        $this->assertEquals(0, $fromform->cell2_0);
-        $this->assertEquals(0, $fromform->cell2_1);
-        $this->assertEquals(1, $fromform->cell2_2);
-        $this->assertFalse(isset($fromform->cell2));
-        $this->assertEquals(1, $fromform->cell3_0);
-        $this->assertEquals(0, $fromform->cell3_1);
-        $this->assertEquals(0, $fromform->cell3_2);
-        $this->assertFalse(isset($fromform->cell3));
+        $this->assertEquals(1, $fromform->r0c0);
+        $this->assertEquals(1, $fromform->r0c1);
+        $this->assertEquals(1, $fromform->r0c2);
+        $this->assertFalse(isset($fromform->r0));
+        $this->assertEquals(1, $fromform->r1c0);
+        $this->assertFalse(isset($fromform->r1c1));
+        $this->assertEquals(1, $fromform->r1c2);
+        $this->assertFalse(isset($fromform->r1));
+        $this->assertFalse(isset($fromform->r2c0));
+        $this->assertFalse(isset($fromform->r2c1));
+        $this->assertEquals(1, $fromform->r2c2);
+        $this->assertFalse(isset($fromform->r2));
+        $this->assertEquals(1, $fromform->r3c0);
+        $this->assertFalse(isset($fromform->r3c1));
+        $this->assertFalse(isset($fromform->r3c2));
+        $this->assertFalse(isset($fromform->r3));
     }
 
     public function test_import_from_xml_missing_options_question():void {
@@ -512,9 +513,9 @@ class qtype_matrix_test extends advanced_testcase {
         $fromform = new \stdClass();
         $fromform = $this->qtype->import_from_xml($xml['question'], $fromform, $qformat);
         $this->assertEquals(qtype_matrix_grading::default_grading()->get_name(), $fromform->grademethod);
-        $this->assertEquals(question_cleaner::DEFAULT_MULTIPLE, $fromform->multiple);
-        $this->assertEquals(question_cleaner::DEFAULT_USEDNDUI, $fromform->usedndui);
-        $this->assertEquals(question_cleaner::DEFAULT_SHUFFLEANSWERS, $fromform->shuffleanswers);
+        $this->assertEquals(qtype_matrix::DEFAULT_MULTIPLE, $fromform->multiple);
+        $this->assertEquals(qtype_matrix::DEFAULT_USEDNDUI, $fromform->usedndui);
+        $this->assertEquals(qtype_matrix::DEFAULT_SHUFFLEANSWERS, $fromform->shuffleanswers);
     }
 
     // FIXME: There should probably a question with invalid values for everything
@@ -539,19 +540,4 @@ class qtype_matrix_test extends advanced_testcase {
     public function test_name(): void {
         $this->assertEquals('matrix', $this->qtype->name());
     }
-
-    /**
-     * @covers ::get_expected_data
-     * @return void
-     */
-    public function test_cell_name(): void {
-        $id = qtype_matrix::default_grading()->cell_name(0, 0, true);
-        $match = preg_match('/[a-zA-Z_][a-zA-Z0-9_]*/', $id);
-        $this->assertSame(1, $match);
-
-        $id = qtype_matrix::default_grading()->cell_name(0, 0, false);
-        $match = preg_match('/[a-zA-Z_][a-zA-Z0-9_]*/', $id);
-        $this->assertSame(1, $match);
-    }
-
 }

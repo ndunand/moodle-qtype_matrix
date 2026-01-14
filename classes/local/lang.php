@@ -103,6 +103,14 @@ class lang {
      * @return string
      * @throws coding_exception
      */
+    public static function editform_columnheader_autopass(): string {
+        return self::get('editform_colheader_autopass');
+    }
+
+    /**
+     * @return string
+     * @throws coding_exception
+     */
     public static function true_(): string {
         return self::get('true');
     }
