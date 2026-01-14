@@ -82,6 +82,11 @@ class kany extends qtype_matrix_grading implements grading {
      * @return float                            The row grade, either 0 or 1
      */
     public function grade_row(qtype_matrix_question $question, int $rowindex, array $response): float {
+        $passgrade = 1.0;
+        $failgrade = 0.0;
+        if ($question->autopass_row($rowindex)) {
+            return $passgrade;
+        }
         $onecorrectanswer = false;
         foreach (array_keys($question->cols) as $colindex => $colid) {
             $cellanswer = $question->answer($rowindex, $colindex);
@@ -93,6 +98,6 @@ class kany extends qtype_matrix_grading implements grading {
                 $onecorrectanswer = true;
             }
         }
-        return ($onecorrectanswer) ? 1.0 : 0.0;
+        return ($onecorrectanswer) ? $passgrade : $failgrade;
     }
 }

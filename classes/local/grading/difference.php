@@ -71,6 +71,11 @@ class difference extends qtype_matrix_grading implements grading {
      * @return float                            The row grade, either 0 or 1
      */
     public function grade_row(qtype_matrix_question $question, int $rowindex, array $response): float {
+        $failgrade = 0.0;
+        $passgrade = 1.0;
+        if ($question->autopass_row($rowindex)) {
+            return $passgrade;
+        }
         $ansid = 1;
         $respid = 1;
         $ansbool = false;
@@ -91,7 +96,7 @@ class difference extends qtype_matrix_grading implements grading {
             }
         }
         if (!$resbool) {
-            return 0.0;
+            return $failgrade;
         }
         $badleft = $ansid - 1;
         $badright = count($question->cols) - $ansid;

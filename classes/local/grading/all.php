@@ -20,6 +20,7 @@ use coding_exception;
 use qtype_matrix\local\interfaces\grading;
 use qtype_matrix\local\lang;
 use qtype_matrix\local\qtype_matrix_grading;
+use qtype_matrix\local\setting;
 use qtype_matrix_question;
 
 /**
@@ -86,13 +87,18 @@ class all extends qtype_matrix_grading implements grading {
      */
     public function grade_row(qtype_matrix_question $question, int $rowindex, array $response):float {
         // All of a row must be correct to get a point.
+        $passgrade = 1.0;
+        $failgrade = 0.0;
+        if ($question->autopass_row($rowindex)) {
+            return $passgrade;
+        }
         foreach (array_keys($question->cols) as $colindex => $colid) {
             $cellanswer = $question->answer($rowindex, $colindex);
             $cellresponse = $question->response($response, $rowindex, $colindex);
             if ($cellanswer != $cellresponse) {
-                return 0.0;
+                return $failgrade;
             }
         }
-        return 1.0;
+        return $passgrade;
     }
 }
