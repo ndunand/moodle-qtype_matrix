@@ -195,7 +195,8 @@ class qtype_matrix extends question_type {
                 'description' => $fromform->{$dim.'s_description'}[$i]['text'],
             ];
             if ($isrow) {
-                $dimrecord->feedback = $fromform->{$dim.'s_feedback'}[$i]['text'];
+                $dimrecord->feedback = $fromform->{'rows_feedback'}[$i]['text'];
+                $dimrecord->autopass = $fromform->{'rows_autopass'}[$i];
             }
             $newdimid = $store->{'insert_matrix_'.$dim}($dimrecord);
             if ($newdimid) {
@@ -426,6 +427,7 @@ class qtype_matrix extends question_type {
                     )
                 )
             ];
+            // Note: row autopass values are not imported because a question XML is imported as a new v1 question.
             $index++;
         }
 
@@ -503,6 +505,7 @@ class qtype_matrix extends question_type {
             $output .= $format->writetext($row->feedback['text'], 6);
             $output .= "        </feedback>\n";
             $output .= "    </row>\n";
+            // Note: row autopass values are not exported because a question XML is imported as a new v1 question.
             $rowindex++;
         }
 

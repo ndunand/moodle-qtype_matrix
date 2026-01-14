@@ -19,6 +19,7 @@
  *
  */
 
+use qtype_matrix\local\setting;
 use qtype_matrix\local\lang;
 use qtype_matrix\local\qtype_matrix_grading;
 
@@ -126,6 +127,14 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      */
     public function weight(int $rowid, int $colid):float {
         return (float) $this->weights[$rowid][$colid] ?? 0;
+    }
+
+    public function autopass_row(int $rowindex): bool {
+        if (!setting::allow_autopass() || !$this->order) {
+            return false;
+        }
+        $rowid = $this->order[$rowindex];
+        return $this->rows[$rowid]->autopass;
     }
 
     /**

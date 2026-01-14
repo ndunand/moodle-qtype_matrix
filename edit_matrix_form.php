@@ -180,6 +180,11 @@ class qtype_matrix_edit_form extends question_edit_form {
         $matrix[] = $builder->create_static(lang::row_feedback());
         $matrix[] = $builder->create_static('</th>');
 
+        if ($this->display_autopass_ui()) {
+            $matrix[] = $builder->create_static('<th>');
+            $matrix[] = $builder->create_static(lang::editform_columnheader_autopass());
+            $matrix[] = $builder->create_static('</th>');
+        }
         $matrix[] = $builder->create_static('<th>');
         if (setting::show_kprime_gui()) {
             $matrix[] = $builder->create_submit(self::PARAM_ADD_COLUMNS, '+', [
@@ -224,9 +229,22 @@ class qtype_matrix_edit_form extends question_edit_form {
 
             $matrix[] = $builder->create_static('</td>');
 
+            $autopassrowinputname = "rows_autopass[$rowindex]";
+            if ($this->display_autopass_ui()) {
+                $matrix[] = $builder->create_static('<td>');
+                // FIXME: Probably needs more work for accessibility
+                $matrix[] = $this->_form->createElement('checkbox', $autopassrowinputname, '');
+                $matrix[] = $builder->create_static('</td>');
+            }
+
+            // Empty cell for the implicit column below the "add column" button
             $matrix[] = $builder->create_static('<td></td>');
 
             $matrix[] = $builder->create_static('</tr>');
+            // Always provide a value for the row autopass, even if we don't or can't use it.
+            if (!$this->display_autopass_ui()) {
+                $this->_form->addElement('hidden', $autopassrowinputname, '0');
+            }
         }
 
         $matrix[] = $builder->create_static('<tr>');
@@ -348,6 +366,17 @@ class qtype_matrix_edit_form extends question_edit_form {
     }
 
     /**
+     * Only display the autopass UI for already saved questions
+     * (i.e. questions where we would save a second version).
+     * Automatically passing the first version would not be sensible.
+     * @return bool
+     * @throws dml_exception
+     */
+    private function display_autopass_ui():bool {
+        return setting::allow_autopass() && (!empty($this->question->id));
+    }
+
+    /**
      *
      * @param $question object
      * @return void
@@ -359,11 +388,13 @@ class qtype_matrix_edit_form extends question_edit_form {
             $question->rows_shorttext = [];
             $question->rows_description = [];
             $question->rows_feedback = [];
+            $question->rows_autopass = [];
 
             foreach ($options->rows as $row) {
                 $question->rows_shorttext[] = $row->shorttext;
                 $question->rows_description[] = $row->description;
                 $question->rows_feedback[] = $row->feedback;
+                $question->rows_autopass[] = $row->autopass;
             }
 
             $question->cols_shorttext = [];
