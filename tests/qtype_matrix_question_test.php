@@ -546,11 +546,11 @@ class qtype_matrix_question_test extends advanced_testcase {
     }
 
     private function check_summary(qtype_matrix_question $question, array $order, array $response, string $summary):void {
-        $indicedcols = array_keys($question->cols);
+        $colids = array_keys($question->cols);
         foreach ($order as $rowindex => $rowid) {
             $row = $question->rows[$rowid];
             $shouldcolids = [];
-            foreach ($indicedcols as $colindex => $colid) {
+            foreach ($colids as $colindex => $colid) {
                 $key = $question::responsekey($rowindex, $colindex);
                 if (isset($response[$key])) {
                     $shouldcolids[] = $colid;
@@ -562,7 +562,7 @@ class qtype_matrix_question_test extends advanced_testcase {
                     $row->shorttext . ': ' . $question->cols[$shouldcolid]->shorttext, $summary
                 );
             }
-            $notcolids = array_diff($indicedcols, $shouldcolids);
+            $notcolids = array_diff($colids, $shouldcolids);
             foreach ($notcolids as $notcolid) {
                 $this->assertStringNotContainsString($row->shorttext.': '.$question->cols[$notcolid]->shorttext, $summary);
             }

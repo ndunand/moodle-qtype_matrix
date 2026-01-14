@@ -36,12 +36,12 @@ const propagateChangedValue = (click) => {
     if (clickedElement.tagName !== 'INPUT' || clickedElement.type !== 'radio') {
         return;
     }
-    let hiddenForRadio = clickedElement.parentElement.querySelector('input[type="hidden"]');
-    let hiddenInputsForRow = clickedElement.closest('tr').querySelectorAll('input[type="hidden"]');
-    hiddenInputsForRow.forEach((hiddenInputForRow) => {
-        hiddenInputForRow.value = '0';
+    let hiddenCheckboxForRadio = clickedElement.parentElement.querySelector('input[type="checkbox"]');
+    let hiddenCheckboxesForRow = clickedElement.closest('tr').querySelectorAll('input[type="checkbox"]');
+    hiddenCheckboxesForRow.forEach((hiddenCheckboxForRow) => {
+        hiddenCheckboxForRow.checked = false;
     });
-    hiddenForRadio.value = '1';
+    hiddenCheckboxForRadio.checked = true;
 };
 
 export const init = (matrixTableId) => {
