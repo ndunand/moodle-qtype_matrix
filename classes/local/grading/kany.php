@@ -56,17 +56,18 @@ class kany extends qtype_matrix_grading implements grading {
         return $result = new self();
     }
 
-    public function grade_question(qtype_matrix_question $question, array $answers): float {
+    public function grade_question(qtype_matrix_question $question, array $roworder, array $response): float {
         $numberofcorrectrows = 0.0;
-        foreach ($question->rows as $row) {
-            $grade = $this->grade_row($question, $row, $answers);
+        foreach ($roworder as $rowindex => $rowid) {
+            $grade = $this->grade_row($question, $rowindex, $response);
             if ($grade >= 1) {
                 $numberofcorrectrows++;
             }
         }
-        if ($numberofcorrectrows == count($question->rows)) {
+        $nrrows = count($question->rows);
+        if ($numberofcorrectrows == $nrrows) {
             return 1.0;
-        } else if ((count($question->rows) - $numberofcorrectrows) == 1) {
+        } else if (($nrrows - $numberofcorrectrows) == 1) {
             return 0.5;
         }
         return 0.0;
@@ -76,19 +77,19 @@ class kany extends qtype_matrix_grading implements grading {
      * Grade a row
      *
      * @param qtype_matrix_question $question  The question to grade
-     * @param integer|object         $row       Row to grade
-     * @param array                  $responses User's responses
+     * @param int $rowindex Row to grade
+     * @param array                  $response User's responses
      * @return float                            The row grade, either 0 or 1
      */
-    public function grade_row(qtype_matrix_question $question, $row, array $responses): float {
+    public function grade_row(qtype_matrix_question $question, int $rowindex, array $response): float {
         $onecorrectanswer = false;
-        foreach ($question->cols as $col) {
-            $answer = $question->answer($row, $col);
-            $response = $question->response($responses, $row, $col);
-            if (!$answer && $response) {
+        foreach (array_keys($question->cols) as $colindex => $colid) {
+            $cellanswer = $question->answer($rowindex, $colindex);
+            $cellresponse = $question->response($response, $rowindex, $colindex);
+            if (!$cellanswer && $cellresponse) {
                 return 0;
             }
-            if ($answer && $response) {
+            if ($cellanswer && $cellresponse) {
                 $onecorrectanswer = true;
             }
         }

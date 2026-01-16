@@ -17,18 +17,19 @@
 use qtype_matrix\local\grading\difference;
 use qtype_matrix\local\lang;
 use qtype_matrix\local\matrix_form_builder;
-use qtype_matrix\local\qtype_matrix_grading;
 use qtype_matrix\local\setting;
 
 defined('MOODLE_INTERNAL') || die;
 
-use qtype_matrix\local\question_cleaner;
+global $CFG;
 
 /**
  * The question type class for the matrix question type.
  *
  */
-require_once($CFG->dirroot . '/question/type/edit_question_form.php');
+require_once $CFG->dirroot . '/question/type/edit_question_form.php';
+require_once $CFG->dirroot . '/question/type/matrix/question.php';
+require_once $CFG->dirroot . '/question/type/matrix/questiontype.php';
 
 /**
  * matrix editing form definition. For information about the Moodle forms library,
@@ -76,13 +77,13 @@ class qtype_matrix_edit_form extends question_edit_form {
 
         if (setting::allow_dnd_ui()) {
             $builder->add_selectyesno(self::PARAM_USE_DND_UI, lang::use_dnd_ui());
-            $builder->set_default(self::PARAM_USE_DND_UI, question_cleaner::DEFAULT_USEDNDUI);
+            $builder->set_default(self::PARAM_USE_DND_UI, qtype_matrix::DEFAULT_USEDNDUI);
         }
 
         $mform->addElement('advcheckbox', self::PARAM_SHUFFLE_ANSERS, lang::shuffle_answers(), null, null, [0,
             1]);
         $builder->add_help_button(self::PARAM_SHUFFLE_ANSERS);
-        $builder->set_default(self::PARAM_SHUFFLE_ANSERS, question_cleaner::DEFAULT_SHUFFLEANSWERS);
+        $builder->set_default(self::PARAM_SHUFFLE_ANSERS, qtype_matrix::DEFAULT_SHUFFLEANSWERS);
     }
 
     /**
@@ -95,10 +96,10 @@ class qtype_matrix_edit_form extends question_edit_form {
 
         if (setting::show_kprime_gui()) {
             $builder->add_selectyesno(self::PARAM_MULTIPLE, lang::multiple_allowed());
-            $builder->set_default(self::PARAM_MULTIPLE, question_cleaner::DEFAULT_MULTIPLE);
+            $builder->set_default(self::PARAM_MULTIPLE, qtype_matrix::DEFAULT_MULTIPLE);
             $builder->register_hook_multiple();
         } else {
-            $this->_form->addElement('hidden', self::PARAM_MULTIPLE, question_cleaner::DEFAULT_MULTIPLE);
+            $this->_form->addElement('hidden', self::PARAM_MULTIPLE, qtype_matrix::DEFAULT_MULTIPLE);
             $this->_form->setType(self::PARAM_MULTIPLE, PARAM_BOOL);
         }
     }
@@ -152,26 +153,23 @@ class qtype_matrix_edit_form extends question_edit_form {
      * @throws coding_exception
      */
     public function add_matrix(): void {
-        $mform = $this->_form;
         $builder = $this->builder;
 
-        $colscount = $this->param_cols();
-        $rowscount = $this->param_rows();
+        $colscount = $this->nr_dims_to_display('col');
+        $rowscount = $this->nr_dims_to_display('row');
 
-        $grademethod = $this->param_grade_method();
-        $grading = qtype_matrix::grading($grademethod);
         $multiple = $this->param_multiple();
 
         $matrix = [];
         $html = '<table class="quedit matrix"><thead><tr>';
         $html .= '<th></th>';
         $matrix[] = $builder->create_static($html);
-        for ($col = 0; $col < $colscount; $col++) {
+        for ($colindex = 0; $colindex < $colscount; $colindex++) {
             $matrix[] = $builder->create_static('<th>');
             $matrix[] = $builder->create_static('<div class="input-group">');
-            $matrix[] = $builder->create_text("cols_shorttext[$col]", false);
+            $matrix[] = $builder->create_text("cols_shorttext[$colindex]", false);
 
-            $popup = $builder->create_htmlpopup("cols_description[$col]", lang::col_description());
+            $popup = $builder->create_htmlpopup("cols_description[$colindex]", lang::col_description());
             $matrix = array_merge($matrix, $popup);
 
             $matrix[] = $builder->create_static('</div>');
@@ -192,22 +190,28 @@ class qtype_matrix_edit_form extends question_edit_form {
 
         $matrix[] = $builder->create_static('</tr></thead><tbody>');
 
-        for ($row = 0; $row < $rowscount; $row++) {
+        for ($rowindex = 0; $rowindex < $rowscount; $rowindex++) {
             $matrix[] = $builder->create_static('<tr>');
             $matrix[] = $builder->create_static('<td>');
 
             $matrix[] = $builder->create_static('<div class="input-group">');
 
-            $matrix[] = $builder->create_text("rows_shorttext[$row]", false);
-            $questionpopup = $builder->create_htmlpopup("rows_description[$row]", lang::row_long());
+            $matrix[] = $builder->create_text("rows_shorttext[$rowindex]", false);
+            $questionpopup = $builder->create_htmlpopup("rows_description[$rowindex]", lang::row_long());
             $matrix = array_merge($matrix, $questionpopup);
 
             $matrix[] = $builder->create_static('</div>');
             $matrix[] = $builder->create_static('</td>');
 
-            for ($col = 0; $col < $colscount; $col++) {
+            for ($colindex = 0; $colindex < $colscount; $colindex++) {
                 $matrix[] = $builder->create_static('<td>');
-                $cellcontent = $grading->create_cell_element($mform, $row, $col, $multiple);
+                $fieldname = qtype_matrix_question::formfield_name($rowindex, $colindex, $multiple);
+                if ($multiple) {
+                    $cellcontent = $this->_form->createElement('checkbox', $fieldname, 'label');
+                } else {
+                    $cellcontent = $this->_form->createElement('radio', $fieldname, '', '', $colindex);
+                }
+
                 $cellcontent = $cellcontent ? : $builder->create_static('');
                 $matrix[] = $cellcontent;
                 $matrix[] = $builder->create_static('</td>');
@@ -215,7 +219,7 @@ class qtype_matrix_edit_form extends question_edit_form {
 
             $matrix[] = $builder->create_static('<td class="feedback">');
 
-            $feedbackpopup = $builder->create_htmlpopup("rows_feedback[$row]", lang::row_feedback());
+            $feedbackpopup = $builder->create_htmlpopup("rows_feedback[$rowindex]", lang::row_feedback());
             $matrix = array_merge($matrix, $feedbackpopup);
 
             $matrix[] = $builder->create_static('</td>');
@@ -232,7 +236,7 @@ class qtype_matrix_edit_form extends question_edit_form {
             $builder->register_no_submit_button('add_rows');
         }
         $matrix[] = $builder->create_static('</td>');
-        for ($col = 0; $col < $colscount; $col++) {
+        for ($colindex = 0; $colindex < $colscount; $colindex++) {
             $matrix[] = $builder->create_static('<td>');
             $matrix[] = $builder->create_static('</td>');
         }
@@ -242,22 +246,14 @@ class qtype_matrix_edit_form extends question_edit_form {
         $matrixheader = $builder->create_header('matrixheader');
         $matrixgroup = $builder->create_group('matrix', null, $matrix, '', false);
 
+        $refreshbutton = $builder->create_submit('refresh_matrix');
+        $builder->register_no_submit_button('refresh_matrix');
         if (isset($this->_form->_elementIndex['tagsheader'])) {
             $builder->insert_element_before($matrixheader, 'tagsheader');
-            $refreshbutton = $builder->create_submit('refresh_matrix');
-            $builder->register_no_submit_button('refresh_matrix');
-            // FIXME: There is no 'none' grading
-            $builder->disabled_if('refresh_matrix', self::PARAM_GRADE_METHOD, 'eq', 'none');
-            $builder->disabled_if('defaultgrade', self::PARAM_GRADE_METHOD, 'eq', 'none');
             $builder->insert_element_before($refreshbutton, 'tagsheader');
             $builder->insert_element_before($matrixgroup, 'tagsheader');
         } else {
             $this->_form->addElement($matrixheader);
-            $refreshbutton = $builder->create_submit('refresh_matrix');
-            $builder->register_no_submit_button('refresh_matrix');
-            // FIXME: There is no 'none' grading
-            $builder->disabled_if('refresh_matrix', self::PARAM_GRADE_METHOD, 'eq', 'none');
-            $builder->disabled_if('defaultgrade', self::PARAM_GRADE_METHOD, 'eq', 'none');
             $this->_form->addElement($refreshbutton);
             $this->_form->addElement($matrixgroup);
         }
@@ -269,70 +265,33 @@ class qtype_matrix_edit_form extends question_edit_form {
         $this->_form->setExpanded('matrixheader');
     }
 
-    /**
-     * Returns the current number of columns
-     *
-     * @return int The number of columns
-     * @throws coding_exception
-     */
-    protected function param_cols(): int {
-        $result = self::DEFAULT_COLS;
-        // Todo: fix direct access to POST! Insecure, no filters in place.
-        if (isset($_POST[self::PARAM_COLS])) {
-            $result = count($_POST[self::PARAM_COLS]);
-        } else if (isset($this->question->options->cols) && count($this->question->options->cols) > 0) {
-            $result = count($this->question->options->cols);
+    protected function nr_dims_to_display(string $type):int {
+        switch ($type) {
+            case 'row':
+                $currentparamname = self::PARAM_ROWS;
+                $newdimparamname = self::PARAM_ADD_ROWS;
+                $fallbackvalue = self::DEFAULT_ROWS;
+                $lastversiondims = $this->question->options->rows ?? [];
+                break;
+            case 'col':
+                $currentparamname = self::PARAM_COLS;
+                $newdimparamname = self::PARAM_ADD_COLUMNS;
+                $fallbackvalue = self::DEFAULT_COLS;
+                $lastversiondims = $this->question->options->cols ?? [];
+                break;
+        }
+        $nrmatrixdims = $fallbackvalue;
+        $nrcurrentdims = count(optional_param_array($currentparamname, [], PARAM_TEXT));
+        $nrlastversiondims = count($lastversiondims ?? []);
+        if ($nrcurrentdims) {
+            $nrmatrixdims = $nrcurrentdims;
+        } else if ($nrlastversiondims) {
+            $nrmatrixdims = $nrlastversiondims;
         }
 
-        $addcols = $this->param_add_columns();
-        if ($addcols) {
-            $result++;
-        }
+        $nrmatrixdims += (int) optional_param($newdimparamname, false, PARAM_BOOL);
 
-        return $result;
-    }
-
-    // Elements.
-
-    /**
-     * Returns column which is sent by the user, can be used to check if a response is made.
-     * True if data exists (!=''). False if not (=='').
-     *
-     * @return string columns to add
-     * @throws coding_exception
-     */
-    protected function param_add_columns(): string {
-        return optional_param(self::PARAM_ADD_COLUMNS, '', PARAM_TEXT);
-    }
-
-    /**
-     * @return int
-     * @throws coding_exception
-     */
-    protected function param_rows(): int {
-        $result = self::DEFAULT_ROWS;
-        // Todo: fix direct access to POST! Insecure, no filters in place.
-        if (isset($_POST[self::PARAM_ROWS])) {
-            $result = count($_POST[self::PARAM_ROWS]);
-        } else if (isset($this->question->options->rows) && count($this->question->options->rows) > 0) {
-            $result = count($this->question->options->rows);
-        }
-
-        $addrows = $this->param_add_rows();
-        if ($addrows) {
-            $result++;
-        }
-        return $result;
-    }
-
-    /**
-     * True if the user asked to add a row. False otherwise.
-     *
-     * @return bool rows to add
-     * @throws coding_exception
-     */
-    protected function param_add_rows(): bool {
-        return !empty(optional_param(self::PARAM_ADD_ROWS, '', PARAM_TEXT));
+        return $nrmatrixdims;
     }
 
     /**
@@ -355,7 +314,7 @@ class qtype_matrix_edit_form extends question_edit_form {
         if ($this->param_grade_method() == difference::get_name()) {
             $data[self::PARAM_MULTIPLE] = false;
         }
-        return $data[self::PARAM_MULTIPLE] ?? question_cleaner::DEFAULT_MULTIPLE;
+        return $data[self::PARAM_MULTIPLE] ?? qtype_matrix::DEFAULT_MULTIPLE;
     }
 
     public function get_javascript(): string {
@@ -401,40 +360,29 @@ class qtype_matrix_edit_form extends question_edit_form {
             $question->rows_description = [];
             $question->rows_feedback = [];
 
-            $question->rowid = [];
             foreach ($options->rows as $row) {
                 $question->rows_shorttext[] = $row->shorttext;
                 $question->rows_description[] = $row->description;
                 $question->rows_feedback[] = $row->feedback;
-                $question->rowid[] = $row->id;
             }
 
             $question->cols_shorttext = [];
             $question->cols_description = [];
-            $question->colid = [];
             foreach ($options->cols as $col) {
                 $question->cols_shorttext[] = $col->shorttext;
                 $question->cols_description[] = $col->description;
-                $question->colid[] = $col->id;
             }
 
-            $rowindex = 0;
-            foreach ($options->rows as $row) {
-                $colindex = 0;
-                foreach ($options->cols as $col) {
-                    $cellnamemultipleanswers = qtype_matrix_grading::cell_name($rowindex, $colindex, true);
-                    $cellnamesingleanswer = qtype_matrix_grading::cell_name($rowindex, $colindex, false);
-
-                    $weight = $options->weights[$row->id][$col->id];
-                    // Todo: check security impact we access and set direct on an object, could be bad.
-                    $question->{$cellnamemultipleanswers} = ($weight > 0);
-                    $question->{$cellnamesingleanswer} = $colindex;
-                    if (!$options->multiple && $weight > 0) {
-                        break;
+            foreach (array_keys($options->rows) as $rowindex => $rowid) {
+                foreach (array_keys($options->cols) as $colindex => $colid) {
+                    if ($options->weights[$rowid][$colid] > 0) {
+                        $fieldname = qtype_matrix_question::formfield_name($rowindex, $colindex, $options->multiple);
+                        $question->{$fieldname} = $options->multiple ? true : $colindex;
+                        if (!$options->multiple) {
+                            break;
+                        }
                     }
-                    $colindex++;
                 }
-                $rowindex++;
             }
         }
         /* set data should be called on new questions to set up course id, etc

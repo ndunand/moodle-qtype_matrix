@@ -50,40 +50,41 @@ class difference extends qtype_matrix_grading implements grading {
         return $result = new self();
     }
 
-    public function grade_question(qtype_matrix_question $question, array $answers): float {
+    public function grade_question(qtype_matrix_question $question, array $roworder, array $response): float {
         $grades = [];
-        if (count($question->rows) == 0) {
+        $nrrows = count($question->rows);
+        if (!$nrrows) {
             return 0.0;
         }
-        foreach ($question->rows as $row) {
-            $grades[] = $this->grade_row($question, $row, $answers);
+        foreach ($roworder as $rowindex => $rowid) {
+            $grades[] = $this->grade_row($question, $rowindex, $response);
         }
-        return (array_sum($grades) / count($question->rows));
+        return (array_sum($grades) / $nrrows);
     }
 
     /**
      * Grade a row
      *
      * @param qtype_matrix_question $question  The question to grade
-     * @param integer|object        $row       Row to grade
-     * @param array                 $responses User's responses
+     * @param int $rowindex Row to grade
+     * @param array                 $response User's responses
      * @return float                            The row grade, either 0 or 1
      */
-    public function grade_row(qtype_matrix_question $question, $row, array $responses): float {
+    public function grade_row(qtype_matrix_question $question, int $rowindex, array $response): float {
         $ansid = 1;
         $respid = 1;
         $ansbool = false;
         $resbool = false;
         // Foreach through the elements and count the elements to the response and answer.
-        foreach ($question->cols as $col) {
-            $answer = $question->answer($row, $col);
-            if (!$ansbool && !$answer) {
+        foreach (array_keys($question->cols) as $colindex => $colid) {
+            $cellanswer = $question->answer($rowindex, $colindex);
+            if (!$ansbool && !$cellanswer) {
                 $ansid++;
             } else {
                 $ansbool = true;
             }
-            $response = $question->response($responses, $row, $col);
-            if (!$resbool && !$response) {
+            $cellresponse = $question->response($response, $rowindex, $colindex);
+            if (!$resbool && !$cellresponse) {
                 $respid++;
             } else {
                 $resbool = true;

@@ -57,12 +57,13 @@ class kprime extends qtype_matrix_grading implements grading {
      * Returns the question's grade. By default, it is the average of correct questions.
      *
      * @param qtype_matrix_question $question
-     * @param array                 $answers
+     * @param int[] $roworder Order of rows in this question
+     * @param array                 $response
      * @return float
      */
-    public function grade_question(qtype_matrix_question $question, array $answers): float {
-        foreach ($question->rows as $row) {
-            $grade = $this->grade_row($question, $row, $answers);
+    public function grade_question(qtype_matrix_question $question, array $roworder, array $response): float {
+        foreach ($roworder as $rowindex => $rowid) {
+            $grade = $this->grade_row($question, $rowindex, $response);
             if ($grade < 1) {
                 return 0.0;
             }
@@ -75,15 +76,15 @@ class kprime extends qtype_matrix_grading implements grading {
      * Grade a row
      *
      * @param qtype_matrix_question $question  The question to grade
-     * @param integer|object        $row       Row to grade
-     * @param array                 $responses User's responses
+     * @param int $rowindex Row to grade
+     * @param array                 $response User's responses
      * @return float                            The row grade, either 0 or 1
      */
-    public function grade_row(qtype_matrix_question $question, $row, array $responses): float {
-        foreach ($question->cols as $col) {
-            $answer = $question->answer($row, $col);
-            $response = $question->response($responses, $row, $col);
-            if ($answer != $response) {
+    public function grade_row(qtype_matrix_question $question, int $rowindex, array $response): float {
+        foreach (array_keys($question->cols) as $colindex => $colid) {
+            $cellanswer = $question->answer($rowindex, $colindex);
+            $cellresponse = $question->response($response, $rowindex, $colindex);
+            if ($cellanswer != $cellresponse) {
                 return 0.0;
             }
         }
