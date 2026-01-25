@@ -204,10 +204,6 @@ class matrix_form_builder {
         return $this->_form->insertElementBefore($element, $beforename);
     }
 
-    public function disabled_if($elementname, $dependenton, string $condition = 'notchecked', $value = '1'): void {
-        $this->_form->disabledIf($elementname, $dependenton, $condition, $value);
-    }
-
     public function register_no_submit_button(string $name): void {
         $this->_form->registerNoSubmitButton($name);
     }

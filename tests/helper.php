@@ -21,17 +21,183 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 
-use qtype_matrix\local\question_cleaner;
 use qtype_matrix\local\qtype_matrix_grading;
 use qtype_matrix\local\grading\all;
 use core_question\local\bank\question_version_status;
 
-require_once $CFG->dirroot.'/question/engine/tests/helpers.php';
+require_once $CFG->dirroot . '/question/engine/tests/helpers.php';
+require_once $CFG->dirroot . '/question/type/matrix/question.php';
+require_once $CFG->dirroot . '/question/type/matrix/questiontype.php';
 
 /**
  * Test helper class for the matrix question type.
  */
 class qtype_matrix_test_helper extends question_test_helper {
+
+    public static function build_answer_with_matrix(array $matrix): array {
+        $answer = [];
+        foreach ($matrix as $rowindex => $cols) {
+            foreach ($cols as $colindex => $colvalue) {
+                if ($colvalue > 0) {
+                    $key = qtype_matrix_question::responsekey($rowindex, $colindex);
+                    $answer[$key] = true;
+                }
+            }
+        }
+        return $answer;
+    }
+
+    /**
+     * @param qtype_matrix_question $question
+     * @return array
+     */
+    public static function make_correct_answer(qtype_matrix_question $question): array {
+        $answermatrix = [];
+        switch ($question->questiontext) {
+            case 'default':
+            case 'nondefault':
+                $answermatrix[0] = [0, 1, 0, 0];
+                $answermatrix[1] = [0, 1, 0, 0];
+                $answermatrix[2] = [0, 1, 0, 0];
+                $answermatrix[3] = [0, 1, 0, 0];
+                break;
+            case 'multipletwocorrect':
+                $answermatrix[0] = [1, 1, 0, 0];
+                $answermatrix[1] = [1, 1, 0, 0];
+                $answermatrix[2] = [1, 1, 0, 0];
+                $answermatrix[3] = [1, 1, 0, 0];
+                break;
+        }
+        return self::build_answer_with_matrix($answermatrix);
+    }
+
+    /**
+     * @param qtype_matrix_question $question
+     * @return array
+     */
+    public static function make_incorrect_answer(qtype_matrix_question $question): array {
+        $answermatrix = [];
+        $answermatrix[0] = [0, 0, 0, 1];
+        $answermatrix[1] = [0, 0, 0, 1];
+        $answermatrix[2] = [0, 0, 0, 1];
+        $answermatrix[3] = [0, 0, 0, 1];
+        return self::build_answer_with_matrix($answermatrix);
+    }
+
+    /**
+     * @param qtype_matrix_question $question
+     * @return array
+     */
+    public static function make_first_row_wrong_answer(qtype_matrix_question $question): array {
+        $answermatrix = [];
+        switch ($question->questiontext) {
+            case 'default':
+            case 'nondefault':
+                $answermatrix[0] = [0, 0, 0, 1];
+                $answermatrix[1] = [0, 1, 0, 0];
+                $answermatrix[2] = [0, 1, 0, 0];
+                $answermatrix[3] = [0, 1, 0, 0];
+                break;
+            case 'multipletwocorrect':
+                $answermatrix[0] = [0, 0, 0, 1];
+                $answermatrix[1] = [1, 1, 0, 0];
+                $answermatrix[2] = [1, 1, 0, 0];
+                $answermatrix[3] = [1, 1, 0, 0];
+                break;
+        }
+        return self::build_answer_with_matrix($answermatrix);
+    }
+
+    /**
+     * Produces a complete answer with all possible variations for row selections.
+     * @param qtype_matrix_question $question
+     * @return array
+     */
+    public static function make_complete_with_variations_answer(qtype_matrix_question $question): array {
+        $answermatrix = [];
+        switch ($question->questiontext) {
+            case 'default':
+            case 'nondefault':
+                $answermatrix[0] = [0, 1, 0, 0];
+                $answermatrix[1] = [0, 1, 0, 0];
+                $answermatrix[2] = [0, 0, 0, 1];
+                $answermatrix[3] = [0, 0, 0, 1];
+                break;
+            case 'multipletwocorrect':
+                $answermatrix[0] = [1, 1, 0, 0];
+                $answermatrix[1] = [0, 1, 0, 1];
+                $answermatrix[2] = [0, 1, 0, 0];
+                $answermatrix[3] = [0, 0, 0, 1];
+                break;
+        }
+        return self::build_answer_with_matrix($answermatrix);
+    }
+
+    /**
+     * @param qtype_matrix_question $question
+     * @return array
+     */
+    public static function make_incomplete_partially_correct_answer(qtype_matrix_question $question): array {
+        $answermatrix = [];
+        switch ($question->questiontext) {
+            case 'default':
+            case 'nondefault':
+                $answermatrix[0] = [0, 1, 0, 0];
+                $answermatrix[1] = [0, 1, 0, 0];
+                $answermatrix[2] = [0, 0, 0, 0];
+                $answermatrix[3] = [0, 0, 0, 0];
+                break;
+            case 'multipletwocorrect':
+                $answermatrix[0] = [1, 1, 0, 0];
+                $answermatrix[1] = [0, 1, 0, 1];
+                $answermatrix[2] = [0, 0, 0, 0];
+                $answermatrix[3] = [0, 0, 0, 0];
+                break;
+        }
+        return self::build_answer_with_matrix($answermatrix);
+    }
+
+    /**
+     * @param qtype_matrix_question $question
+     * @return array
+     */
+    public static function make_incomplete_wrong_answer(qtype_matrix_question $question): array {
+        $answermatrix = [];
+        $answermatrix[0] = [0, 0, 0, 1];
+        $answermatrix[1] = [0, 0, 0, 1];
+        $answermatrix[2] = [0, 0, 0, 0];
+        $answermatrix[3] = [0, 0, 0, 0];
+        return self::build_answer_with_matrix($answermatrix);
+    }
+
+    /**
+     * @param qtype_matrix_question $question
+     * @return array
+     */
+    public static function make_kany_answer(qtype_matrix_question $question): array {
+        $answermatrix = [];
+        switch ($question->questiontext) {
+            case 'default':
+                $answermatrix[0] = [0, 1, 0, 0];
+                $answermatrix[1] = [1, 0, 0, 0];
+                $answermatrix[2] = [0, 0, 1, 0];
+                $answermatrix[3] = [0, 0, 0, 0];
+                break;
+            case 'nondefault':
+                $answermatrix[0] = [0, 1, 0, 0];
+                $answermatrix[1] = [1, 1, 0, 0];
+                $answermatrix[2] = [0, 1, 1, 0];
+                $answermatrix[3] = [0, 0, 1, 0];
+                break;
+            case 'multipletwocorrect':
+                $answermatrix[0] = [1, 1, 0, 0];
+                $answermatrix[1] = [0, 1, 0, 1];
+                $answermatrix[2] = [1, 0, 1, 0];
+                $answermatrix[3] = [0, 1, 0, 0];
+                break;
+        }
+        return self::build_answer_with_matrix($answermatrix);
+    }
 
     public function get_test_questions():array {
         return ['default', 'nondefault', 'multipletwocorrect'];
@@ -78,7 +244,7 @@ class qtype_matrix_test_helper extends question_test_helper {
         return $form;
     }
 
-    private function transform_generated_question_to_question_data($question):stdClass {
+    private function transform_generated_question_to_question_data(qtype_matrix_question $question):stdClass {
         $questiondata = new stdClass();
         test_question_maker::initialise_question_data($questiondata);
         $questiondata->name = $question->questiontext;
@@ -100,29 +266,30 @@ class qtype_matrix_test_helper extends question_test_helper {
         $questiondata->options->rows = [];
         foreach ($question->rows as $row) {
             $optionrow = new stdClass();
+            $optionrow->id = $row->id;
             $optionrow->shorttext = $row->shorttext;
             $optionrow->description = [];
-            $optionrow->description['text'] = $row->description;
-            $optionrow->description['format'] = FORMAT_HTML;
-            $optionrow->feedback['text'] = $row->feedback;
-            $optionrow->feedback['format'] = FORMAT_HTML;
-            $questiondata->options->rows[] = $optionrow;
+            $optionrow->description['text'] = $row->description['text'];
+            $optionrow->description['format'] = $row->description['format'];
+            $optionrow->feedback['text'] = $row->feedback['text'];
+            $optionrow->feedback['format'] = $row->feedback['format'];;
+            $questiondata->options->rows[$row->id] = $optionrow;
         }
         $questiondata->options->cols = [];
         foreach ($question->cols as $col) {
             $optioncol = new stdClass();
+            $optioncol->id = $col->id;
             $optioncol->shorttext = $col->shorttext;
             $optioncol->description = [];
-            $optioncol->description['text'] = $col->description;
-            $optioncol->description['format'] = FORMAT_HTML;
-            $questiondata->options->cols[] = $optioncol;
+            $optioncol->description['text'] = $col->description['text'];
+            $optioncol->description['format'] = $col->description['format'];
+            $questiondata->options->cols[$col->id] = $optioncol;
         }
-
         $questiondata->options->weights = $question->weights;
         return $questiondata;
     }
 
-    private function transform_generated_question_to_form_data($question):stdClass {
+    private function transform_generated_question_to_form_data(qtype_matrix_question $question):stdClass {
         $form = new stdClass();
         $form->name = $question->name;
         $form->questiontext = [];
@@ -141,37 +308,34 @@ class qtype_matrix_test_helper extends question_test_helper {
         $form->usedndui = $question->usedndui;
         $form->shuffleanswers = $question->shuffleanswers;
 
-        $form->rowid = [];
-        $form->colid = [];
-
-        foreach ($question->rows as $index => $row) {
+        $rowindex = 0;
+        foreach ($question->rows as $row) {
             $form->rows_shorttext = $form->rows_shorttext ?? [];
-            $form->rows_shorttext[$index] = $row->shorttext;
+            $form->rows_shorttext[$rowindex] = $row->shorttext;
             $form->rows_description = $form->rows_description ?? [];
-            $form->rows_description[$index]['format'] = FORMAT_HTML;
-            $form->rows_description[$index]['text'] = $row->description;
+            $form->rows_description[$rowindex]['text'] = $row->description['text'];
+            $form->rows_description[$rowindex]['format'] = $row->description['format'];
             $form->rows_feedback = $form->rows_feedback ?? [];
-            $form->rows_feedback[$index]['format'] = FORMAT_HTML;
-            $form->rows_feedback[$index]['text'] = $row->feedback;
-            $form->rowid[$index] = '';
+            $form->rows_feedback[$rowindex]['text'] = $row->feedback['text'];
+            $form->rows_feedback[$rowindex]['format'] = $row->feedback['format'];
+            $rowindex++;
         }
-        foreach ($question->cols as $index => $col) {
+        $colindex = 0;
+        foreach ($question->cols as $col) {
             $form->cols_shorttext = $form->cols_shorttext ?? [];
-            $form->cols_shorttext[$index] = $col->shorttext;
+            $form->cols_shorttext[$colindex] = $col->shorttext;
             $form->cols_description = $form->cols_description ?? [];
-            $form->cols_description[$index]['format'] = FORMAT_HTML;
-            $form->cols_description[$index]['text'] = $col->description;
-            $form->colid[$index] = '';
+            $form->cols_description[$colindex]['text'] = $col->description['text'];
+            $form->cols_description[$colindex]['format'] = $col->description['format'];
+            $colindex++;
         }
-        foreach ($question->rows as $ri => $row) {
-            foreach ($question->cols as $ci => $col) {
-                $key = $question->key($ri, $ci, $question->multiple);
-                if ($question->weights[$ri][$ci]) {
+        foreach (array_keys($question->rows) as $rowindex => $rowid) {
+            foreach (array_keys($question->cols) as $colindex => $colid) {
+                $formfieldname = $question->formfieldname($rowindex, $colindex);
+                if ($question->weights[$rowid][$colid]) {
+                    $form->{$formfieldname} = $question->multiple ? $question->weights[$rowid][$colid] : $colindex;
                     if (!$question->multiple) {
-                        $form->{$key} = $ci;
                         break;
-                    } else {
-                        $form->{$key} = $question->weights[$ri][$ci];
                     }
                 }
             }
@@ -195,10 +359,10 @@ class qtype_matrix_test_helper extends question_test_helper {
         $question = $this->init_default_matrix_question();
 
         $question->questiontext = 'default';
-        $question->weights[0][1] = 1;
-        $question->weights[1][1] = 1;
-        $question->weights[2][1] = 1;
-        $question->weights[3][1] = 1;
+        $question->weights[4][9] = 1;
+        $question->weights[5][9] = 1;
+        $question->weights[6][9] = 1;
+        $question->weights[7][9] = 1;
 
         return $question;
     }
@@ -220,9 +384,9 @@ class qtype_matrix_test_helper extends question_test_helper {
         $question->questiontext = 'nondefault';
 
         $question->grademethod = all::get_name();
-        $question->multiple = !question_cleaner::DEFAULT_MULTIPLE;
-        $question->shuffleanswers = !question_cleaner::DEFAULT_SHUFFLEANSWERS;
-        $question->usedndui = !question_cleaner::DEFAULT_USEDNDUI;
+        $question->multiple = !qtype_matrix::DEFAULT_MULTIPLE;
+        $question->shuffleanswers = !qtype_matrix::DEFAULT_SHUFFLEANSWERS;
+        $question->usedndui = !qtype_matrix::DEFAULT_USEDNDUI;
         return $question;
     }
 
@@ -243,21 +407,21 @@ class qtype_matrix_test_helper extends question_test_helper {
         $question->questiontext = 'multipletwocorrect';
 
         $question->multiple = true;
-        $question->weights[0][0] = 1;
-        $question->weights[0][1] = 1;
-        $question->weights[1][0] = 1;
-        $question->weights[1][1] = 1;
-        $question->weights[2][0] = 1;
-        $question->weights[2][1] = 1;
-        $question->weights[3][0] = 1;
-        $question->weights[3][1] = 1;
+        $question->weights[4][8] = 1;
+        $question->weights[4][9] = 1;
+        $question->weights[5][8] = 1;
+        $question->weights[5][9] = 1;
+        $question->weights[6][8] = 1;
+        $question->weights[6][9] = 1;
+        $question->weights[7][8] = 1;
+        $question->weights[7][9] = 1;
         return $question;
     }
     /**
      * @return \qtype_matrix_question
      * @throws \coding_exception
      */
-    public function init_default_matrix_question(): qtype_matrix_question {
+    public function init_default_matrix_question():qtype_matrix_question {
         question_bank::load_question_definition_classes('matrix');
         $question = new qtype_matrix_question();
         test_question_maker::initialise_a_question($question);
@@ -269,41 +433,47 @@ class qtype_matrix_test_helper extends question_test_helper {
         $question->qtype = question_bank::get_qtype('matrix');
 
         $question->grademethod = qtype_matrix_grading::default_grading()->get_name();
-        $question->multiple = question_cleaner::DEFAULT_MULTIPLE;
-        $question->shuffleanswers = question_cleaner::DEFAULT_SHUFFLEANSWERS;
-        $question->usedndui = question_cleaner::DEFAULT_USEDNDUI;
+        $question->multiple = qtype_matrix::DEFAULT_MULTIPLE;
+        $question->shuffleanswers = qtype_matrix::DEFAULT_SHUFFLEANSWERS;
+        $question->usedndui = qtype_matrix::DEFAULT_USEDNDUI;
         $matrix = $this->generate_matrix_question_matrix();
         $question->rows = $matrix->rows;
         $question->cols = $matrix->cols;
         $question->weights = array_fill(
-            0,
             4,
-            array_fill(0, 4, 0)
+            4,
+            array_fill(8, 4, 0)
         );
 
         return $question;
     }
 
-    private function generate_matrix_question_matrix() {
+    public function generate_matrix_question_matrix():stdClass {
         $matrix = (object) [];
         $matrix->rows = [];
-        for ($r = 0; $r < 4; $r++) {
+        for ($r = 4; $r < 8; $r++) {
             $matrix->rows[$r] = $this->generate_matrix_row_or_column($r, true);
         }
         $matrix->cols = [];
-        for ($c = 0; $c < 4; $c++) {
+        for ($c = 8; $c < 12; $c++) {
             $matrix->cols[$c] = $this->generate_matrix_row_or_column($c, false);
         }
         return $matrix;
     }
 
-    private function generate_matrix_row_or_column(int $id, bool $row) {
+    public function generate_matrix_row_or_column(int $id, bool $row):stdClass {
         $roworcolumn = (object) [];
         $roworcolumn->id = $id;
         $roworcolumn->shorttext = ($row ? "Row " : "Column ").$id;
-        $roworcolumn->description = "Description $id";
+        $roworcolumn->description = [
+            'text' => 'Description '.$id,
+            'format' => FORMAT_HTML
+        ];
         if ($row) {
-            $roworcolumn->feedback = "Feedback $id";
+            $roworcolumn->feedback = [
+                'text' => 'Feedback '.$id,
+                'format' => FORMAT_HTML
+            ];
         }
         return $roworcolumn;
     }
@@ -317,4 +487,5 @@ class qtype_matrix_test_helper extends question_test_helper {
         $question = test_question_maker::make_question('matrix', $type);
         return $question;
     }
+
 }
