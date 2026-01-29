@@ -19,13 +19,14 @@
  *
  */
 use qtype_matrix\local\qtype_matrix_grading;
-use qtype_matrix\local\question_cleaner;
-use qtype_matrix\local\question_matrix_store;
+use qtype_matrix\db\question_matrix_store;
 
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
-require_once($CFG->libdir . '/questionlib.php');
+
+require_once $CFG->libdir . '/questionlib.php';
+require_once $CFG->dirroot . '/question/type/matrix/question.php';
 
 /**
  * The matrix question class
@@ -33,6 +34,35 @@ require_once($CFG->libdir . '/questionlib.php');
  * Pretty simple concept - a matrix with a number of different grading methods and options.
  */
 class qtype_matrix extends question_type {
+
+    public const DEFAULT_USEDNDUI = false;
+
+    public const DEFAULT_MULTIPLE = false;
+
+    public const DEFAULT_SHUFFLEANSWERS = true;
+
+    public static function clean_data($questiondata, bool $useoptions = false) {
+        $datasource = $questiondata;
+        if ($useoptions) {
+            $questiondata->options ??= new stdClass();
+            $datasource = $questiondata->options;
+        }
+
+        if (
+            !isset($datasource->grademethod)
+            || !is_string($datasource->grademethod)
+            || !in_array($datasource->grademethod, qtype_matrix_grading::VALID_GRADINGS)
+        ) {
+            $datasource->grademethod = qtype_matrix_grading::default_grading()->get_name();
+        }
+        $datasource->multiple = (bool)($datasource->multiple ?? self::DEFAULT_MULTIPLE);
+        $datasource->shuffleanswers = (bool)($datasource->shuffleanswers ?? self::DEFAULT_SHUFFLEANSWERS);
+        $datasource->usedndui = (bool)($datasource->usedndui ?? self::DEFAULT_USEDNDUI);
+        $datasource->rows ??= [];
+        $datasource->cols ??= [];
+        $datasource->weights ??= [[]];
+        return $questiondata;
+    }
 
     /**
      * @return qtype_matrix_grading[]
@@ -52,7 +82,7 @@ class qtype_matrix extends question_type {
      * @return boolean to indicate success of failure.
      * @throws dml_exception
      */
-    public function delete_question_options(int $questionid): bool {
+    private function delete_question_options(int $questionid): bool {
         if (empty($questionid)) {
             return false;
         }
@@ -91,7 +121,7 @@ class qtype_matrix extends question_type {
      */
     public function get_question_options($questiondata): bool {
         parent::get_question_options($questiondata);
-        $questiondata = question_cleaner::clean_data($questiondata, true);
+        $questiondata = self::clean_data($questiondata, true);
 
         $matrix = self::retrieve_matrix($questiondata->id);
         $questiondata->options->rows = $matrix->rows ?? [];
@@ -175,7 +205,7 @@ class qtype_matrix extends question_type {
     /**
      * Saves question-type specific options.
      * This is called by {@link save_question()} to save the question-type specific data.
-     *
+     * This is always called after a new question has been created and saved
      * @param object $fromform This holds the information from the editing form, it is not a standard question object.
      * @return object $result->error or $result->noticeyesno or $result->notice
      * @throws dml_exception
@@ -215,7 +245,7 @@ class qtype_matrix extends question_type {
 
         foreach ($rowids as $rowindex => $rowid) {
             foreach ($colids as $colindex => $colid) {
-                $value = $weights[$rowindex][$colindex];
+                $value = $weights[$rowindex][$colindex] ?? false;
                 if ($value) {
                     $weight = (object) [
                         'rowid' => $rowid,
@@ -258,8 +288,8 @@ class qtype_matrix extends question_type {
     public function to_weight_matrix(object $fromform, bool $frommultiple): array {
         // FIXME: Tests show that you even if it looks like there can only be a 20x20 matrix max, in single mode you could create out-of-bounds references.
         //        Even that is inconsistent currently, as you can reference too large colindices but not have too many rows
-        // TODO: Should there a be a global limit for rows/cols? I don't think it's enforced consistently yet
-        // TODO: Do we even need a matrix with 0 value padding? Or just one with all values at the right spot?
+        // TODO: Should there a be a global limit for rows/cols? I don't think it's enforced consistently yet.
+        // TODO: Do we even need a matrix with 0 value padding in code? Or just a sparse matrix?
         $matrix = array_fill(
             0,
             20,
@@ -269,14 +299,14 @@ class qtype_matrix extends question_type {
         foreach ($matrix as $rowindex => $row) {
             foreach ($row as $colindex => $initialvalue) {
                 // Reminder: The cell name only uses rowindex if we're not allowing multiple correct answers
-                $key = qtype_matrix_grading::cell_name($rowindex, $colindex, $frommultiple);
-                if (isset($fromform->{$key})) {
+                $formfieldname = qtype_matrix_question::formfield_name($rowindex, $colindex, $frommultiple);
+                if (isset($fromform->{$formfieldname})) {
                     if (!$frommultiple) {
                         // Only one column can be correct, so ensure that we don't continue after we find it
-                        $correctcolindex = $fromform->{$key};
+                        $correctcolindex = $fromform->{$formfieldname};
                         $matrix[$rowindex][$correctcolindex] = 1;
                         break;
-                    } else if ($fromform->{$key}) {
+                    } else if ($fromform->{$formfieldname}) {
                         $matrix[$rowindex][$colindex] = 1;
                     }
                 }
@@ -302,27 +332,6 @@ class qtype_matrix extends question_type {
         return true;
     }
 
-    /**
-     * This method should be overriden if you want to include a special heading or some other
-     * html on a question editing page besides the question editing form.
-     *
-     * @param question_edit_form $mform     a child of question_edit_form
-     * @param object             $question
-     * @param string             $wizardnow is '' for first page.
-     */
-    public function display_question_editing_page($mform, $question, $wizardnow): void {
-        global $OUTPUT;
-        $heading = $this->get_heading(empty($question->id));
-
-        // FIXME: The string is always present, this function doesn't need to be overwritten
-        if (get_string_manager()->string_exists('pluginname_help', $this->plugin_name())) {
-            echo $OUTPUT->heading_with_help($heading, 'pluginname', $this->plugin_name());
-        } else {
-            echo $OUTPUT->heading_with_help($heading, $this->name(), $this->plugin_name());
-        }
-        $mform->display();
-    }
-
     public function name(): string {
         return 'matrix';
     }
@@ -343,7 +352,6 @@ class qtype_matrix extends question_type {
      */
     public function import_from_xml($data, $fromform, qformat_xml $format, $extra = null) {
         // TODO: Can't yet use parent::import_from_xml() because of MDL-87330
-        // TODO: Should this function allow bad data to be imported?
         // $fromform = parent::import_from_xml($data, $fromform, $format, $extra);
         if (!isset($data['@']['type']) || $data['@']['type'] != 'matrix') {
             return false;
@@ -359,115 +367,105 @@ class qtype_matrix extends question_type {
             ['#', 'grademethod', 0, '#'],
             self::default_grading()->get_name()
         );
+        if (!in_array($fromform->grademethod, qtype_matrix_grading::VALID_GRADINGS)) {
+            $fromform->grademethod = qtype_matrix_grading::default_grading()->get_name();
+        }
 
         // Multiple.
         $fromform->multiple = (bool) $format->trans_single($format->getpath(
             $data,
             ['#', 'multiple', 0, '#'],
-            question_cleaner::DEFAULT_MULTIPLE)
+            self::DEFAULT_MULTIPLE)
         );
 
         // Shuffleanswers.
         $fromform->shuffleanswers = (bool) $format->trans_single($format->getpath(
             $data,
             ['#', 'shuffleanswers', 0, '#'],
-            question_cleaner::DEFAULT_SHUFFLEANSWERS)
+            self::DEFAULT_SHUFFLEANSWERS)
         );
 
         // Use_dnd_ui.
+        // FIXME: Do we still need this or can we just drop it?
+        $olddnduivalue = (bool) $format->trans_single($format->getpath(
+            $data,
+            ['#', 'use_dnd_ui', 0, '#'],
+            self::DEFAULT_USEDNDUI)
+        );
         $fromform->usedndui = (bool) $format->trans_single($format->getpath(
             $data,
             ['#', 'usedndui', 0, '#'],
-            question_cleaner::DEFAULT_USEDNDUI)
+            $olddnduivalue)
         );
-        // Todo: check if we translated this corrent!
-        // TODO: Will we need a "old export" workaround for the old use_dnd_ui option name?
 
         // Rows.
-        // FIXME: Testing revealed this is unnecessary here
-        $fromform->rows = [];
         $fromform->rows_shorttext = [];
         $fromform->rows_description = [];
         $fromform->rows_feedback = [];
-        // FIXME: Testing revealed this is unnecessary here
-        $fromform->rowid = [];
         $index = 0;
         $rowsxml = $data['#']['row'];
 
         foreach ($rowsxml as $rowxml) {
+            // FIXME: Should an empty text for shorttext be OK?
             $fromform->rows_shorttext[$index] = $format->getpath($rowxml, ['#', 'shorttext', 0, '#'], '');
-            // TODO: Isn't there a function for both text and format?
             $fromform->rows_description[$index] = [
                 'text' => $format->getpath($rowxml, ['#', 'description', 0, '#', 'text', 0, '#'], ''),
                 'format' => $format->trans_format(
-                    $format->getpath($rowxml, ['#', 'description', 0, '@', 'format'], 'html')
+                    $format->getpath(
+                        $rowxml, ['#', 'description', 0, '@', 'format'], $format->get_format(FORMAT_HTML)
+                    )
                 )
             ];
-
             $fromform->rows_feedback[$index] = [
                 'text' => $format->getpath($rowxml, ['#', 'feedback', 0, '#', 'text', 0, '#'], ''),
                 'format' => $format->trans_format(
-                    $format->getpath($rowxml, ['#', 'feedback', 0, '@', 'format'], 'html')
+                    $format->getpath(
+                        $rowxml, ['#', 'feedback', 0, '@', 'format'], $format->get_format(FORMAT_HTML)
+                    )
                 )
             ];
-            $fromform->rowid[$index] = false;
             $index++;
         }
 
         // Cols.
-        // FIXME: Testing revealed this is unnecessary here
-        $fromform->cols = [];
         $fromform->cols_shorttext = [];
         $fromform->cols_description = [];
-        // FIXME: Testing revealed this is unnecessary here
-        $fromform->colid = [];
         $index = 0;
         $colsxml = $data['#']['col'];
 
         foreach ($colsxml as $colxml) {
+            // FIXME: Should an empty text for shorttext be OK?
             $fromform->cols_shorttext[$index] = $format->getpath($colxml, ['#', 'shorttext', 0, '#'], '');
             $fromform->cols_description[$index] = [
                 'text' => $format->getpath($colxml, ['#', 'description', 0, '#', 'text', 0, '#'], ''),
                 'format' => $format->trans_format(
-                    $format->getpath($colxml, ['#', 'description', 0, '@', 'format'], 'html')
+                    $format->getpath(
+                        $colxml, ['#', 'description', 0, '@', 'format'], $format->get_format(FORMAT_HTML)
+                    )
                 )
             ];
-            $fromform->colid[$index] = false;
             $index++;
         }
 
         // Weights.
         $fromform->weights = [];
         $weightsofrowsxml = $data['#']['weights-of-row'];
-        $rowindex = 0;
 
-        // FIXME: This looks like it can be refactored to be smaller
-        // FIXME: No need to set $fromform keys to 0, those aren't saved anyway
-        // FIXME: The exporter creates elements with value 0, unnecessary as they are ignored here
-        // FIXME: Maybe add an export version so that we can abort early if we change the export/import result?
-        if ($fromform->multiple) {
-            foreach ($weightsofrowsxml as $weightsofrowxml) {
-                $colindex = 0;
-                foreach ($weightsofrowxml['#']['weight-of-col'] as $weightofcolxml) {
-                    $key = qtype_matrix_grading::cell_name($rowindex, $colindex, $fromform->multiple);
-                    $fromform->{$key} = floatval($weightofcolxml['#']);
-                    $colindex++;
-                }
-                $rowindex++;
-            }
-        } else {
-            // FIXME: The exporter doesn't export the indices but just 1/0 which must be transformed here, unnecessary
-            foreach ($weightsofrowsxml as $weightsofrowxml) {
-                $colindex = 0;
-                foreach ($weightsofrowxml['#']['weight-of-col'] as $weightofcolxml) {
-                    if (floatval($weightofcolxml['#']) != 0) {
-                        $key = qtype_matrix_grading::cell_name($rowindex, $colindex, $fromform->multiple);
-                        $fromform->{$key} = $colindex;
+        $rowindex = 0;
+        foreach ($weightsofrowsxml as $weightsofrowxml) {
+            $colindex = 0;
+            foreach ($weightsofrowxml['#']['weight-of-col'] as $weightofcolxml) {
+                $weight = floatval($weightofcolxml['#']);
+                if ($weight) {
+                    $formfieldname = qtype_matrix_question::formfield_name($rowindex, $colindex, $fromform->multiple);
+                    $fromform->{$formfieldname} = $fromform->multiple ? $weight : $colindex;
+                    if (!$fromform->multiple) {
+                        break;
                     }
-                    $colindex++;
                 }
-                $rowindex++;
+                $colindex++;
             }
+            $rowindex++;
         }
 
         return $fromform;
@@ -483,8 +481,6 @@ class qtype_matrix extends question_type {
      * @return string
      */
     public function export_to_xml($questiondata, qformat_xml $format, $extra = null): string {
-        // FIXME: indenting is wrong in exported XML, see test fixture for export_to_xml test
-        // FIXME: Exporting IDs is unnecessary, export indices
         // This is necessary so we don't have "false" values translated to empty tags
         foreach ($questiondata->options as $key => $value) {
             if ($value === false) {
@@ -492,39 +488,44 @@ class qtype_matrix extends question_type {
             }
         }
         $output = parent::export_to_xml($questiondata, $format, $extra);
-
         // Rows.
-        foreach ($questiondata->options->rows as $rowid => $row) {
-            $output .= "<!--row: " . $rowid . "-->\n";
+        $rowindex = 0;
+        foreach ($questiondata->options->rows as $row) {
+            $output .= "<!--row: " . $rowindex . "-->\n";
             $output .= "    <row>\n";
             $output .= "        <shorttext>" . $row->shorttext . "</shorttext>\n";
             $output .= "        <description {$format->format($row->description['format'])}>\n";
-            $output .= $format->writetext($row->description['text'], 3);
+            $output .= $format->writetext($row->description['text'], 6);
             $output .= "        </description>\n";
             $output .= "        <feedback {$format->format($row->feedback['format'])}>\n";
-            $output .= $format->writetext($row->feedback['text'], 3);
+            $output .= $format->writetext($row->feedback['text'], 6);
             $output .= "        </feedback>\n";
             $output .= "    </row>\n";
+            $rowindex++;
         }
 
         // Cols.
-        foreach ($questiondata->options->cols as $colid => $col) {
-            $output .= "<!--col: " . $colid . "-->\n";
+        $colindex = 0;
+        foreach ($questiondata->options->cols as $col) {
+            $output .= "<!--col: " . $colindex . "-->\n";
             $output .= "    <col>\n";
             $output .= "        <shorttext>" . $col->shorttext . "</shorttext>\n";
             $output .= "        <description {$format->format($col->description['format'])}>\n";
-            $output .= $format->writetext($col->description['text'], 3);
+            $output .= $format->writetext($col->description['text'], 6);
             $output .= "        </description>\n";
             $output .= "    </col>\n";
+            $colindex++;
         }
 
         // Weights.
         foreach ($questiondata->options->weights as $rowid => $weightsofrow) {
-            $output .= "<!--weights of row: " . $rowid . "-->\n";
+            $rowindex = array_search($rowid, array_keys($questiondata->options->rows));
+            $output .= "<!--weights of row: " . $rowindex . "-->\n";
             $output .= "    <weights-of-row>\n";
             foreach ($weightsofrow as $colid => $weightofcol) {
-                $output .= "<!--weight of col: " . $colid . "-->\n";
-                $output .= "    <weight-of-col>" . $weightofcol . "</weight-of-col>\n";
+                $colindex = array_search($colid, array_keys($questiondata->options->cols));
+                $output .= "<!--weight of col: " . $colindex . "-->\n";
+                $output .= "        <weight-of-col>" . $weightofcol . "</weight-of-col>\n";
             }
             $output .= "    </weights-of-row>\n";
         }
@@ -552,6 +553,7 @@ class qtype_matrix extends question_type {
      * @return array
      */
     public function get_possible_responses($questiondata) {
+        /** @var qtype_matrix_question $question */
         $question = $this->make_question($questiondata);
         $weights = $question->weights;
         $parts = [];

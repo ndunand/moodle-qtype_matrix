@@ -49,100 +49,83 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
     protected $order = null;
 
     /**
-     * The user's response of cell at $row, $col. That is if the cell is checked or not.
+     * The user's response of for the cell at $rowindex, $colindex. That is if the cell is checked or not.
      * If the user didn't make an answer at all (no response) the method returns false.
      *
      * @param array $response object containing the raw answer data
-     * @param mixed $row      matrix row, either an id or an object
-     * @param mixed $col      matrix col, either an id or an object
+     * @param int $rowindex matrix row index
+     * @param int $colindex matrix col index
      *
-     * @return boolean True if the cell($row, $col) was checked by the user. False otherwise.
+     * @return bool True if the cell at $rowindex, $colindex was checked by the user. False otherwise.
      */
-    public function response(array $response, $row, $col): bool {
-        // A student may respond with a question with the multiple answer turned on.
-        // Later the teacher may turn that flag off. The result is that the question
-        // and response formats won't match.
-        //
-        // To fix that problem we don't use the question->multiple flag but instead we
-        // use the user's response to detect the correct value.
-        //
-        // Note
-        // A part of the problems come from the fact that we use two representation formats
-        // depending on the multiple flags. The cause is the html matrix representation
-        // that requires two differents views (checkboxes or radio). This representation
-        // then leaks to memory.
-        //
-        // A better strategy would be to use only one normalized representation in memory.
-        // The same way we have only one representation in the DB. For that we
-        // would need to transform the html form data after the post.
-        // Not sure if we can do it.
-        // FIXME: Unsure here, IMHO a question which changes the multiple option should normally not be regradable.
-        //        If you change from single to multiple, you prevent the student from being able to mark the other answers as correct
-        //        If you change from multiple to single, you change the context of the question and maybe the student would have chosen otherwise
-        //        So if changing the option is not regradable, the response format couldn't change between question versions
-        $responsemultiple = $this->multiple;
-        foreach ($response as $key => $value) {
-            $responsemultiple = (strpos($key, '_') !== false);
-            break;
-        }
-
-        $key = $this->key($row, $col, $responsemultiple);
-        $value = $response[$key] ?? false;
-        if ($value === false) {
-            return false;
-        }
-
-        if ($responsemultiple) {
-            return !empty($value);
-        }
-
-        return $value == $col->id;
+    public function response(array $response, int $rowindex, int $colindex):bool {
+        $key = $this::responsekey($rowindex, $colindex);
+        return $response[$key] ?? false;
     }
 
     /**
+     * Returns the response key for a given row and col index.
+     * Should be a valid php and html identifier.
      *
-     * @param mixed        $row
-     * @param mixed        $col
-     * @param boolean|null $multiple
+     * @param int  $rowindex Relative row index number
+     * @param int  $colindex Relative col index number
+     *
      * @return string
      */
-    public function key($row, $col, bool $multiple = null): string {
-        $rowid = is_object($row) ? $row->id : $row;
-        $colid = is_object($col) ? $col->id : $col;
-        $multiple = (is_null($multiple)) ? $this->multiple : $multiple;
-        return qtype_matrix_grading::cell_name($rowid, $colid, $multiple);
+    public static function responsekey(int $rowindex, int $colindex): string {
+        return 'row'.$rowindex.'col'.$colindex;
     }
 
     /**
-     * Returns the expected answer for the cell at $row, $col.
      *
-     * @param integer|object $row
-     * @param integer|object $col
-     *
-     * @return boolean  True if cell($row, $col) is correct, false otherwise.
+     * @param int $rowindex The row index to generate the key for
+     * @param int $colindex The col index to generate the key for
+     * @return string
      */
-    public function answer($row = null, $col = null): bool {
-        return $this->weight($row, $col) > 0;
+    public function formfieldname(int $rowindex, int $colindex = -1): string {
+        return self::formfield_name($rowindex, $colindex, $this->multiple);
+    }
+
+    /**
+     * Returns the new style form field name.
+     * Should be a valid php and html identifier.
+     *
+     * @param int  $rowindex Relative row index number
+     * @param int  $colindex Relative col index number
+     * @param bool $multiple one answer per row or several
+     *
+     * @return string
+     */
+    public static function formfield_name(int $rowindex, int $colindex, bool $multiple): string {
+        $cellname = 'r'.$rowindex;
+        if ($multiple) {
+            $cellname .= 'c'.$colindex;
+        }
+        return $cellname;
+    }
+
+    /**
+     * Returns the expected answer for the cell at $rowid, $colid.
+     *
+     * @param int $rowid
+     * @param int $colid
+     *
+     * @return boolean  True if cell($rowid, $colid) is correct, false otherwise.
+     */
+    public function answer(int $rowindex, int $colindex): bool {
+        $rowid = $this->order[$rowindex];
+        $colid = array_keys($this->cols)[$colindex];
+        return $this->weight($rowid, $colid) > 0;
     }
 
     /**
      *
-     * @param mixed $row
-     * @param mixed $col
+     * @param int $rowid
+     * @param int $colid
      * @return float
      */
-    public function weight($row = null, $col = null): float {
-        // Todo: What the heck is this? It is used in two ways? Better Split it up then!
-        // FIXME: We should just remove this part (I've searched for the 'x' but it doesn't feature anywhere)
-        if (is_string($row) && is_null($col)) {
-            $key = str_replace('cell', $col, $row);
-            [$rowid, $colid] = explode('x', $key);
-        } else {
-            $rowid = is_object($row) ? $row->id : $row;
-            $colid = is_object($col) ? $col->id : $col;
-        }
-        // FIXME: This expects $this->weights to always have a value, better do ?? 0
-        return (float) $this->weights[$rowid][$colid];
+    public function weight(int $rowid, int $colid):float {
+        return (float) $this->weights[$rowid][$colid] ?? 0;
     }
 
     /**
@@ -168,12 +151,11 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      * @throws dml_exception
      */
     public function start_attempt(question_attempt_step $step, $variant): void {
-        global $PAGE;
         $this->order = array_keys($this->rows);
         if ($this->shuffle_answers()) {
             shuffle($this->order);
         }
-        $this->write_data($step);
+        $this->write_order_data($step);
     }
 
     /**
@@ -200,7 +182,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      * @global object $DB   Database object
      * @global object $PAGE Page object
      */
-    public function shuffle_authorized(): bool {
+    private function shuffle_authorized(): bool {
         global $DB, $PAGE;
         $cm = $PAGE->cm;
         if (!is_object($cm)) {
@@ -222,7 +204,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      * @return void
      * @throws coding_exception
      */
-    protected function write_data(question_attempt_step $step): void {
+    protected function write_order_data(question_attempt_step $step): void {
         $step->set_qt_var(self::KEY_ROWS_ORDER, implode(',', $this->order));
     }
 
@@ -266,7 +248,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
             if ($this->shuffle_answers()) {
                 shuffle($this->order);
             }
-            $this->write_data($step); // Todo: Does this solves https://github.com/ndunand/moodle-qtype_matrix/issues/31 ?
+            $this->write_order_data($step);
         }
     }
 
@@ -275,7 +257,6 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      * @return array
      * @throws coding_exception
      */
-    // FIXME: Should be callable with null to just try to return the current order
     public function get_order(question_attempt $qa): array {
         $this->init_order($qa);
         return $this->order;
@@ -291,6 +272,98 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
             return;
         }
         $this->order = explode(',', $qa->get_step(0)->get_qt_var(self::KEY_ROWS_ORDER));
+    }
+
+    /**
+     * Verify if an attempt at this question can be re-graded using the other question version.
+     *
+     * To put it another way, will {@see update_attempt_state_data_for_new_version()} be able to work?
+     *
+     * It is expected that this relationship is symmetrical, so if you can regrade from V1 to V3, then
+     * you can change back from V3 to V1 (qtype_matrix is not symmetrical)
+     *
+     * @param question_definition $otherversion Some older different version of the question to use in the regrade.
+     * @return string|null null if the regrade can proceed, else a reason why not.
+     */
+    public function validate_can_regrade_with_other_version(question_definition $otherversion): ?string {
+        $basemessage = parent::validate_can_regrade_with_other_version($otherversion);
+        if ($basemessage) {
+            return $basemessage;
+        }
+        /** @var qtype_matrix_question $oldmatrixversion */
+        $oldmatrixversion = $otherversion;
+
+        // FIXME: Because of question versioning, a mechanism is missing
+        //        where if a new version has the same nr of rows
+        //        (by e.g. deleting the first and then creating a new row)
+        //        it will be seen as regradable but shouldn't
+        //        (because the response is now mismatched)
+        if (count($this->rows) != count($oldmatrixversion->rows)) {
+            return get_string('regrade_different_nr_rows', 'qtype_matrix');
+        }
+        if (count($this->cols) != count($oldmatrixversion->cols)) {
+            return get_string('regrade_different_nr_cols', 'qtype_matrix');
+        }
+
+        // FIXME: This would currently prevent a workflow where we change from single to multiple
+        //        and mark all columns as correct to remove all points for all participants
+        //        to then give everyone the same bonus point.
+        // TODO: This probably must be activated because going from multiple to single and a user that checked all, his answer is now always correct
+//        if ($oldmatrixversion->multiple != $this->multiple) {
+//            $thisrows = array_keys($this->rows);
+//            $otherrows = array_keys($otherversion->rows);
+//            foreach ($thisrows as $rowindex => $rowid) {
+//                $otherrowid = $otherrows[$rowindex];
+//                if ($this->count_correct_answers($rowid) > 1 || $otherversion->count_correct_answers($otherrowid) > 1) {
+//                    return get_string('regrade_switching_multiple_too_many_correct', 'qtype_matrix');
+//                }
+//            }
+//        }
+
+        return null;
+    }
+
+    /**
+     * Counts the nr of answers defined as correct for a matrix row.
+     * @param $rowid - the database ID of the row to count for
+     * @return int - the nr of answers defined as correct
+     */
+    public function count_correct_answers($rowid): int {
+        $nrcorrectanswers = 0;
+        foreach ($this->cols as $colid => $col) {
+            if ($this->weight($rowid, $colid) > 0) {
+                $nrcorrectanswers++;
+            }
+        }
+        return $nrcorrectanswers;
+    }
+
+    /**
+     * During regrading a quiz attempt that perhaps always uses the latest version,
+     * it may happen that a quiz question received a new version.
+     * Moodle checks if the new question version is sufficiently similar to the old version
+     * that regrades are possible (which the questiontype decides).
+     * If it is allowed, the attempt data must be adapted to the new question version,
+     * which this function does.
+     *
+     * @param question_attempt_step $oldstep the first step of a {@see question_attempt} at $oldquestion.
+     * @param qtype_matrix_question $oldquestion the previous version of the question, which $oldstate comes from.
+     * @return array the submit data which can be passed to {@see apply_attempt_state} to start
+     *     an attempt at this version of this question, corresponding to the attempt at the old question.
+     * @throws coding_exception if this can't be done.
+     */
+    public function update_attempt_state_data_for_new_version(
+        question_attempt_step $oldstep, question_definition $oldquestion) {
+        $newattemptdata = parent::update_attempt_state_data_for_new_version($oldstep, $oldquestion);
+        // Map the possibly shuffled old rows to the new question version's rows
+        $oldroworder = explode(',', $newattemptdata[self::KEY_ROWS_ORDER]);
+        $oldnewrowmapping = array_combine(array_keys($oldquestion->rows), array_keys($this->rows));
+        $newroworder = [];
+        foreach ($oldroworder as $oldrowid) {
+            $newroworder[] = $oldnewrowmapping[$oldrowid];
+        }
+        $newattemptdata[self::KEY_ROWS_ORDER] = implode(',', $newroworder);
+        return $newattemptdata;
     }
 
     /**
@@ -329,7 +402,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      * @return array (number, integer) the fraction, and the state.
      */
     public function grade_response(array $response): array {
-        $grade = $this->grading()->grade_question($this, $response);
+        $grade = $this->grading()->grade_question($this, $this->order, $response);
         $state = question_state::graded_state_for_fraction($grade);
         return [$grade, $state];
     }
@@ -338,7 +411,6 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      *
      * @return qtype_matrix_grading
      */
-    // FIXME: Maybe unnecessary? Because we already have qtype_matrix_grading::grading()
     public function grading(): qtype_matrix_grading {
         return qtype_matrix::grading($this->grademethod);
     }
@@ -356,27 +428,12 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
         if ($this->multiple) {
             return true;
         }
-        $count = 0;
-        foreach ($this->rows as $row) {
-            $key = $this->key($row, 0);
-            if (isset($response[$key])) {
-                $count++;
-            }
-        }
+        $nransweredrows = count($response);
 
-        // Always return false when not at least one row is answered, since this is not considered partial.
-        if ($count == 0) {
+        if ($nransweredrows == 0) {
             return false;
         }
-        // We know that the count is unequal to 0, so we only need to check if its complete and if we have not a partial type.
-        if ($count != count($this->rows)) {
-            return false;
-        }
-        return true;
-    }
-
-    public function is_question_partial_gradable(): bool {
-        return $this->grademethod == 'all' || $this->grademethod == 'difference';
+        return ($nransweredrows == count($this->rows));
     }
 
     /**
@@ -395,23 +452,6 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
     }
 
     /**
-     * Get the number of selected options
-     *
-     * @param array $response responses, as returned by
-     *                        {@see question_attempt_step::get_qt_data()}.
-     * @return int the number of choices that were selected. in this response.
-     */
-    public function get_num_selected_choices(array $response): int {
-        $numselected = 0;
-        foreach ($response as $key => $value) {
-            if (!empty($value) && $key[0] != '_') {
-                $numselected += 1;
-            }
-        }
-        return $numselected;
-    }
-
-    /**
      * Use by many of the behaviours to determine whether the student
      * has provided enough of an answer for the question to be graded automatically,
      * or whether it must be considered aborted.
@@ -421,23 +461,7 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      * @return bool whether this response can be graded.
      */
     public function is_gradable_response(array $response): bool {
-        if ($this->is_question_partial_gradable()) {
-            if ($this->get_num_selected_choices($response) > 0) {
-                return true;
-            } else {
-                return false;
-            }
-        } else {
-            foreach ($this->rows as $row) {
-                foreach ($this->cols as $col) {
-                    $key = $this->key($row, $col);
-                    if (!empty($response[$key])) {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
+        return (count($response) > 0);
     }
 
     /**
@@ -448,17 +472,16 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      */
     public function summarise_response(array $response): string {
         $result = [];
-        foreach ($this->order ?? array_keys($this->rows) as $rowid) {
+        $colids = array_keys($this->cols);
+        foreach ($this->order as $rowindex => $rowid) {
             $row = $this->rows[$rowid];
-            foreach ($this->cols as $col) {
-                $key = $this->key($row, $col);
-                $value = $response[$key] ?? false;
-                if ($value === $col->id || $value === true) {
-                    $result[] = "$row->shorttext: $col->shorttext";
+            foreach ($colids as $colindex => $colid) {
+                if ($this->response($response, $rowindex, $colindex)) {
+                    $result[] = $row->shorttext.': '.$this->cols[$colid]->shorttext;
                 }
             }
         }
-        return implode("; ", $result);
+        return implode('; ', $result);
     }
 
     /**
@@ -497,19 +520,20 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      * @return array parameter name => value.
      */
     public function get_correct_response(): array {
-        $result = [];
-        foreach ($this->order ?? array_keys($this->rows) as $rowid) {
-            $row = $this->rows[$rowid];
-            foreach ($this->cols as $col) {
-                $weight = $this->weight($row, $col);
-                $key = $this->key($row, $col);
-                if ($weight > 0) {
-                    $result[$key] = $this->multiple ? true : $col->id;
+        $response = [];
+        $colids = array_keys($this->cols);
+        foreach ($this->order as $rowindex => $rowid) {
+            foreach ($colids as $colindex => $colid) {
+                if ($this->weight($rowid, $colid) > 0) {
+                    $key = $this::responsekey($rowindex, $colindex);
+                    $response[$key] = true;
+                    if (!$this->multiple) {
+                        break;
+                    }
                 }
             }
         }
-
-        return $result;
+        return $response;
     }
 
     /**
@@ -524,43 +548,14 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
      *      meaning take all the raw submitted data belonging to this question.
      */
     public function get_expected_data(): array {
-        $result = [];
-        $cells = $this->cells();
-        foreach ($cells as $key => $weight) {
-            $result[$key] = $this->multiple ? PARAM_BOOL : PARAM_INT;
-        }
-        return $result;
-    }
-
-    /**
-     * Returns an array where keys are the weights' cell names and the values
-     * are the weights
-     *
-     * @return array
-     */
-    public function cells(): array {
-        // FIXME: This doesn't work for single, because only the last column's weight is stored for the row
-        // FIXME: The weights aren't even necessary, because the one function using this doesn't use the weights
-        //        Only the stored keys are important
-        // FIXME: Needs order to have been initialized
-        $result = [];
-        foreach ($this->order as $rowid) {
-            $row = $this->rows[$rowid];
-            foreach ($this->cols as $col) {
-                $result[$this->key($row, $col)] = $this->weight($row, $col);
+        $responsesignature = [];
+        foreach ($this->order as $rowindex => $rowid) {
+            foreach (array_keys($this->cols) as $colindex => $colid) {
+                $key = $this::responsekey($rowindex, $colindex);
+                $responsesignature[$key] = PARAM_BOOL;
             }
         }
-        return $result;
-    }
-
-    /**
-     * Returns the name field name for input cells in the questiondisplay.
-     * The column parameter is ignored for now since we don't use multiple answers.
-     * @param int $key
-     * @return string
-     */
-    public function field($key) {
-        return 'cell' . $key;
+        return $responsesignature;
     }
 
     /**
@@ -573,73 +568,50 @@ class qtype_matrix_question extends question_graded_automatically_with_countback
         // See which column numbers have been selected.
         $selectedcolumns = $this->get_selected_columns($response);
 
-        return $this->multiple ? $this->classify_multi_response($selectedcolumns) : $this->classify_simple_response($selectedcolumns);
-    }
-
-    protected function classify_multi_response($selectedcolumns) {
-        $parts = [];
+        $classifiedresponses = [];
+        $nrrows = count($this->rows);
         foreach ($this->rows as $rowid => $row) {
-            $subparts = [];
-            foreach ($this->cols as $colid => $col) {
-                if (isset($selectedcolumns['cell'.$rowid.'_'.$colid])) {
-                    $partialcredit = 0;
-                    if ($this->weights[$rowid][$colid] > 0) {
-                        $partialcredit = $this->grademethod == 'all' ? (1 / count($this->rows)) : 1;
-                    }
-                    $subparts[$colid] = new question_classified_response($colid, $col->shorttext, $partialcredit);
-                }
-            }
-
-            if (empty($subparts)) {
-                $parts[$rowid] = question_classified_response::no_response();
-            } else {
-                $parts[$rowid] = $subparts;
-            }
-        }
-        return $parts;
-    }
-
-    protected function classify_simple_response($selectedcolumns) {
-        $parts = [];
-        foreach ($this->rows as $rowid => $row) {
-
-            if (empty($selectedcolumns[$rowid])) {
-                $parts[$rowid] = question_classified_response::no_response();
+            $rowresponses = [];
+            if (!$selectedcolumns[$rowid]) {
+                $classifiedresponses[$rowid] = question_classified_response::no_response();
                 continue;
             }
-
-            // Find the chosen column by columnnumber.
-            $column = null;
-            foreach ($this->cols as $colid => $col) {
-                if ($colid == $selectedcolumns[$rowid]) {
-                    $column = $col;
+            foreach ($selectedcolumns[$rowid] as $colid) {
+                $partialcredit = 0;
+                if ($this->weights[$rowid][$colid] > 0) {
+                    $partialcredit = $this->grademethod == 'all' ? (1 / $nrrows) : 1;
+                }
+                $column = $this->cols[$colid];
+                $classifiedresponse = new question_classified_response($colid, $column->shorttext, $partialcredit);
+                if ($this->multiple) {
+                    $rowresponses[$colid] = $classifiedresponse;
+                } else {
+                    $classifiedresponses[$rowid] = $classifiedresponse;
                     break;
                 }
             }
-
-            $partialcredit = 0;
-
-            if ($this->weights[$rowid][$column->id] > 0) {
-                $partialcredit = $this->grademethod == 'all' ? (1 / count($this->rows)) : 1;
+            if ($this->multiple) {
+                $classifiedresponses[$rowid] = $rowresponses;
             }
-
-            $parts[$rowid] = new question_classified_response($column->id, $column->shorttext, $partialcredit);
         }
 
-        return $parts;
+        return $classifiedresponses;
     }
 
     protected function get_selected_columns(array $response): array {
         $selectedcolumns = [];
-        foreach ($this->order as $rowid) {
-            foreach ($this->cols as $colid => $col) {
-                $field = $this->multiple ? $this->key($rowid, $colid, true) : $this->field($rowid);
-                if (property_exists((object) $response, $field) && $response[$field]) {
-                    $selectedcolumns[$this->multiple ? $field : $rowid] = $this->multiple ? $colid : $response[$field];
+        foreach ($this->order as $rowindex => $rowid) {
+            $selectedcolumns[$rowid] = [];
+            $indicedcolids = array_keys($this->cols);
+            foreach ($indicedcolids as $colindex => $colid) {
+                if ($this->response($response, $rowindex, $colindex)) {
+                    $selectedcolumns[$rowid][] = $colid;
+                    if (!$this->multiple) {
+                        break;
+                    }
                 }
             }
         }
-
         return $selectedcolumns;
     }
 }

@@ -16,10 +16,15 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-use qtype_matrix\local\question_cleaner;
-
 global $CFG;
-require_once($CFG->dirroot . '/question/engine/bank.php');
+
+require_once $CFG->dirroot . '/question/engine/bank.php';
+require_once $CFG->dirroot . '/question/type/matrix/question.php';
+require_once $CFG->dirroot . '/question/type/matrix/questiontype.php';
+
+use qtype_matrix\db\question_matrix_store;
+use qtype_matrix\db\stepdata_migration_utils;
+use core\exception\moodle_exception;
 
 /**
  * restore plugin class that provides the necessary information
@@ -27,6 +32,8 @@ require_once($CFG->dirroot . '/question/engine/bank.php');
  *
  */
 class restore_qtype_matrix_plugin extends restore_qtype_plugin {
+
+    private $attemptorders = [];
 
     /**
      * Return the contents of this qtype to be processed by the links decoder
@@ -38,8 +45,6 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
         $result[] = new restore_decode_content('qtype_matrix_cols', $fields, 'qtype_matrix_cols');
         $fields = ['shorttext', 'description', 'feedback'];
         $result[] = new restore_decode_content('qtype_matrix_rows', $fields, 'qtype_matrix_rows');
-        $fields = ['rowid', 'colid', 'weight'];
-        $result[] = new restore_decode_content('qtype_matrix_weights', $fields, 'qtype_matrix_weights');
 
         return $result;
     }
@@ -55,8 +60,6 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
         global $DB;
         $data = (object) $data;
         $oldid = $data->id;
-
-        // Todo: check import of version moodle1 data.
 
         if ($this->is_question_created()) {
             $qtypeobj = question_bank::get_qtype($this->pluginname);
@@ -81,56 +84,31 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
     }
 
     /**
-     * Process the qtype/cols/col
-     *
-     * @param $data
-     * @return void
-     * @throws dml_exception
-     */
-    public function process_col($data): void {
-        global $DB;
-        $data = (object) $data;
-        $oldid = $data->id;
-
-        $oldmatrixid = $this->get_old_parentid('matrix');
-        $newmatrixid = $this->get_new_parentid('matrix');
-        if (!$newmatrixid) {
-            return;
-        }
-
-        if ($this->is_question_created()) {
-            $data->matrixid = $newmatrixid;
-            $newitemid = $DB->insert_record('qtype_matrix_cols', $data);
-        } else {
-            $originalrecords = $DB->get_records('qtype_matrix_cols', ['matrixid' => $newmatrixid]);
-            foreach ($originalrecords as $record) {
-                if ($data->shorttext == $record->shorttext) { // Todo: this looks dirty to me!
-                    $newitemid = $record->id;
-                }
-            }
-        }
-        if (!isset($newitemid)) {
-            $info = new stdClass();
-            $info->filequestionid = $oldmatrixid;
-            $info->dbquestionid = $newmatrixid;
-            $info->answer = $data->shorttext;
-            throw new restore_step_exception('error_question_answers_missing_in_db', $info);
-        } else {
-            $this->set_mapping('col', $oldid, $newitemid);
-        }
-    }
-
-    /**
-     * Process the qtype/rows/row element
+     * Process the qtype/rows/row element.
      *
      * @param $data
      * @return void
      * @throws dml_exception
      */
     public function process_row($data): void {
+        $this->process_dim($data, true);
+    }
+
+    /**
+     * Process the qtype/cols/col element.
+     *
+     * @param $data
+     * @return void
+     * @throws dml_exception
+     */
+    public function process_col($data): void {
+        $this->process_dim($data, false);
+    }
+
+    private function process_dim($backupdata, bool $isrow): void {
         global $DB;
-        $data = (object) $data;
-        $oldid = $data->id;
+        $backupdata = (object) $backupdata;
+        $oldid = $backupdata->id;
 
         $oldmatrixid = $this->get_old_parentid('matrix');
         $newmatrixid = $this->get_new_parentid('matrix');
@@ -138,13 +116,17 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
             return;
         }
 
+        $dim = $isrow ? 'row' : 'col';
+        $dimtable = $isrow ? 'qtype_matrix_rows' : 'qtype_matrix_cols';
+        $newitemid = 0;
         if ($this->is_question_created()) {
-            $data->matrixid = $newmatrixid;
-            $newitemid = $DB->insert_record('qtype_matrix_rows', $data);
+            $backupdata->matrixid = $newmatrixid;
+            $newitemid = $DB->insert_record($dimtable, $backupdata);
         } else {
-            $originalrecords = $DB->get_records('qtype_matrix_rows', ['matrixid' => $newmatrixid]);
+            // FIXME: It isn't ensured that 2 rows/cols don't have the same shorttext right now.
+            $originalrecords = $DB->get_records($dimtable, ['matrixid' => $newmatrixid]);
             foreach ($originalrecords as $record) {
-                if ($data->shorttext == $record->shorttext) { // Todo: this looks dirty to me!
+                if ($backupdata->shorttext == $record->shorttext) {
                     $newitemid = $record->id;
                 }
             }
@@ -153,10 +135,10 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
             $info = new stdClass();
             $info->filequestionid = $oldmatrixid;
             $info->dbquestionid = $newmatrixid;
-            $info->answer = $data->shorttext;
+            $info->answer = $backupdata->shorttext;
             throw new restore_step_exception('error_question_answers_missing_in_db', $info);
         } else {
-            $this->set_mapping('row', $oldid, $newitemid);
+            $this->set_mapping($dim, $oldid, $newitemid);
         }
     }
 
@@ -175,6 +157,8 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
         $key = $data->colid . 'x' . $data->rowid;
         $data->colid = $this->get_mappingid('col', $data->colid);
         $data->rowid = $this->get_mappingid('row', $data->rowid);
+        // This prevents bad data to arrive in the database. Currently the only useful weight values are 1 or 0.
+        $data->weight = (int) (bool) $data->weight;
         $newitemid = $DB->insert_record('qtype_matrix_weights', $data);
         $this->set_mapping('weight' . $key, $oldid, $newitemid);
     }
@@ -201,27 +185,62 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
         return serialize($result);
     }
 
+    /**
+     * Return a matrix store for database access.
+     * Exists mainly because unit tests work better with it.
+     * @return question_matrix_store
+     */
+    protected function get_matrix_store():question_matrix_store {
+        static $store = null;
+        if (!$store) {
+            $store = new question_matrix_store();
+        }
+        return $store;
+    }
+
     public function recode_response($questionid, $sequencenumber, array $response): array {
         $recodedresponse = [];
-        foreach ($response as $responsekey => $responseval) {
-            if ($responsekey == '_order') {
-                $recodedresponse['_order'] = $this->recode_choice_order($responseval);
-            } else if (substr($responsekey, 0, 4) == 'cell') {
-                $responsekeynocell = substr($responsekey, 4);
-                $responsekeyids = explode('_', $responsekeynocell);
-                $newrowid = $this->get_mappingid('row', $responsekeyids[0]);
-                $newcolid = $this->get_mappingid('col', $responseval) ?? false;
-                if (count($responsekeyids) == 1) {
-                    $recodedresponse['cell' . $newrowid] = $newcolid;
-                } else if (count($responsekeyids) == 2) {
-                    $recodedresponse['cell' . $newrowid . '_' . $newcolid] = $newcolid;
-                } else {
-                    $recodedresponse[$responsekey] = $responseval;
-                }
+        $newattemptid = $this->get_new_parentid('question_attempt');
+
+        if ($sequencenumber == 0) {
+            if (isset($response[qtype_matrix_question::KEY_ROWS_ORDER])) {
+                $recodedresponse[qtype_matrix_question::KEY_ROWS_ORDER] =
+                    $this->recode_choice_order($response[qtype_matrix_question::KEY_ROWS_ORDER]);
+                $this->attemptorders[$newattemptid] = explode(',', $recodedresponse[qtype_matrix_question::KEY_ROWS_ORDER]);
             } else {
-                $recodedresponse[$responsekey] = $responseval;
+                throw new restore_step_exception('error_qtype_matrix_attempt_step_data_not_migratable');
+            }
+        } else {
+            $neworder = $this->attemptorders[$newattemptid] ?? [];
+            if (!$neworder) {
+                throw new restore_step_exception('error_qtype_matrix_attempt_step_data_not_migratable');
+            }
+            $store = $this->get_matrix_store();
+            $restoredmatrix = $store->get_matrix_by_question_id($questionid);
+            $restoredcols = $store->get_matrix_cols_by_matrix_id($restoredmatrix->id);
+            $restoredcolids = array_keys($restoredcols);
+            foreach ($response as $key => $value) {
+                if (str_contains($key, 'cell')) {
+                    $oldrowid = stepdata_migration_utils::extract_row_id($key);
+                    $newrowid = $this->get_mappingid('row', $oldrowid, 0);
+                    $newrowindex = array_search($newrowid, $neworder);
+                    $oldcolid = stepdata_migration_utils::extract_col_id($key, $value);
+                    $newcolid = $this->get_mappingid('col', $oldcolid, 0);
+                    $newcolindex = array_search($newcolid, $restoredcolids);
+                    // Either we can map a backup ID to new rows/cols of a new question or to an already existing question.
+                    // If we couldn't, then the row/col IDs from the attempt point to those of another earlier question version
+                    // This version may or may not be in the backup and thus may or may not have been restored yet.
+                    if ($newrowindex === false || $newcolindex === false) {
+                        throw new restore_step_exception('error_qtype_matrix_attempt_step_data_not_migratable');
+                    }
+                    $newname = qtype_matrix_question::responsekey($newrowindex, $newcolindex);
+                    $recodedresponse[$newname] = true;
+                } else {
+                    $recodedresponse[$key] = $value;
+                }
             }
         }
+
         return $recodedresponse;
     }
 
@@ -234,7 +253,7 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
     protected function recode_choice_order(string $order): string {
         $neworder = [];
         foreach (explode(',', $order) as $id) {
-            if ($newid = $this->get_mappingid('row', $id)) {
+            if ($newid = $this->get_mappingid('row', (int) $id)) {
                 $neworder[] = $newid;
             }
         }
@@ -275,10 +294,10 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
      */
     public static function convert_backup_to_questiondata(array $backupdata): stdClass {
         $questiondata = parent::convert_backup_to_questiondata($backupdata);
-        $questiondata = question_cleaner::clean_data($questiondata, true);
+        $questiondata = qtype_matrix::clean_data($questiondata, true);
         // Add the matrix-specific options.
         if (isset($backupdata['plugin_qtype_matrix_question']['matrix'][0])) {
-            $matrix = $backupdata['plugin_qtype_matrix_question']['matrix'][0];
+            $matrix = &$backupdata['plugin_qtype_matrix_question']['matrix'][0];
 
             // Process rows to correct format
             $rowids = [];
@@ -346,22 +365,6 @@ class restore_qtype_matrix_plugin extends restore_qtype_plugin {
         }
 
         return $questiondata;
-    }
-
-    /**
-     * Remove excluded fields from the questiondata structure. We use this function to remove the
-     * id and questionid fields for the weights, because they cannot be removed via the default
-     * mechanism due to the two-dimensional array. Once this is done, we call the parent function
-     * to remove the necessary fields.
-     *
-     * @param stdClass $questiondata
-     * @param array $excludefields Paths to the fields to exclude.
-     * @return stdClass The $questiondata with excluded fields removed.
-     */
-    public static function remove_excluded_question_data(stdClass $questiondata, array $excludefields = []): stdClass {
-        unset($questiondata->hints);
-
-        return parent::remove_excluded_question_data($questiondata, $excludefields);
     }
 
     #[\Override]
