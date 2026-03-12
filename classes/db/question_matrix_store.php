@@ -64,27 +64,32 @@ class question_matrix_store {
         }
 
         // Weights.
-        $DB->delete_records_select('qtype_matrix_weights',
-            'rowid IN (
-                      SELECT qmr.id FROM {qtype_matrix_rows} qmr
-                      INNER JOIN {qtype_matrix} qm ON qmr.matrixid = qm.id
-                      WHERE qm.questionid = :qid
-                      )',
-            ['qid' => $questionid]);
+        $DB->delete_records_subquery(
+                'qtype_matrix_weights',
+                'rowid',
+                'qmrid',
+                'SELECT qmr.id as qmrid FROM {qtype_matrix_rows} qmr 
+                INNER JOIN {qtype_matrix} qm ON qmr.matrixid = qm.id 
+                WHERE qm.questionid = :qid',
+                ['qid' => $questionid]);
 
         // Rows.
-        $DB->delete_records_select('qtype_matrix_rows',
-            'matrixid IN (
-                      SELECT qm.id FROM {qtype_matrix} qm
-                      WHERE qm.questionid = :qid)',
-            ['qid' => $questionid]);
+        $DB->delete_records_subquery(
+                'qtype_matrix_rows',
+                'matrixid',
+                'qmid',
+                'SELECT qm.id as qmid FROM {qtype_matrix} qm 
+                WHERE qm.questionid = :qid',
+                ['qid' => $questionid]);
 
         // Cols.
-        $DB->delete_records_select('qtype_matrix_cols',
-            'matrixid IN (
-                      SELECT qm.id FROM {qtype_matrix} qm
-                      WHERE qm.questionid = :qid)',
-            ['qid' => $questionid]);
+        $DB->delete_records_subquery(
+                'qtype_matrix_cols',
+                'matrixid',
+                'qmid',
+                'SELECT qm.id as qmid FROM {qtype_matrix} qm 
+                WHERE qm.questionid = :qid',
+                ['qid' => $questionid]);
 
         // The qtype_matrix record is automatically deleted by Moodle core
         return true;
