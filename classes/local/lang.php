@@ -31,7 +31,7 @@ class lang {
      * @return string
      * @throws coding_exception
      */
-    public static function get(string $identifier, object $a = null): string {
+    public static function get(string $identifier, ?object $a = null): string {
         return get_string($identifier, self::COMPONENT, $a);
     }
 
